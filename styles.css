@@ -919,40 +919,6 @@ select {
     font-size: 0.95rem;
 }
 /* ==========================================================================
-   โค้ดบังคับจัดหน้าสำหรับพิมพ์ PDF (แก้ปัญหาสีเพี้ยน / Dark Mode)
-   ========================================================================== */
-@media print {
-    /* บังคับให้พื้นหลังของทั้งหน้าเอกสารเป็นสีขาว และตัวอักษรสีดำ 100% */
-    html, body {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    /* หากมีกล่องข้อความหรือ Container หลัก ให้ล้างสีพื้นหลังออกเช่นกัน */
-    .container, .main-content, .form-container, .card {
-        background: #ffffff !important;
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        box-shadow: none !important;
-        border: none !important;
-    }
-
-    /* ล้างสีพื้นหลังของตาราง (ถ้าตารางกลายเป็นสีม่วงด้วย) */
-    table, th, td {
-        background-color: transparent !important;
-        color: #000000 !important;
-    }
-    
-    /* ส่วนหัวตารางหรือไฮไลท์ที่ต้องการให้คงสีไว้ (เช่น หัวตารางสีม่วงอ่อน/เทาอ่อน) ให้ระบุเฉพาะจุด */
-    th {
-        background-color: #f2f2f2 !important; /* เปลี่ยนเป็นสีเทาอ่อนเพื่อให้พิมพ์ประหยัดหมึก */
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-}
-/* ==========================================================================
    ระบบควบคุมตารางสำหรับหน้าจอมือถือ (ป้องกันคำขาดล้น)
    ========================================================================== */
 
@@ -1000,4 +966,99 @@ select {
     width: 100% !important;
     max-width: 100%;
     box-sizing: border-box;
+}
+/* ==========================================================================
+   แก้ไขปัญหา PRINT BACKGROUND (DARK MODE iOS) - อัปเดตล่าสุด
+   ========================================================================== */
+@media print {
+    /* บังคับเบราว์เซอร์ให้มองหน้าพิมพ์นี้เป็นโหมดสว่าง (Light Mode) เสมอ */
+    :root {
+        color-scheme: light !important;
+    }
+
+    html, body {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* บังคับซ่อนองค์ประกอบหน้าจอแอป และซ่อนพื้นหลังสีเข้มของ Print Container */
+    #app-container, .app-header, .form-container, .modal {
+        display: none !important;
+    }
+
+    #print-container {
+        display: block !important;
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* เคลียร์สีพื้นหลังของกล่องทุกตัวในหน้าพิมพ์ */
+    #print-container *, .p-page, .p-card, .p-header, .p-body, .p-footer {
+        background: transparent !important;
+        background-color: transparent !important;
+        color: #000000 !important;
+        box-shadow: none !important;
+    }
+
+    /* สำหรับหัวตาราง ให้ใช้สีเทาอ่อนแบบโปร่งแสงเพื่อประหยัดหมึก */
+    th, .p-cost-table th {
+        background-color: #f2f2f2 !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+/* ==========================================================================
+   แก้ไขโครงสร้างตารางเทคนิคบนหน้าจอมือถือ (Responsive Mobile)
+   ========================================================================== */
+@media screen and (max-width: 768px) {
+    /* 1. สั่งให้กล่องกรอกข้อมูลหลัก ขยายเต็มจอและลดช่องไฟลงเพื่อความกระชับ */
+    .form-container {
+        padding: 12px !important;
+        margin: 8px !important;
+    }
+
+    /* 2. บังคับให้ตารางในหัวข้อที่ 2 ยอมให้ใช้นิ้วปัดซ้าย-ขวาได้ หน้าเว็บจะไม่พัง */
+    .form-section table {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important; /* ป้องกันคำดีดตกบรรทัด */
+    }
+
+    /* 3. ล้างความกว้างเก่าที่เคยล็อกไว้ เพื่อไม่ให้สไตล์ตีกันเอง */
+    .form-section th, 
+    .form-section td {
+        width: auto !important;
+        min-width: 100px !important; /* กำหนดขนาดขั้นต่ำให้ทุกช่องมีพื้นที่หายใจ */
+        padding: 8px 6px !important;
+        font-size: 13px !important;   /* ย่อขนาดตัวอักษรลงเล็กน้อยให้พอดีจอมือถือ */
+    }
+
+    /* 4. เจาะจงช่อง "รายการตรวจเช็ค" (ช่องแรก) ให้มีความกว้างที่กว้างที่สุดเพื่อให้เห็นคำชัด */
+    .form-section td:first-child,
+    .form-section th:first-child {
+        min-width: 200px !important; 
+        white-space: normal !important; /* ยอมให้ข้อความรายการตรวจเช็คยาวๆ ตกบรรทัดได้ในช่องตัวเอง */
+    }
+
+    /* 5. เจาะจงช่อง "การแก้ไข" (ช่องสุดท้าย) ให้กว้างพอสำหรับปุ่มหรือข้อความ */
+    .form-section td:last-child,
+    .form-section th:last-child {
+        min-width: 130px !important;
+    }
+
+    /* 6. ปรับขนาดช่อง Input และ Select ในตารางให้กดง่ายขึ้นบนมือถือ */
+    .form-section td input[type="text"],
+    .form-section td select {
+        width: 100% !important;
+        padding: 6px !important;
+        font-size: 13px !important;
+    }
 }

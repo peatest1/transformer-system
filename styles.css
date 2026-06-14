@@ -918,3 +918,37 @@ select {
     color: #fff;
     font-size: 0.95rem;
 }
+/* ==========================================================================
+   โค้ดบังคับจัดหน้าสำหรับพิมพ์ PDF (แก้ปัญหาสีเพี้ยน / Dark Mode)
+   ========================================================================== */
+@media print {
+    /* บังคับให้พื้นหลังของทั้งหน้าเอกสารเป็นสีขาว และตัวอักษรสีดำ 100% */
+    html, body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* หากมีกล่องข้อความหรือ Container หลัก ให้ล้างสีพื้นหลังออกเช่นกัน */
+    .container, .main-content, .form-container, .card {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* ล้างสีพื้นหลังของตาราง (ถ้าตารางกลายเป็นสีม่วงด้วย) */
+    table, th, td {
+        background-color: transparent !important;
+        color: #000000 !important;
+    }
+    
+    /* ส่วนหัวตารางหรือไฮไลท์ที่ต้องการให้คงสีไว้ (เช่น หัวตารางสีม่วงอ่อน/เทาอ่อน) ให้ระบุเฉพาะจุด */
+    th {
+        background-color: #f2f2f2 !important; /* เปลี่ยนเป็นสีเทาอ่อนเพื่อให้พิมพ์ประหยัดหมึก */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}

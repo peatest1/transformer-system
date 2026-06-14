@@ -952,3 +952,52 @@ select {
         print-color-adjust: exact !important;
     }
 }
+/* ==========================================================================
+   ระบบควบคุมตารางสำหรับหน้าจอมือถือ (ป้องกันคำขาดล้น)
+   ========================================================================== */
+
+/* 1. ช่วยให้ตารางสามารถใช้นิ้วปัดซ้าย-ขวาดูบนมือถือได้ หน้าเว็บจะไม่พัง */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+}
+
+/* 2. ล็อกความกว้างขั้นต่ำของตาราง ไม่ให้บีบตัวเองจนตัวหนังสือเด้งตกหล่น */
+.table-responsive table {
+    min-width: 600px; /* บังคับความกว้างขั้นต่ำของตาราง เพื่อให้มีพื้นที่แสดงคำเต็มๆ */
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* 3. กำหนดสัดส่วนความกว้างของแต่ละคอลัมน์ให้เหมาะสมกับข้อมูล */
+.table-responsive th:nth-child(1),
+.table-responsive td:nth-child(1) {
+    width: 45% !important; /* ช่องรายการตรวจเช็คยาวที่สุด ให้พื้นที่เยอะสุด */
+    text-align: left;
+}
+
+.table-responsive th:nth-child(2),
+.table-responsive td:nth-child(2) {
+    width: 15% !important; /* ช่องค่าที่วัดได้ */
+}
+
+.table-responsive th:nth-child(3),
+.table-responsive td:nth-child(3) {
+    width: 20% !important; /* ช่องผลตรวจสอบ */
+}
+
+.table-responsive th:nth-child(4),
+.table-responsive td:nth-child(4) {
+    width: 20% !important; /* ช่องการแก้ไข (ป้องกันคำว่า การแก้ไข/การปรับปรุง ขาดล้น) */
+    white-space: nowrap;  /* บังคับไม่ให้ตัดคำขึ้นบรรทัดใหม่ในช่องนี้ถ้าไม่จำเป็น */
+}
+
+/* ปรับแต่งช่องกรอกและ Select ภายในตารางให้ยืดหยุ่นตามช่อง */
+.table-responsive input,
+.table-responsive select {
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+}

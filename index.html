@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บันทึกผลการบำรุงรักษาหม้อแปลง</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app-container">
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-emblem" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="32" cy="32" r="31" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+                        <path d="M34 6 L18 34 H30 L28 58 L46 28 H33 Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="header-content">
+                    <h1>ระบบบันทึกผลการบำรุงรักษาหม้อแปลง</h1>
+                    <p>PEA Transformer Maintenance Record System</p>
+                </div>
+            </div>
+            <div class="header-actions">
+<div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+    <div id="user-profile-info" style="display: none; align-items: center; gap: 0.75rem; color: #fff; font-size: 0.9rem; margin-right: 0.5rem;">
+        <div class="user-avatar" id="user-avatar-text">U</div>
+        <div style="text-align: left;">
+            <div id="header-user-name" style="font-weight: 600; line-height: 1.2;">-</div>
+            <div id="header-user-pos" style="font-size: 0.75rem; opacity: 0.85;">-</div>
+        </div>
+        <button type="button" id="btn-logout" class="btn-secondary btn-on-dark" style="margin-left: 0.5rem; padding: 4px 10px; font-size: 0.8rem; border-radius: 4px;">
+            ออกจากระบบ
+        </button>
+    </div>
+    
+    <button type="button" id="btn-history" class="btn-secondary btn-on-dark">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        ประวัติบันทึกข้อมูล
+    </button>
+</div>
+                <button type="button" id="btn-history" class="btn-secondary btn-on-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    ประวัติบันทึกข้อมูล
+                </button>
+            </div>
+        </header>
+
+        <form id="maintenance-form">
+            <div id="step-1" class="step-container">
+                <section class="form-card">
+                    <h2><span class="section-badge">1</span>รายละเอียดเกี่ยวกับหม้อแปลง</h2>
+                    <div class="grid-container">
+                        <div class="form-group span-2">
+                            <label>สถานที่ติดตั้ง</label>
+                            <input type="text" id="location" placeholder="ศูนย์เครื่องจักรกลเทศบาลเมืองเบตง" value="" required>
+                        </div>
+                        <div class="form-group">
+                            <label>PEA</label>
+                            <input type="text" id="trans-id" placeholder="33-004955" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>กฟฟ.</label>
+                            <input type="text" id="pea-branch" placeholder="กฟส.เบตง" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>SER.NO</label>
+                            <input type="text" id="ser-no" placeholder="324331" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>บริษัทผู้ผลิต</label>
+                            <input type="text" id="manufacturer" placeholder="เอกรัฐ" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>ปีที่ผลิต</label>
+                            <input type="text" id="year-mfg" placeholder="2533" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>ขนาด (KVA)</label>
+                            <input type="text" id="size-kva" placeholder="100" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>ระบบ (KV)</label>
+                            <input type="text" id="system-kv" placeholder="33 KV" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>เวคเตอร์กรุ๊ป</label>
+                            <input type="text" id="vector-group" placeholder="DYN.11" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>ตำแหน่งแท็ปแรงสูง</label>
+                            <input type="text" id="tap-position" placeholder="3" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>พิกัดแรงสูง (แอมป์)</label>
+                            <input type="text" id="hv-amp" placeholder="33,000 แอมป์ 1.75" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>พิกัดแรงต่ำ (แอมป์)</label>
+                            <input type="text" id="lv-amp" placeholder="400/230 แอมป์ 144.34" value="">
+                        </div>
+                        <div class="form-group span-2">
+                            <label>การบำรุงรักษาหม้อแปลงครั้งสุดท้าย วันที่</label>
+                            <div style="display:flex;gap:0.5rem;">
+                                <select id="last-maint-day" style="flex:1">
+                                    <option value="">วัน</option>
+                                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option>
+                                </select>
+                                <select id="last-maint-month" style="flex:2">
+                                    <option value="">เดือน</option>
+                                    <option value="มกราคม">มกราคม</option><option value="กุมภาพันธ์">กุมภาพันธ์</option><option value="มีนาคม">มีนาคม</option><option value="เมษายน">เมษายน</option><option value="พฤษภาคม">พฤษภาคม</option><option value="มิถุนายน">มิถุนายน</option><option value="กรกฎาคม">กรกฎาคม</option><option value="สิงหาคม">สิงหาคม</option><option value="กันยายน">กันยายน</option><option value="ตุลาคม">ตุลาคม</option><option value="พฤศจิกายน">พฤศจิกายน</option><option value="ธันวาคม">ธันวาคม</option>
+                                </select>
+                                <select id="last-maint-year" style="flex:1.5">
+                                    <option value="">ปี พ.ศ.</option>
+                                    <option value="2560">2560</option><option value="2561">2561</option><option value="2562">2562</option><option value="2563">2563</option><option value="2564">2564</option><option value="2565">2565</option><option value="2566">2566</option><option value="2567">2567</option><option value="2568">2568</option><option value="2569">2569</option><option value="2570">2570</option><option value="2571">2571</option><option value="2572">2572</option><option value="2573">2573</option><option value="2574">2574</option><option value="2575">2575</option><option value="2576">2576</option><option value="2577">2577</option><option value="2578">2578</option><option value="2579">2579</option><option value="2580">2580</option>
+                                </select>
+                            </div>
+                            <input type="hidden" id="last-maintenance" value="">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-card">
+                    <h2><span class="section-badge">2</span>รายละเอียดค่าที่วัดได้ทางเทคนิค</h2>
+                    <div class="grid-table" style="grid-template-columns: 2fr 1fr 1fr 1.5fr;">
+                        <div class="table-header">รายการตรวจเช็ค</div>
+                        <div class="table-header">ค่าที่วัดได้</div>
+                        <div class="table-header">ผลตรวจสอบ</div>
+                        <div class="table-header">การแก้ไข</div>
+
+                        <div class="table-cell">ตรวจสอบค่าฉนวนขดลวด พี – จี (0 MΩ / >500 MΩ)</div>
+                        <div class="table-cell"><input type="text" id="meas-pg" placeholder="286" value=""></div>
+                        <div class="table-cell">
+                            <select id="res-pg">
+                                <option value="มาตรฐาน" selected>มาตรฐาน</option>
+                                <option value="ต่ำกว่ามาตรฐาน">ต่ำกว่ามาตรฐาน</option>
+                            </select>
+                        </div>
+                        <div class="table-cell"><input type="text" id="fix-pg" placeholder="การแก้ไข" value=""></div>
+
+                        <div class="table-cell">ตรวจสอบค่าฉนวนขดลวด พี – เอส (>400 MΩ / >500 MΩ)</div>
+                        <div class="table-cell"><input type="text" id="meas-ps" placeholder="263" value=""></div>
+                        <div class="table-cell">
+                            <select id="res-ps">
+                                <option value="มาตรฐาน" selected>มาตรฐาน</option>
+                                <option value="ต่ำกว่ามาตรฐาน">ต่ำกว่ามาตรฐาน</option>
+                            </select>
+                        </div>
+                        <div class="table-cell"><input type="text" id="fix-ps" placeholder="การแก้ไข" value=""></div>
+
+                        <div class="table-cell">ตรวจสอบค่าฉนวนขดลวด เอส – จี (>400 MΩ / >500 MΩ)</div>
+                        <div class="table-cell"><input type="text" id="meas-sg" placeholder="249" value=""></div>
+                        <div class="table-cell">
+                            <select id="res-sg">
+                                <option value="มาตรฐาน" selected>มาตรฐาน</option>
+                                <option value="ต่ำกว่ามาตรฐาน">ต่ำกว่ามาตรฐาน</option>
+                            </select>
+                        </div>
+                        <div class="table-cell"><input type="text" id="fix-sg" placeholder="การแก้ไข" value=""></div>
+
+                        <div class="table-cell">วัดค่าฉนวนของน้ำมัน (>32 kv./2.2mm)</div>
+                        <div class="table-cell"><input type="text" id="meas-oil" placeholder="33" value=""></div>
+                        <div class="table-cell">
+                            <select id="res-oil">
+                                <option value="มาตรฐาน" selected>มาตรฐาน</option>
+                                <option value="ต่ำกว่ามาตรฐาน">ต่ำกว่ามาตรฐาน</option>
+                            </select>
+                        </div>
+                        <div class="table-cell"><input type="text" id="fix-oil" placeholder="การแก้ไข" value=""></div>
+                    </div>
+                    <div class="form-group mt-1">
+                        <label>ค่ากราวด์ (Ω)</label>
+                        <input type="text" id="meas-ground" placeholder="7.4" value="">
+                    </div>
+                </section>
+
+                <section class="form-card">
+                    <h2><span class="section-badge">3</span>รายละเอียดผลการตรวจสอบ / สับเปลี่ยน</h2>
+                    <div class="grid-table-4">
+                        <div class="table-header">อุปกรณ์ / รายการ</div>
+                        <div class="table-header">สถานะ</div>
+                        <div class="table-header span-2">การแก้ไข / หมายเหตุ</div>
+
+                        <div class="table-cell fw-bold">อุปกรณ์ป้องกันความชื้น</div>
+                        <div class="table-cell">กระเปาะ (ไม่แตกร้าว)</div>
+                        <div class="table-cell"><select id="stat-bulb"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="fix-bulb" placeholder="การแก้ไข/หมายเหตุ" value=""></div>
+
+                        <div class="table-cell"></div>
+                        <div class="table-cell">ซิลิก้าเจล (สีน้ำเงิน)</div>
+                        <div class="table-cell"><select id="stat-silica"><option value="ปกติ" selected>ปกติ</option><option value="เสื่อมสภาพ">เสื่อมสภาพ</option></select></div>
+                        <div class="table-cell"><input type="text" id="fix-silica" placeholder="การแก้ไข/หมายเหตุ" value=""></div>
+
+                        <div class="table-cell"></div>
+                        <div class="table-cell">ถ้วยกรองน้ำมัน (ในระดับ)</div>
+                        <div class="table-cell"><select id="stat-oilcup"><option value="ปกติ" selected>ปกติ</option><option value="ต่ำกว่า">ต่ำกว่า</option></select></div>
+                        <div class="table-cell"><input type="text" id="fix-oilcup" placeholder="การแก้ไข/หมายเหตุ" value=""></div>
+
+                        <div class="table-cell fw-bold">ขั้วต่อสาย</div>
+                        <div class="table-cell">แรงสูง (ไม่มีรอยอาร์ค)</div>
+                        <div class="table-cell"><select id="stat-term-hv"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="fix-term-hv" placeholder="การแก้ไข/หมายเหตุ" value=""></div>
+
+                        <div class="table-cell"></div>
+                        <div class="table-cell">แรงต่ำ (ไม่มีรอยอาร์ค)</div>
+                        <div class="table-cell"><select id="stat-term-lv"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="fix-term-lv" placeholder="การแก้ไข/หมายเหตุ" value=""></div>
+
+                        <div class="table-cell"></div>
+                        <div class="table-cell">หางปลา (ไม่มีรอยอาร์ค)</div>
+                        <div class="table-cell"><select id="stat-term-lug"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="fix-term-lug" placeholder="การแก้ไข/หมายเหตุ" value=""></div>
+
+                        <div class="table-cell fw-bold">ขั้วต่อสายดิน</div>
+                        <div class="table-cell">ต่อแน่น</div>
+                        <div class="table-cell"><select id="stat-ground-term"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="fix-ground-term" placeholder="การแก้ไข/หมายเหตุ" value=""></div>
+
+                        <div class="table-cell fw-bold">น้ำมันหม้อแปลง</div>
+                        <div class="table-cell">เหนือระดับ</div>
+                        <div class="table-cell"><select id="stat-oil-level"><option value="ปกติ" selected>ปกติ</option><option value="ต่ำกว่า">ต่ำกว่า</option></select></div>
+                        <div class="table-cell"><input type="text" id="fix-oil-level" placeholder="การแก้ไข/หมายเหตุ" value=""></div>
+                    </div>
+                </section>
+
+                <section class="form-card">
+                    <h2><span class="section-badge">4</span>รายละเอียดผลการตรวจสอบทั่วไป</h2>
+                    <div class="grid-table-4">
+                        <div class="table-header span-2">รายการ</div>
+                        <div class="table-header">สถานะ</div>
+                        <div class="table-header">หมายเหตุ</div>
+
+                        <div class="table-cell fw-bold" style="grid-row: span 4">อุปกรณ์ป้องกันหม้อแปลง</div>
+                        <div class="table-cell">ล่อฟ้า HT</div>
+                        <div class="table-cell"><select id="gen-arr-ht"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-arr-ht-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell">ล่อฟ้า LT</div>
+                        <div class="table-cell"><select id="gen-arr-lt"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-arr-lt-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell">HT.SW</div>
+                        <div class="table-cell"><select id="gen-htsw"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-htsw-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell">LT.SW</div>
+                        <div class="table-cell"><select id="gen-ltsw"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-ltsw-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell fw-bold" style="grid-row: span 2">BUSHING</div>
+                        <div class="table-cell">ด้านแรงสูง</div>
+                        <div class="table-cell"><select id="gen-bush-hv"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-bush-hv-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell">ด้านแรงต่ำ</div>
+                        <div class="table-cell"><select id="gen-bush-lv"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-bush-lv-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell fw-bold span-2">รอยรั่วซึม (ไม่มีรอยรั่วซึมทุกจุด)</div>
+                        <div class="table-cell"><select id="gen-leak"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-leak-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell fw-bold span-2">ตำแหน่ง TAP CHANGER (ตรงตามหมายเลข)</div>
+                        <div class="table-cell"><input type="text" id="gen-tap" placeholder="3" value="" style="width:100%"></div>
+                        <div class="table-cell"><input type="text" id="gen-tap-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell fw-bold span-2">สภาพภายนอกทั่วไป (นั่งร้านเสา มาตรฐาน)</div>
+                        <div class="table-cell"><select id="gen-ext"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-ext-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell fw-bold span-2">ระยะห่างระหว่าง ARCING HORN</div>
+                        <div class="table-cell"><select id="gen-arcing"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-arcing-rem" placeholder="หมายเหตุ"></div>
+
+                        <div class="table-cell fw-bold span-2">สภาพประเด็น (ยืดหยุ่นได้)</div>
+                        <div class="table-cell"><select id="gen-flex"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><input type="text" id="gen-flex-rem" placeholder="หมายเหตุ"></div>
+                    </div>
+
+                    <h3 class="mt-2">สภาพการรับโหลด</h3>
+                    <div class="load-grid">
+                        <div class="load-box">
+                            <h4>กระแสก่อนดำเนินการ</h4>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-pre-a" placeholder="16.2" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-pre-b" placeholder="0.6" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-pre-c" placeholder="6.4" value=""> <span>Amp.</span></div>
+                        </div>
+                        <div class="load-box">
+                            <h4>แรงดันก่อนดำเนินการ</h4>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-pre-a" placeholder="230" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-pre-b" placeholder="233" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-pre-c" placeholder="234" value=""> <span>Volt.</span></div>
+                        </div>
+                        <div class="load-box">
+                            <h4>กระแสหลังดำเนินการ</h4>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-post-a" placeholder="17.6" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-post-b" placeholder="0.5" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-post-c" placeholder="7.9" value=""> <span>Amp.</span></div>
+                        </div>
+                        <div class="load-box">
+                            <h4>แรงดันหลังดำเนินการ</h4>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-post-a" placeholder="231" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-post-b" placeholder="233" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-post-c" placeholder="234" value=""> <span>Volt.</span></div>
+                        </div>
+                    </div>
+
+                    <h3 class="mt-2">ขนาดฟิวส์</h3>
+                    <div class="grid-container">
+                        <div class="form-group"><label>แรงสูง A (Amp)</label><input type="text" id="fuse-hv-a" placeholder="3" value=""></div>
+                        <div class="form-group"><label>แรงสูง B (Amp)</label><input type="text" id="fuse-hv-b" placeholder="3" value=""></div>
+                        <div class="form-group"><label>แรงสูง C (Amp)</label><input type="text" id="fuse-hv-c" placeholder="3" value=""></div>
+                        
+                        <div class="form-group"><label>แรงต่ำ A (Amp)</label><input type="text" id="fuse-lv-a" placeholder="100" value=""></div>
+                        <div class="form-group"><label>แรงต่ำ B (Amp)</label><input type="text" id="fuse-lv-b" placeholder="100" value=""></div>
+                        <div class="form-group"><label>แรงต่ำ C (Amp)</label><input type="text" id="fuse-lv-c" placeholder="100" value=""></div>
+                    </div>
+
+                    <div class="form-group mt-2">
+                        <label>หมายเหตุ</label>
+                        <textarea id="general-remarks" rows="3" placeholder="หมายเหตุ"></textarea>
+                    </div>
+                </section>
+
+                <section class="form-card">
+                    <h2><span class="section-badge section-badge-accent">✓</span>ข้อมูลผู้ตรวจสอบ</h2>
+                    <div class="grid-container">
+                        <div class="form-group span-2">
+                            <label>ลายมือชื่อ</label>
+                            <div class="signature-wrapper">
+                                <canvas id="signature-pad"></canvas>
+                            </div>
+                            <div class="signature-actions">
+                                <button type="button" id="btn-clear-sig" class="btn-secondary">ลบลายเซ็น</button>
+                            </div>
+                        </div>
+                        <div class="form-group span-2">
+                            <label>ลงชื่อ (นาย/นาง/นางสาว)</label>
+                            <input type="text" id="sign-name" placeholder="นายอับดุลรอฮีม มากาเต" value="">
+                        </div>
+                        <div class="form-group span-2">
+                            <label>ตำแหน่ง</label>
+                            <input type="text" id="sign-pos" placeholder="พชง.6 ผมต.เบตง" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>วันที่</label>
+                            <select id="date-day">
+                                <option value="">-- วัน --</option>
+                                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>เดือน</label>
+                            <select id="date-month">
+                                <option value="">-- เดือน --</option>
+                                <option value="มกราคม">มกราคม</option><option value="กุมภาพันธ์">กุมภาพันธ์</option><option value="มีนาคม">มีนาคม</option><option value="เมษายน">เมษายน</option><option value="พฤษภาคม">พฤษภาคม</option><option value="มิถุนายน">มิถุนายน</option><option value="กรกฎาคม">กรกฎาคม</option><option value="สิงหาคม">สิงหาคม</option><option value="กันยายน">กันยายน</option><option value="ตุลาคม">ตุลาคม</option><option value="พฤศจิกายน">พฤศจิกายน</option><option value="ธันวาคม">ธันวาคม</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>พ.ศ.</label>
+                            <select id="date-year">
+                                <option value="">-- ปี --</option>
+                                <option value="2560">2560</option><option value="2561">2561</option><option value="2562">2562</option><option value="2563">2563</option><option value="2564">2564</option><option value="2565">2565</option><option value="2566">2566</option><option value="2567">2567</option><option value="2568">2568</option><option value="2569">2569</option><option value="2570">2570</option><option value="2571">2571</option><option value="2572">2572</option><option value="2573">2573</option><option value="2574">2574</option><option value="2575">2575</option><option value="2576">2576</option><option value="2577">2577</option><option value="2578">2578</option><option value="2579">2579</option><option value="2580">2580</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>เริ่มเวลา</label>
+                            <select id="time-start">
+                                <option value="">-- เวลา --</option>
+                                <option value="06.00 น.">06.00 น.</option><option value="06.30 น.">06.30 น.</option><option value="07.00 น.">07.00 น.</option><option value="07.30 น.">07.30 น.</option><option value="08.00 น.">08.00 น.</option><option value="08.30 น.">08.30 น.</option><option value="09.00 น.">09.00 น.</option><option value="09.30 น.">09.30 น.</option><option value="10.00 น.">10.00 น.</option><option value="10.30 น.">10.30 น.</option><option value="11.00 น.">11.00 น.</option><option value="11.30 น.">11.30 น.</option><option value="12.00 น.">12.00 น.</option><option value="12.30 น.">12.30 น.</option><option value="13.00 น.">13.00 น.</option><option value="13.30 น.">13.30 น.</option><option value="14.00 น.">14.00 น.</option><option value="14.30 น.">14.30 น.</option><option value="15.00 น.">15.00 น.</option><option value="15.30 น.">15.30 น.</option><option value="16.00 น.">16.00 น.</option><option value="16.30 น.">16.30 น.</option><option value="17.00 น.">17.00 น.</option><option value="17.30 น.">17.30 น.</option><option value="18.00 น.">18.00 น.</option><option value="18.30 น.">18.30 น.</option><option value="19.00 น.">19.00 น.</option><option value="19.30 น.">19.30 น.</option><option value="20.00 น.">20.00 น.</option><option value="20.30 น.">20.30 น.</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>ถึง</label>
+                            <select id="time-end">
+                                <option value="">-- เวลา --</option>
+                                <option value="06.00 น.">06.00 น.</option><option value="06.30 น.">06.30 น.</option><option value="07.00 น.">07.00 น.</option><option value="07.30 น.">07.30 น.</option><option value="08.00 น.">08.00 น.</option><option value="08.30 น.">08.30 น.</option><option value="09.00 น.">09.00 น.</option><option value="09.30 น.">09.30 น.</option><option value="10.00 น.">10.00 น.</option><option value="10.30 น.">10.30 น.</option><option value="11.00 น.">11.00 น.</option><option value="11.30 น.">11.30 น.</option><option value="12.00 น.">12.00 น.</option><option value="12.30 น.">12.30 น.</option><option value="13.00 น.">13.00 น.</option><option value="13.30 น.">13.30 น.</option><option value="14.00 น.">14.00 น.</option><option value="14.30 น.">14.30 น.</option><option value="15.00 น.">15.00 น.</option><option value="15.30 น.">15.30 น.</option><option value="16.00 น.">16.00 น.</option><option value="16.30 น.">16.30 น.</option><option value="17.00 น.">17.00 น.</option><option value="17.30 น.">17.30 น.</option><option value="18.00 น.">18.00 น.</option><option value="18.30 น.">18.30 น.</option><option value="19.00 น.">19.00 น.</option><option value="19.30 น.">19.30 น.</option><option value="20.00 น.">20.00 น.</option><option value="20.30 น.">20.30 น.</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+                
+                <div class="form-actions">
+                    <button type="button" id="btn-next" class="btn-primary large">
+                        ถัดไป: รายละเอียดการคิดค่าใช้จ่าย ➔
+                    </button>
+                </div>
+            </div> <div id="step-2" class="step-container" style="display: none;">
+                <section class="form-card" id="cost-section">
+                    <h2><span class="section-badge">5</span>รายละเอียดการคิดค่าใช้จ่าย</h2>
+
+                    <div class="grid-container" style="margin-bottom:1rem;">
+                        <div class="form-group">
+                            <label>ผู้ใช้ไฟ</label>
+                            <input type="text" id="cost-owner" placeholder="ชื่อผู้ใช้ไฟ">
+                        </div>
+                        <div class="form-group">
+                            <label>หมายเลขผู้ใช้ไฟ</label>
+                            <input type="text" id="cost-owner-no" placeholder="หมายเลข">
+                        </div>
+                        <div class="form-group">
+                            <label>เลขที่คำร้อง</label>
+                            <input type="text" id="cost-req-no" placeholder="เลขที่คำร้อง">
+                        </div>
+                        <div class="form-group">
+                            <label>หมายเลข PEA (อิงจากหน้า 1)</label>
+                            <input type="text" id="cost-pea-no" placeholder="หมายเลข PEA" readonly class="readonly-input">
+                        </div>
+                        <div class="form-group">
+                            <label>ขนาดหม้อแปลง (kVA)</label>
+                            <select id="cost-transformer-size">
+                                <option value="">-- เลือกขนาด --</option>
+                                <option value="30">30 kVA</option>
+                                <option value="50">50 kVA</option>
+                                <option value="100">100 kVA</option>
+                                <option value="160">160 kVA</option>
+                                <option value="250">250 kVA</option>
+                                <option value="315">315 kVA</option>
+                                <option value="400">400 kVA</option>
+                                <option value="500">500 kVA</option>
+                                <option value="1000">1000 kVA</option>
+                                <option value="1250">1250 kVA</option>
+                                <option value="1500">1500 kVA</option>
+                                <option value="2000">2000 kVA</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <datalist id="expense-list">
+                        <option value="ค่าบำรุงรักษาหม้อแปลง 1 เฟส">
+                        <option value="ค่าบำรุงรักษาหม้อแปลง 3 เฟส">
+                        <option value="ค่าทดสอบน้ำมันหม้อแปลง">
+                        <option value="ค่ากรองน้ำมันหม้อแปลง">
+                        <option value="ค่าเปลี่ยนน้ำมันหม้อแปลง">
+                        <option value="ค่าเปลี่ยนลูกถ้วยแรงสูง">
+                        <option value="ค่าเปลี่ยนลูกถ้วยแรงต่ำ">
+                        <option value="ค่าเปลี่ยนกระเปาะ/ซิลิก้าเจล">
+                        <option value="ค่าแรงงาน">
+                        <option value="ค่าพาหนะ">
+                    </datalist>
+
+                    <h3>1. ค่าอุปกรณ์</h3>
+                    <div class="cost-table-wrapper">
+                        <div class="cost-header-row">
+                            <div class="cost-col-item">รายการ</div>
+                            <div class="cost-col-qty">จำนวน</div>
+                            <div class="cost-col-price">ราคา/หน่วย (บาท)</div>
+                            <div class="cost-col-total">เป็นเงิน (บาท)</div>
+                        </div>
+                        <div id="cost-items-1" class="cost-rows"></div>
+                        <button type="button" class="btn-secondary mt-1" onclick="addCostRow(1)">+ เพิ่มรายการ</button>
+                    </div>
+
+                    <h3 class="mt-1">2. ค่าบำรุงรักษาหม้อแปลง</h3>
+                    <div class="cost-table-wrapper">
+                        <div class="cost-header-row">
+                            <div class="cost-col-item">รายการ</div>
+                            <div class="cost-col-qty">จำนวน</div>
+                            <div class="cost-col-price">ราคา/หน่วย (บาท)</div>
+                            <div class="cost-col-total">เป็นเงิน (บาท)</div>
+                        </div>
+                        <div id="cost-items-2" class="cost-rows"></div>
+                        <button type="button" class="btn-secondary mt-1" onclick="addCostRow(2)">+ เพิ่มรายการ</button>
+                    </div>
+
+                    <h3 class="mt-1">3. ค่าทดสอบน้ำมันหม้อแปลง</h3>
+                    <div class="cost-table-wrapper">
+                        <div class="cost-header-row">
+                            <div class="cost-col-item">รายการ</div>
+                            <div class="cost-col-qty">จำนวน</div>
+                            <div class="cost-col-price">ราคา/หน่วย (บาท)</div>
+                            <div class="cost-col-total">เป็นเงิน (บาท)</div>
+                        </div>
+                        <div id="cost-items-3" class="cost-rows"></div>
+                        <button type="button" class="btn-secondary mt-1" onclick="addCostRow(3)">+ เพิ่มรายการ</button>
+                    </div>
+
+                    <div class="cost-summary mt-1">
+                        <div class="cost-summary-row">
+                            <span>4. รวมค่าบริการและค่าอุปกรณ์ (ข้อ 1 + ข้อ 2 + ข้อ 3)</span>
+                            <span id="cost-subtotal">0.00</span>
+                        </div>
+                        <div class="cost-summary-row">
+                            <span>ภาษีมูลค่าเพิ่ม 7%</span>
+                            <span id="cost-vat">0.00</span>
+                        </div>
+                        <div class="cost-summary-row cost-total-row">
+                            <span>ค่าใช้จ่ายที่เรียกเก็บจากผู้ใช้บริการ</span>
+                            <span id="cost-total">0.00</span>
+                        </div>
+                        <div class="cost-summary-row" style="font-size:0.9rem; color:var(--text-muted);">
+                            <span>ตัวอักษร:</span>
+                            <span id="cost-total-text">ศูนย์บาทถ้วน</span>
+                        </div>
+                    </div>
+
+                    <div class="grid-container mt-1">
+                        <div class="form-group">
+                            <label>ผู้คิดค่าบริการ (อิงจากหน้า 1)</label>
+                            <input type="text" id="cost-accountant" placeholder="ชื่อ-สกุล" readonly class="readonly-input">
+                        </div>
+                        <div class="form-group">
+                            <label>ตำแหน่ง</label>
+                            <input type="text" id="cost-accountant-pos" placeholder="ตำแหน่ง">
+                        </div>
+                    </div>
+                </section>
+                
+                <div class="form-actions" style="display: flex; gap: 10px;">
+                    <button type="button" id="btn-back" class="btn-secondary large" style="font-size: 1.05rem; padding: 1rem 2.5rem; border-radius: 9px;">
+                        ⬅️ ย้อนกลับไปแก้ไข
+                    </button>
+                    <button type="button" id="btn-print-bottom" class="btn-primary large">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        บันทึกและสร้าง PDF
+                    </button>
+                </div>
+            </div> </form>
+    </div>
+
+    <div id="print-container">
+        </div>
+
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>ประวัติการบันทึกข้อมูล</h2>
+                <span class="close-modal" id="close-history">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th>วันที่บันทึก</th>
+                            <th>รหัสหม้อแปลง</th>
+                            <th>สถานที่ติดตั้ง</th>
+                            <th style="width:120px;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-list">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+<div id="login-modal" class="modal-login-overlay">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">🔑</div>
+            <h2>เข้าสู่ระบบ PEA</h2>
+            <p>ระบบบันทึกผลการบำรุงรักษาหม้อแปลงและคิดค่าใช้จ่าย</p>
+        </div>
+        <form id="login-form">
+            <div class="form-group" style="margin-bottom: 1.2rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; text-align: left;">เลือกบัญชีผู้ใช้งาน</label>
+                <select id="login-user-select" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; font-family: 'Sarabun', sans-serif; font-size: 0.95rem;" required>
+                    <option value="">-- กรุณาเลือกผู้ใช้งาน --</option>
+                    <option value="user1">นายอับดุลรอฮีม มากาเต (พชง.6 ผมต.เบตง)</option>
+                    <option value="user2">นายสมชาย มั่นคง (ผจก.กฟส.เบตง)</option>
+                    <option value="user3">นายณัฐพล รักดี (วศ.6 แผนกปฏิบัติการเบตง)</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; text-align: left;">รหัสผ่าน</label>
+                <input type="password" id="login-password" placeholder="กรอกรหัสผ่าน (ทดสอบใช้: 1234)" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; font-family: 'Sarabun', sans-serif; font-size: 0.95rem;" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 0.8rem; font-size: 1rem; font-weight: 500; border-radius: 6px; cursor: pointer;">ลงชื่อเข้าใช้งาน</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

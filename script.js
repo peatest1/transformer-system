@@ -929,7 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </table>
 
                 <div style="display:flex; justify-content:space-between; margin-top:25px; font-size:10pt;">
-                    <div style="text-align:center; width:42%;">
+                    <div class="print-signature-box" style="text-align:center; width:48%; min-width:140px;">
                         <div style="margin-bottom:5px;">ลงชื่อ <span class="p-dotted" style="min-width:110px;"></span> ผู้คิดค่าบริการ</div>
                         <div>(${cv('cost-accountant') || '....................................'})</div>
                         <div>${cv('cost-accountant-pos') || ''}</div>

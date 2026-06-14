@@ -919,146 +919,145 @@ select {
     font-size: 0.95rem;
 }
 /* ==========================================================================
-   ระบบควบคุมตารางสำหรับหน้าจอมือถือ (ป้องกันคำขาดล้น)
-   ========================================================================== */
-
-/* 1. ช่วยให้ตารางสามารถใช้นิ้วปัดซ้าย-ขวาดูบนมือถือได้ หน้าเว็บจะไม่พัง */
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 1rem;
-}
-
-/* 2. ล็อกความกว้างขั้นต่ำของตาราง ไม่ให้บีบตัวเองจนตัวหนังสือเด้งตกหล่น */
-.table-responsive table {
-    min-width: 600px; /* บังคับความกว้างขั้นต่ำของตาราง เพื่อให้มีพื้นที่แสดงคำเต็มๆ */
-    width: 100%;
-    border-collapse: collapse;
-}
-
-/* 3. กำหนดสัดส่วนความกว้างของแต่ละคอลัมน์ให้เหมาะสมกับข้อมูล */
-.table-responsive th:nth-child(1),
-.table-responsive td:nth-child(1) {
-    width: 45% !important; /* ช่องรายการตรวจเช็คยาวที่สุด ให้พื้นที่เยอะสุด */
-    text-align: left;
-}
-
-.table-responsive th:nth-child(2),
-.table-responsive td:nth-child(2) {
-    width: 15% !important; /* ช่องค่าที่วัดได้ */
-}
-
-.table-responsive th:nth-child(3),
-.table-responsive td:nth-child(3) {
-    width: 20% !important; /* ช่องผลตรวจสอบ */
-}
-
-.table-responsive th:nth-child(4),
-.table-responsive td:nth-child(4) {
-    width: 20% !important; /* ช่องการแก้ไข (ป้องกันคำว่า การแก้ไข/การปรับปรุง ขาดล้น) */
-    white-space: nowrap;  /* บังคับไม่ให้ตัดคำขึ้นบรรทัดใหม่ในช่องนี้ถ้าไม่จำเป็น */
-}
-
-/* ปรับแต่งช่องกรอกและ Select ภายในตารางให้ยืดหยุ่นตามช่อง */
-.table-responsive input,
-.table-responsive select {
-    width: 100% !important;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-/* ==========================================================================
-   แก้ไขปัญหา PRINT BACKGROUND (DARK MODE iOS) - อัปเดตล่าสุด
+   ชุดแก้ไขปัญหาหน้า PRINT ล้นหลุดขอบสัดส่วนสำหรับเวอร์ชันมือถือ
    ========================================================================== */
 @media print {
-    /* บังคับเบราว์เซอร์ให้มองหน้าพิมพ์นี้เป็นโหมดสว่าง (Light Mode) เสมอ */
+    /* 1. บังคับตัวระบบปฏิบัติการและตัวจัดการพิมพ์ปิด Dark Mode */
     :root {
         color-scheme: light !important;
+    }
+
+    /* 2. ตั้งค่าระยะขอบหน้ากระดาษ A4 ให้มีพื้นที่มาตรฐาน */
+    @page {
+        size: A4 portrait;
+        margin: 12mm 15mm 12mm 15mm; /* ขอบ บน ขวา ล่าง ซ้าย */
     }
 
     html, body {
         background: #ffffff !important;
         background-color: #ffffff !important;
         color: #000000 !important;
+        font-family: 'Sarabun', sans-serif !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    /* บังคับซ่อนองค์ประกอบหน้าจอแอป และซ่อนพื้นหลังสีเข้มของ Print Container */
+    /* ซ่อนแถบฟอร์มและปุ่มต่างๆ ของตัวระบบหน้าจอ */
     #app-container, .app-header, .form-container, .modal {
         display: none !important;
     }
 
+    /* 3. จัดสัดส่วนกล่องพิมพ์ให้อยู่ในหน้ากระดาษพอดี 100% ไม่ล้น */
     #print-container {
         display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
         background: #ffffff !important;
-        background-color: #ffffff !important;
-        color: #000000 !important;
         padding: 0 !important;
         margin: 0 !important;
     }
 
-    /* เคลียร์สีพื้นหลังของกล่องทุกตัวในหน้าพิมพ์ */
+    /* ล้างสีเอฟเฟกต์ตกแต่งภายนอก */
     #print-container *, .p-page, .p-card, .p-header, .p-body, .p-footer {
         background: transparent !important;
         background-color: transparent !important;
         color: #000000 !important;
         box-shadow: none !important;
+        box-sizing: border-box !important;
     }
 
-    /* สำหรับหัวตาราง ให้ใช้สีเทาอ่อนแบบโปร่งแสงเพื่อประหยัดหมึก */
-    th, .p-cost-table th {
+    /* 4. ปรับขนาดฟอนต์ภาพรวมของใบเสร็จ/รายงานตอนพิมพ์ให้เท่ากันทั้งคอมและมือถือ */
+    .p-page {
+        font-size: 11pt !important;
+        line-height: 1.4 !important;
+    }
+
+    /* 5. แก้ปัญหาโครงสร้าง flexbox ล้น (กลุ่มผู้คิดค่าบริการ และ เรียน ผจก.) */
+    /* จากเดิมที่ใช้เปอร์เซ็นต์บีบ เราจะปรับให้กระจายอย่างสมดุล */
+    #print-container div[style*="display:flex"], 
+    #print-container div[style*="display: flex"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+    }
+
+    /* ล็อกกล่องลงชื่อซ้าย-ขวาให้กว้างพอดีและไม่ขยับหลุดเฟรม */
+    #print-container div[style*="width:42%"],
+    #print-container div[style*="width: 42%"] {
+        width: 48% !important; /* ขยายขนาดกล่องเล็กน้อยเพื่อให้ตัวอักษรมีพื้นที่ และไม่ตกบรรทัด */
+        text-align: center !important;
+    }
+
+    /* 6. จัดระเบียบตารางคิดค่าบริการในหน้าเอกสารพิมพ์ */
+    .p-cost-table {
+        width: 100% !important;
+        table-layout: fixed !important;
+        margin-bottom: 8px !important;
+    }
+
+    .p-cost-table th, .p-cost-table td {
+        padding: 4px 6px !important;
+        font-size: 10pt !important;
+        word-wrap: break-word !important;
+    }
+
+    th {
         background-color: #f2f2f2 !important;
-        color: #000000 !important;
+        font-weight: 600 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 }
 /* ==========================================================================
-   แก้ไขโครงสร้างตารางเทคนิคบนหน้าจอมือถือ (Responsive Mobile)
+   บังคับย่อสัดส่วนกล่องพิมพ์ (Print Preview) ให้พอดีหน้าจอมือถือ
    ========================================================================== */
 @media screen and (max-width: 768px) {
-    /* 1. สั่งให้กล่องกรอกข้อมูลหลัก ขยายเต็มจอและลดช่องไฟลงเพื่อความกระชับ */
-    .form-container {
-        padding: 12px !important;
-        margin: 8px !important;
+    /* บังคับให้หน้าต่างโครงสร้างใหญ่ห้ามมีขนาดเกินหน้าจอมือถือ */
+    body, html {
+        max-width: 100% !important;
+        overflow-x: hidden !important; /* ป้องกันหน้าเว็บเลื่อนส่ายไปซ้ายขวา */
     }
 
-    /* 2. บังคับให้ตารางในหัวข้อที่ 2 ยอมให้ใช้นิ้วปัดซ้าย-ขวาได้ หน้าเว็บจะไม่พัง */
-    .form-section table {
-        display: block !important;
+    /* ย่อขนาดหน้ากระดาษจำลอง (Print View) ที่แสดงบนจอมือถือไม่ให้ล้น */
+    #print-container {
         width: 100% !important;
-        overflow-x: auto !important;
-        white-space: nowrap !important; /* ป้องกันคำดีดตกบรรทัด */
+        max-width: 100% !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
     }
 
-    /* 3. ล้างความกว้างเก่าที่เคยล็อกไว้ เพื่อไม่ให้สไตล์ตีกันเอง */
-    .form-section th, 
-    .form-section td {
-        width: auto !important;
-        min-width: 100px !important; /* กำหนดขนาดขั้นต่ำให้ทุกช่องมีพื้นที่หายใจ */
-        padding: 8px 6px !important;
-        font-size: 13px !important;   /* ย่อขนาดตัวอักษรลงเล็กน้อยให้พอดีจอมือถือ */
+    /* บังคับย่อขนาดหน้ากระดาษเสมือนภายใน */
+    .p-page {
+        padding: 10px !important;
+        font-size: 11px !important; /* ย่อขนาดฟอนต์บนหน้าจอลงเล็กน้อยเพื่อให้เห็นครบกล่อง */
     }
 
-    /* 4. เจาะจงช่อง "รายการตรวจเช็ค" (ช่องแรก) ให้มีความกว้างที่กว้างที่สุดเพื่อให้เห็นคำชัด */
-    .form-section td:first-child,
-    .form-section th:first-child {
-        min-width: 200px !important; 
-        white-space: normal !important; /* ยอมให้ข้อความรายการตรวจเช็คยาวๆ ตกบรรทัดได้ในช่องตัวเอง */
+    /* แก้ไขกลุ่มลายเซ็นด้านล่างที่ชอบล้นกระเด็นตกขอบ */
+    #print-container div[style*="display:flex"], 
+    #print-container div[style*="display: flex"] {
+        flex-direction: row !important; /* บังคับให้อยู่แถวเดียวกัน */
+        justify-content: space-between !important;
+        gap: 4px !important;
     }
 
-    /* 5. เจาะจงช่อง "การแก้ไข" (ช่องสุดท้าย) ให้กว้างพอสำหรับปุ่มหรือข้อความ */
-    .form-section td:last-child,
-    .form-section th:last-child {
-        min-width: 130px !important;
+    /* บังคับความกว้างกล่องลายเซ็นซ้าย-ขวาบนมือถือไม่ให้เบียดกันจนตกขอบ */
+    #print-container div[style*="width:42%"],
+    #print-container div[style*="width: 42%"],
+    #print-container div[style*="width:48%"],
+    #print-container div[style*="width: 48%"] {
+        width: 48% !important;
+        min-width: 0 !important; /* ปลดล็อกขนาดขั้นต่ำเพื่อให้ยอมย่อตัว */
+        word-break: break-word !important; /* หากคำยาวเกินไปให้ยอมขึ้นบรรทัดใหม่ ไม่ให้ดันกล่องล้น */
     }
 
-    /* 6. ปรับขนาดช่อง Input และ Select ในตารางให้กดง่ายขึ้นบนมือถือ */
-    .form-section td input[type="text"],
-    .form-section td select {
-        width: 100% !important;
-        padding: 6px !important;
-        font-size: 13px !important;
+    /* ลดขนาดความสูงช่องว่างลายเซ็นบนมือถือเพื่อให้กระชับสายตา */
+    div[style*="margin-bottom:25px"] {
+        margin-bottom: 12px !important;
     }
 }

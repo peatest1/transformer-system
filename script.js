@@ -934,26 +934,28 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>(${cv('cost-accountant') || '....................................'})</div>
                         <div>${cv('cost-accountant-pos') || ''}</div>
                     </div>
-                    <div style="text-align:center; width:42%;">
-                        <div style="margin-bottom:25px;">เรียน ผจก.กฟส.เบตง</div>
-                        <div>เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป</div>
-                        <div style="margin-top:20px;">(<span class="p-dotted" style="min-width:130px;">${v('sign-name')}</span>)</div>
-                        <div>${v('sign-pos') || 'ชผ.มต. รักษาการแทน หผ.มต.เบตง'}</div>
-                    </div>
-                </div>
 
-                <div style="display:flex; justify-content:space-between; margin-top:20px; font-size:10pt;">
-                    <div>
-                        <div>เรียน ผจก.กฟอ.เบตง</div>
-                        <div style="margin-top:5px; margin-left:20px;">อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div>ผบส.,ผบร.</div>
-                        <div>พชง.5 ผมต.เบตง</div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
+
+  <div style="text-align: center; width: 45%;">
+        เรียน ผจก.กฟส.เบตง<br>
+        เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป<br><br><br>
+        ลงชื่อ ...................................................<br>
+        ( ................................................... )<br>
+        ตำแหน่ง ...................................................
+    </div>
+</div>
+
+<div style="margin-top: 20px; font-family: 'Sarabun', sans-serif;">
+    ผบส.,ผบร.<br>
+    อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป<br><br><br>
+<div style="text-align: center; width: 45%;">
+        ลงชื่อ ...................................................<br>
+        ( ................................................... )<br>
+        ตำแหน่ง ...................................................
+
+</div>
+`;
+
     }
 
     if (btnPrintBottom) btnPrintBottom.addEventListener('click', (e) => generatePrintView(e));

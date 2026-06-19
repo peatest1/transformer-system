@@ -919,58 +919,67 @@ select {
     font-size: 0.95rem;
 }
 /* ==========================================================================
-   จุดที่ 1: บังคับหน้าจอมือถือให้ยืดหยุ่น พอดีหน้าจอ ไม่ซูมใหญ่จนข้อความหาย
+   แก้ไขข้อที่ 3: จัดหน้าตา UI บนมือถือให้สวยงามพอดีจอ ไม่ล้น (Responsive Mobile)
    ========================================================================== */
 @media screen and (max-width: 768px) {
-    /* ป้องกันหน้าจอรวมเลื่อนส่ายไปซ้ายขวา */
+    /* รีเซ็ตหน้าเว็บหลักไม่ให้ส่ายหรือเลื่อนซ้ายขวา */
     html, body {
         max-width: 100% !important;
         overflow-x: hidden !important;
     }
 
-    /* บังคับให้โครงสร้างกล่องและตารางบีบตัวพอดีหน้าจอมือถือ */
-    .container, .form-container, .main-content {
+    /* ปรับแต่งกล่องเนื้อหาฟอร์มให้กระชับพอดีจอมือถือ */
+    .container, .form-container {
         width: 100% !important;
         max-width: 100% !important;
         padding: 10px !important;
         box-sizing: border-box !important;
+        margin: 0 auto !important;
     }
 
-    /* สั่งให้ตารางบันทึกผล สามารถใช้นิ้วปัดเลื่อน ซ้าย-ขวา ได้ ข้อความจะไม่ถูกตัดขาด */
-    .form-section table, table {
-        display: block !important;
+    /* บังคับตารางทุกตัวในหน้าจอให้ปัดสไลด์ซ้าย-ขวาได้เมื่อจอมือถือแคบเกินไป */
+    table {
+        display: table !important; /* เปลี่ยนกลับเป็น table เพื่อรักษาโครงสร้าง */
         width: 100% !important;
-        overflow-x: auto !important;
-        white-space: nowrap !important;
+        table-layout: fixed !important; /* บังคับล็อกความกว้างคอลัมน์ไม่ให้ดีดล้น */
     }
 
-    /* กำหนดขนาดขั้นต่ำให้ช่องข้อความ เพื่อป้องกันคำว่า "การแก้ไข" โดนบีบจนหาย */
+    /* เฉลี่ยสัดส่วนคอลัมน์ตารางบนมือถือ (แก้ปัญหาข้อความหัวข้อเบียดจนเละ) */
     th, td {
-        min-width: 90px !important;
-        white-space: normal !important; /* ยอมให้ข้อความยาวตกบรรทัดได้ในช่องตัวเอง */
+        font-size: 12px !important; /* ย่อขนาดตัวอักษรบนมือถือลงเล็กน้อย */
+        padding: 6px 4px !important;
+        word-break: break-word !important; /* ถ้าคำยาวให้ขึ้นบรรทัดใหม่ในช่องตัวเอง */
     }
-    
-    td:first-child, th:first-child {
-        min-width: 180px !important; /* ช่องรายการตรวจเช็คให้กว้างเป็นพิเศษ */
+
+    /* กำหนดสัดส่วนเจาะจงแต่ละคอลัมน์สำหรับตารางผลการตรวจสอบ (รูปแนบที่ 3) */
+    th:nth-child(1), td:nth-child(1) { width: 35% !important; } /* อุปกรณ์/รายการ */
+    th:nth-child(2), td:nth-child(2) { width: 20% !important; } /* สถานะ */
+    th:nth-child(3), td:nth-child(3) { width: 20% !important; } /* การแก้ไข/หมายเหตุ */
+    th:nth-child(4), td:nth-child(4) { width: 25% !important; } /* อุปกรณ์ป้องกันความชื้น */
+
+    /* ปรับแต่งช่อง Select และ Input บนมือถือไม่ให้ดันตารางแตก */
+    td select, td input {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 12px !important;
+        padding: 4px !important;
     }
 }
 
 /* ==========================================================================
-   จุดที่ 2: บังคับโครงสร้างพิมพ์รายงาน (Print Preview) ไม่ให้ล้นขอบทั้งในคอมและมือถือ
+   แก้ไขข้อที่ 4: จัดสัดส่วนหน้าปริ้นพรีวิว (Print Preview) บนมือถือ ไม่ให้ล้นหน้ากระดาษ A4
    ========================================================================== */
 @media print {
-    /* บังคับระบบปฏิบัติการของมือถือปิด Dark Mode ทันทีเวลาพิมพ์ */
     :root {
         color-scheme: light !important;
     }
 
-    /* ตั้งค่าหน้ากระดาษ A4 แนวตั้งมาตรฐาน */
     @page {
         size: A4 portrait;
-        margin: 10mm 12mm 10mm 12mm !important;
+        margin: 8mm 10mm 8mm 10mm !important; /* ตั้งค่าระยะขอบให้พอดีกับเนื้อหา */
     }
 
-    /* ล้างสีพื้นหลังของแอปให้ขาวสะอาด 100% */
     html, body, #print-container, .p-page {
         background: #ffffff !important;
         background-color: #ffffff !important;
@@ -983,41 +992,28 @@ select {
         print-color-adjust: exact !important;
     }
 
-    /* ซ่อนแถบหน้าจอแอปและปุ่มสีม่วงต่างๆ ไม่ให้หลุดเข้ามาในหน้า PDF */
-    #app-container, .app-header, .form-container, button, .no-print,
-    div[style*="position: fixed"], div[style*="position:fixed"] {
+    /* ซ่อนส่วนประกอบหน้าเว็บแอปทั้งหมด ไม่ให้หลุดเข้าไปในหน้าพิมพ์ */
+    #app-container, .app-header, .form-container, button, .btn, .no-print {
         display: none !important;
         visibility: hidden !important;
     }
 
-    /* ล็อกความกว้างหน้าพิมพ์เสมือนไม่ให้ทะลุขอบกระดาษ */
-    .p-page {
+    /* บังคับให้โครงสร้างตารางตอนพิมพ์จัดสัดส่วนแบบพอดีกระดาษ ไม่ทะลุไปหน้า 2 */
+    table, .p-cost-table {
         width: 100% !important;
-        max-width: 100% !important;
-        font-size: 11pt !important;
-        box-sizing: border-box !important;
+        table-layout: fixed !important; /* บังคับล็อกขนาดคอลัมน์ในหน้ากระดาษพิมพ์ */
+        margin-bottom: 10px !important;
+        border-collapse: collapse !important;
     }
 
-    /* บังคับตารางคิดค่าบริการขยายเต็มหน้ากระดาษพอดี */
-    .p-cost-table {
-        width: 100% !important;
-        table-layout: fixed !important;
+    th, td {
+        font-size: 10pt !important; /* ใช้หน่วย pt ที่ได้มาตรฐานงานพิมพ์เอกสาร */
+        padding: 4px 5px !important;
+        word-wrap: break-word !important;
     }
 
-    /* จัดระเบียบแถวลายเซ็นด้านล่าง (ผู้คิดค่าบริการ / เรียน ผจก.) ให้อยู่ในระนาบเดียวกัน */
-    div[style*="display:flex"], div[style*="display: flex"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        justify-content: space-between !important;
-        width: 100% !important;
-    }
-
-    /* ปรับแต่งกล่องลายเซ็นซ้าย-ขวา ไม่ให้เบียดดันกันจนล้นกระดาษ */
-    .print-signature-box, 
-    div[style*="width:42%"], div[style*="width: 42%"] {
-        width: 46% !important;
-        max-width: 46% !important;
+    /* ล้างการเยื้องสไตล์ห่างๆ ของช่องข้อความตอนสั่งพิมพ์บนอุปกรณ์พกพา */
+    div, p, span {
         box-sizing: border-box !important;
     }
 }

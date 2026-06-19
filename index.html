@@ -26,23 +26,21 @@
                 </div>
             </div>
             <div class="header-actions">
-<div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
-    <div id="user-profile-info" style="display: none; align-items: center; gap: 0.75rem; color: #fff; font-size: 0.9rem; margin-right: 0.5rem;">
-        <div class="user-avatar" id="user-avatar-text">U</div>
-        <div style="text-align: left;">
-            <div id="header-user-name" style="font-weight: 600; line-height: 1.2;">-</div>
-            <div id="header-user-pos" style="font-size: 0.75rem; opacity: 0.85;">-</div>
-        </div>
-        <button type="button" id="btn-logout" class="btn-secondary btn-on-dark" style="margin-left: 0.5rem; padding: 4px 10px; font-size: 0.8rem; border-radius: 4px;">
-            ออกจากระบบ
-        </button>
-    </div>
-    
-    <button type="button" id="btn-history" class="btn-secondary btn-on-dark">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        ประวัติบันทึกข้อมูล
-    </button>
-</div>
+                <div id="user-profile-info" style="display: none; align-items: center; gap: 0.75rem; color: #fff; font-size: 0.9rem; margin-right: 0.5rem;">
+                    <div class="user-avatar" id="user-avatar-text">U</div>
+                    <div style="text-align: left;">
+                        <div id="header-user-name" style="font-weight: 600; line-height: 1.2;">-</div>
+                        <div id="header-user-pos" style="font-size: 0.75rem; opacity: 0.85;">-</div>
+                    </div>
+                    <button type="button" id="btn-logout" class="btn-secondary btn-on-dark" style="margin-left: 0.5rem; padding: 4px 10px; font-size: 0.8rem; border-radius: 4px;">
+                        ออกจากระบบ
+                    </button>
+                </div>
+                <button type="button" id="btn-history" class="btn-secondary btn-on-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    ประวัติบันทึกข้อมูล
+                </button>
+            </div>
         </header>
 
         <form id="maintenance-form">
@@ -52,11 +50,11 @@
                     <div class="grid-container">
                         <div class="form-group span-2">
                             <label>สถานที่ติดตั้ง</label>
-                            <input type="text" id="location" placeholder="บริษัทABC" value="" required>
+                            <input type="text" id="location" placeholder="ศูนย์เครื่องจักรกลเทศบาลเมืองเบตง" value="" required>
                         </div>
                         <div class="form-group">
                             <label>PEA</label>
-                            <input type="text" id="trans-id" placeholder="69-000000" value="">
+                            <input type="text" id="trans-id" placeholder="33-004955" value="">
                         </div>
                         <div class="form-group">
                             <label>กฟฟ.</label>
@@ -64,7 +62,7 @@
                         </div>
                         <div class="form-group">
                             <label>SER.NO</label>
-                            <input type="text" id="ser-no" placeholder="123456" value="">
+                            <input type="text" id="ser-no" placeholder="324331" value="">
                         </div>
                         <div class="form-group">
                             <label>บริษัทผู้ผลิต</label>
@@ -72,11 +70,11 @@
                         </div>
                         <div class="form-group">
                             <label>ปีที่ผลิต</label>
-                            <input type="text" id="year-mfg" placeholder="2569" value="">
+                            <input type="text" id="year-mfg" inputmode="decimal" placeholder="2533" value="">
                         </div>
                         <div class="form-group">
                             <label>ขนาด (KVA)</label>
-                            <input type="text" id="size-kva" placeholder="100" value="">
+                            <input type="text" id="size-kva" inputmode="decimal" placeholder="100" value="">
                         </div>
                         <div class="form-group">
                             <label>ระบบ (KV)</label>
@@ -84,11 +82,11 @@
                         </div>
                         <div class="form-group">
                             <label>เวคเตอร์กรุ๊ป</label>
-                            <input type="text" id="vector-group" placeholder="DYN11" value="">
+                            <input type="text" id="vector-group" placeholder="DYN.11" value="">
                         </div>
                         <div class="form-group">
                             <label>ตำแหน่งแท็ปแรงสูง</label>
-                            <input type="text" id="tap-position" placeholder="3" value="">
+                            <input type="text" id="tap-position" inputmode="decimal" placeholder="3" value="">
                         </div>
                         <div class="form-group">
                             <label>พิกัดแรงสูง (แอมป์)</label>
@@ -121,14 +119,14 @@
 
                 <section class="form-card">
                     <h2><span class="section-badge">2</span>รายละเอียดค่าที่วัดได้ทางเทคนิค</h2>
-                    <div class="grid-table" style="grid-template-columns: 2fr 1fr 1fr 1.5fr;">
+                    <div class="table-scroll-wrapper"><div class="grid-table" style="grid-template-columns: 2fr 1fr 1fr 1.5fr;">
                         <div class="table-header">รายการตรวจเช็ค</div>
                         <div class="table-header">ค่าที่วัดได้</div>
                         <div class="table-header">ผลตรวจสอบ</div>
                         <div class="table-header">การแก้ไข</div>
 
                         <div class="table-cell">ตรวจสอบค่าฉนวนขดลวด พี – จี (0 MΩ / >500 MΩ)</div>
-                        <div class="table-cell"><input type="text" id="meas-pg" placeholder="000" value=""></div>
+                        <div class="table-cell"><input type="text" id="meas-pg" inputmode="decimal" placeholder="286" value=""></div>
                         <div class="table-cell">
                             <select id="res-pg">
                                 <option value="มาตรฐาน" selected>มาตรฐาน</option>
@@ -138,7 +136,7 @@
                         <div class="table-cell"><input type="text" id="fix-pg" placeholder="การแก้ไข" value=""></div>
 
                         <div class="table-cell">ตรวจสอบค่าฉนวนขดลวด พี – เอส (>400 MΩ / >500 MΩ)</div>
-                        <div class="table-cell"><input type="text" id="meas-ps" placeholder="000" value=""></div>
+                        <div class="table-cell"><input type="text" id="meas-ps" inputmode="decimal" placeholder="263" value=""></div>
                         <div class="table-cell">
                             <select id="res-ps">
                                 <option value="มาตรฐาน" selected>มาตรฐาน</option>
@@ -148,7 +146,7 @@
                         <div class="table-cell"><input type="text" id="fix-ps" placeholder="การแก้ไข" value=""></div>
 
                         <div class="table-cell">ตรวจสอบค่าฉนวนขดลวด เอส – จี (>400 MΩ / >500 MΩ)</div>
-                        <div class="table-cell"><input type="text" id="meas-sg" placeholder="000" value=""></div>
+                        <div class="table-cell"><input type="text" id="meas-sg" inputmode="decimal" placeholder="249" value=""></div>
                         <div class="table-cell">
                             <select id="res-sg">
                                 <option value="มาตรฐาน" selected>มาตรฐาน</option>
@@ -158,7 +156,7 @@
                         <div class="table-cell"><input type="text" id="fix-sg" placeholder="การแก้ไข" value=""></div>
 
                         <div class="table-cell">วัดค่าฉนวนของน้ำมัน (>32 kv./2.2mm)</div>
-                        <div class="table-cell"><input type="text" id="meas-oil" placeholder="00" value=""></div>
+                        <div class="table-cell"><input type="text" id="meas-oil" inputmode="decimal" placeholder="33" value=""></div>
                         <div class="table-cell">
                             <select id="res-oil">
                                 <option value="มาตรฐาน" selected>มาตรฐาน</option>
@@ -166,16 +164,16 @@
                             </select>
                         </div>
                         <div class="table-cell"><input type="text" id="fix-oil" placeholder="การแก้ไข" value=""></div>
-                    </div>
+                    </div></div>
                     <div class="form-group mt-1">
                         <label>ค่ากราวด์ (Ω)</label>
-                        <input type="text" id="meas-ground" placeholder="0" value="">
+                        <input type="text" id="meas-ground" inputmode="decimal" placeholder="7.4" value="">
                     </div>
                 </section>
 
                 <section class="form-card">
                     <h2><span class="section-badge">3</span>รายละเอียดผลการตรวจสอบ / สับเปลี่ยน</h2>
-                    <div class="grid-table-4">
+                    <div class="table-scroll-wrapper"><div class="grid-table-4">
                         <div class="table-header">อุปกรณ์ / รายการ</div>
                         <div class="table-header">สถานะ</div>
                         <div class="table-header span-2">การแก้ไข / หมายเหตุ</div>
@@ -219,12 +217,12 @@
                         <div class="table-cell">เหนือระดับ</div>
                         <div class="table-cell"><select id="stat-oil-level"><option value="ปกติ" selected>ปกติ</option><option value="ต่ำกว่า">ต่ำกว่า</option></select></div>
                         <div class="table-cell"><input type="text" id="fix-oil-level" placeholder="การแก้ไข/หมายเหตุ" value=""></div>
-                    </div>
+                    </div></div>
                 </section>
 
                 <section class="form-card">
                     <h2><span class="section-badge">4</span>รายละเอียดผลการตรวจสอบทั่วไป</h2>
-                    <div class="grid-table-4">
+                    <div class="table-scroll-wrapper"><div class="grid-table-4">
                         <div class="table-header span-2">รายการ</div>
                         <div class="table-header">สถานะ</div>
                         <div class="table-header">หมายเหตุ</div>
@@ -260,7 +258,7 @@
                         <div class="table-cell"><input type="text" id="gen-leak-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell fw-bold span-2">ตำแหน่ง TAP CHANGER (ตรงตามหมายเลข)</div>
-                        <div class="table-cell"><input type="text" id="gen-tap" placeholder="3" value="" style="width:100%"></div>
+                        <div class="table-cell"><input type="text" id="gen-tap" inputmode="decimal" placeholder="3" value="" style="width:100%"></div>
                         <div class="table-cell"><input type="text" id="gen-tap-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell fw-bold span-2">สภาพภายนอกทั่วไป (นั่งร้านเสา มาตรฐาน)</div>
@@ -274,45 +272,45 @@
                         <div class="table-cell fw-bold span-2">สภาพประเด็น (ยืดหยุ่นได้)</div>
                         <div class="table-cell"><select id="gen-flex"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-flex-rem" placeholder="หมายเหตุ"></div>
-                    </div>
+                    </div></div>
 
                     <h3 class="mt-2">สภาพการรับโหลด</h3>
                     <div class="load-grid">
                         <div class="load-box">
                             <h4>กระแสก่อนดำเนินการ</h4>
-                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-pre-a" placeholder="0.0" value=""> <span>Amp.</span></div>
-                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-pre-b" placeholder="0.0" value=""> <span>Amp.</span></div>
-                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-pre-c" placeholder="0.0" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-pre-a" inputmode="decimal" placeholder="16.2" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-pre-b" inputmode="decimal" placeholder="0.6" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-pre-c" inputmode="decimal" placeholder="6.4" value=""> <span>Amp.</span></div>
                         </div>
                         <div class="load-box">
                             <h4>แรงดันก่อนดำเนินการ</h4>
-                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-pre-a" placeholder="000" value=""> <span>Volt.</span></div>
-                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-pre-b" placeholder="000" value=""> <span>Volt.</span></div>
-                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-pre-c" placeholder="000" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-pre-a" inputmode="decimal" placeholder="230" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-pre-b" inputmode="decimal" placeholder="233" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-pre-c" inputmode="decimal" placeholder="234" value=""> <span>Volt.</span></div>
                         </div>
                         <div class="load-box">
                             <h4>กระแสหลังดำเนินการ</h4>
-                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-post-a" placeholder="0.0" value=""> <span>Amp.</span></div>
-                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-post-b" placeholder="0.0" value=""> <span>Amp.</span></div>
-                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-post-c" placeholder="0.0" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-post-a" inputmode="decimal" placeholder="17.6" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-post-b" inputmode="decimal" placeholder="0.5" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-post-c" inputmode="decimal" placeholder="7.9" value=""> <span>Amp.</span></div>
                         </div>
                         <div class="load-box">
                             <h4>แรงดันหลังดำเนินการ</h4>
-                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-post-a" placeholder="000" value=""> <span>Volt.</span></div>
-                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-post-b" placeholder="000" value=""> <span>Volt.</span></div>
-                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-post-c" placeholder="000" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-post-a" inputmode="decimal" placeholder="231" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-post-b" inputmode="decimal" placeholder="233" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-post-c" inputmode="decimal" placeholder="234" value=""> <span>Volt.</span></div>
                         </div>
                     </div>
 
                     <h3 class="mt-2">ขนาดฟิวส์</h3>
                     <div class="grid-container">
-                        <div class="form-group"><label>แรงสูง A (Amp)</label><input type="text" id="fuse-hv-a" placeholder="0" value=""></div>
-                        <div class="form-group"><label>แรงสูง B (Amp)</label><input type="text" id="fuse-hv-b" placeholder="0" value=""></div>
-                        <div class="form-group"><label>แรงสูง C (Amp)</label><input type="text" id="fuse-hv-c" placeholder="0" value=""></div>
+                        <div class="form-group"><label>แรงสูง A (Amp)</label><input type="text" id="fuse-hv-a" inputmode="decimal" placeholder="3" value=""></div>
+                        <div class="form-group"><label>แรงสูง B (Amp)</label><input type="text" id="fuse-hv-b" inputmode="decimal" placeholder="3" value=""></div>
+                        <div class="form-group"><label>แรงสูง C (Amp)</label><input type="text" id="fuse-hv-c" inputmode="decimal" placeholder="3" value=""></div>
                         
-                        <div class="form-group"><label>แรงต่ำ A (Amp)</label><input type="text" id="fuse-lv-a" placeholder="000" value=""></div>
-                        <div class="form-group"><label>แรงต่ำ B (Amp)</label><input type="text" id="fuse-lv-b" placeholder="000" value=""></div>
-                        <div class="form-group"><label>แรงต่ำ C (Amp)</label><input type="text" id="fuse-lv-c" placeholder="000" value=""></div>
+                        <div class="form-group"><label>แรงต่ำ A (Amp)</label><input type="text" id="fuse-lv-a" inputmode="decimal" placeholder="100" value=""></div>
+                        <div class="form-group"><label>แรงต่ำ B (Amp)</label><input type="text" id="fuse-lv-b" inputmode="decimal" placeholder="100" value=""></div>
+                        <div class="form-group"><label>แรงต่ำ C (Amp)</label><input type="text" id="fuse-lv-c" inputmode="decimal" placeholder="100" value=""></div>
                     </div>
 
                     <div class="form-group mt-2">
@@ -395,7 +393,7 @@
                         </div>
                         <div class="form-group">
                             <label>หมายเลขผู้ใช้ไฟ</label>
-                            <input type="text" id="cost-owner-no" placeholder="หมายเลข">
+                            <input type="text" id="cost-owner-no" placeholder="หมายเลข" inputmode="numeric">
                         </div>
                         <div class="form-group">
                             <label>เลขที่คำร้อง</label>
@@ -445,6 +443,7 @@
                             <div class="cost-col-qty">จำนวน</div>
                             <div class="cost-col-price">ราคา/หน่วย (บาท)</div>
                             <div class="cost-col-total">เป็นเงิน (บาท)</div>
+                            <div class="cost-col-spacer"></div>
                         </div>
                         <div id="cost-items-1" class="cost-rows"></div>
                         <button type="button" class="btn-secondary mt-1" onclick="addCostRow(1)">+ เพิ่มรายการ</button>
@@ -457,6 +456,7 @@
                             <div class="cost-col-qty">จำนวน</div>
                             <div class="cost-col-price">ราคา/หน่วย (บาท)</div>
                             <div class="cost-col-total">เป็นเงิน (บาท)</div>
+                            <div class="cost-col-spacer"></div>
                         </div>
                         <div id="cost-items-2" class="cost-rows"></div>
                         <button type="button" class="btn-secondary mt-1" onclick="addCostRow(2)">+ เพิ่มรายการ</button>
@@ -469,6 +469,7 @@
                             <div class="cost-col-qty">จำนวน</div>
                             <div class="cost-col-price">ราคา/หน่วย (บาท)</div>
                             <div class="cost-col-total">เป็นเงิน (บาท)</div>
+                            <div class="cost-col-spacer"></div>
                         </div>
                         <div id="cost-items-3" class="cost-rows"></div>
                         <button type="button" class="btn-secondary mt-1" onclick="addCostRow(3)">+ เพิ่มรายการ</button>
@@ -495,7 +496,7 @@
 
                     <div class="grid-container mt-1">
                         <div class="form-group">
-                            <label>ผู้คิดค่าบริการ </label>
+                            <label>ผู้คิดค่าบริการ (อิงจากหน้า 1)</label>
                             <input type="text" id="cost-accountant" placeholder="ชื่อ-สกุล" readonly class="readonly-input">
                         </div>
                         <div class="form-group">

@@ -363,8 +363,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const rowTotal = (parseFloat(row.qty) || 0) * (parseFloat(row.price) || 0);
             div.innerHTML = `
                 <div><input type="text" list="expense-list" placeholder="เลือกหรือพิมพ์รายการ..." value="${row.item}" data-field="item"></div>
-                <div><input type="number" placeholder="0" min="0" value="${row.qty}" data-field="qty" style="text-align:center;"></div>
-                <div><input type="number" placeholder="0.00" min="0" step="0.01" value="${row.price}" data-field="price" style="text-align:right;"></div>
+                <div><input type="number" inputmode="decimal" placeholder="0" min="0" value="${row.qty}" data-field="qty" style="text-align:center;"></div>
+                <div><input type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01" value="${row.price}" data-field="price" style="text-align:right;"></div>
                 <div class="cost-row-total">${rowTotal > 0 ? rowTotal.toLocaleString('th-TH', {minimumFractionDigits:2}) : ''}</div>
                 <div class="cost-row-del"><button type="button" class="btn-del-row" title="ลบ">✕</button></div>
             `;
@@ -372,7 +372,13 @@ document.addEventListener('DOMContentLoaded', () => {
             div.querySelectorAll('input').forEach(inp => {
                 inp.addEventListener('input', e => {
                     row[e.target.dataset.field] = e.target.value;
-                    renderCostRows(section);
+                    // อัปเดตเฉพาะยอดรวมของแถวนี้และยอดรวมทั้งหมด
+                    // ไม่ render ใหม่ทั้งแถว เพื่อไม่ให้ช่องที่กำลังพิมพ์อยู่หลุดโฟกัส
+                    const newTotal = (parseFloat(row.qty) || 0) * (parseFloat(row.price) || 0);
+                    const totalEl = div.querySelector('.cost-row-total');
+                    if (totalEl) {
+                        totalEl.textContent = newTotal > 0 ? newTotal.toLocaleString('th-TH', {minimumFractionDigits:2}) : '';
+                    }
                     recalcCost();
                 });
             });
@@ -516,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </tr>
                     <tr>
                         <td class="t-center" rowspan="3">1</td>
-                        <td>ตรวจสอบค่าฉนวนขดลวด <span style="white-space:nowrap;">พี – จี</span></td>
+                        <td>ตรวจสอบค่าฉนวนขดลวด <span>พี – จี</span></td>
                         <td class="t-center">0 M&Omega;(30&deg;)</td>
                         <td class="t-center">> 500 M&Omega;(30&deg;)</td>
                         <td>ค่าที่วัดได้ <span class="p-dotted">${v('meas-pg')}</span> M&Omega;</td>
@@ -525,7 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td class="t-center">${v('fix-pg')}</td>
                     </tr>
                     <tr>
-                        <td>ตรวจสอบค่าฉนวนขดลวด <span style="white-space:nowrap;">พี – เอส</span></td>
+                        <td>ตรวจสอบค่าฉนวนขดลวด <span>พี – เอส</span></td>
                         <td class="t-center">> 400 M&Omega;(30&deg;)</td>
                         <td class="t-center">> 500 M&Omega;(30&deg;)</td>
                         <td>ค่าที่วัดได้ <span class="p-dotted">${v('meas-ps')}</span> M&Omega;</td>
@@ -534,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td class="t-center">${v('fix-ps')}</td>
                     </tr>
                     <tr>
-                        <td>ตรวจสอบค่าฉนวนขดลวด <span style="white-space:nowrap;">เอส – จี</span></td>
+                        <td>ตรวจสอบค่าฉนวนขดลวด <span>เอส – จี</span></td>
                         <td class="t-center">> 400 M&Omega;(30&deg;)</td>
                         <td class="t-center">> 500 M&Omega;(30&deg;)</td>
                         <td>ค่าที่วัดได้ <span class="p-dotted">${v('meas-sg')}</span> M&Omega;</td>
@@ -679,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <tr>
                         <td class="t-center" rowspan="4">1</td>
                         <td>อุปกรณ์ป้องกันหม้อแปลง<br>ล่อฟ้า HT</td>
-                        <td style="white-space:nowrap;">ไม่มีรอยอาร์ค, ผิวเรียบ</td>
+                        <td>ไม่มีรอยอาร์ค, ผิวเรียบ</td>
                         <td class="t-center check-mark">${check(v('gen-arr-ht'), 'ปกติ')}</td>
                         <td class="t-center check-mark">${check(v('gen-arr-ht'), 'ชำรุด')}</td>
                         <td></td>
@@ -687,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </tr>
                     <tr>
                         <td>ล่อฟ้า LT</td>
-                        <td style="white-space:nowrap;">ไม่มีรอยอาร์ค, ผิวเรียบ</td>
+                        <td>ไม่มีรอยอาร์ค, ผิวเรียบ</td>
                         <td class="t-center check-mark">${check(v('gen-arr-lt'), 'ปกติ')}</td>
                         <td class="t-center check-mark">${check(v('gen-arr-lt'), 'ชำรุด')}</td>
                         <td></td>
@@ -695,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </tr>
                     <tr>
                         <td>HT.SW</td>
-                        <td style="white-space:nowrap;">ไม่มีรอยอาร์ค, ผิวเรียบ</td>
+                        <td>ไม่มีรอยอาร์ค, ผิวเรียบ</td>
                         <td class="t-center check-mark">${check(v('gen-htsw'), 'ปกติ')}</td>
                         <td class="t-center check-mark">${check(v('gen-htsw'), 'ชำรุด')}</td>
                         <td></td>
@@ -703,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </tr>
                     <tr>
                         <td>LT.SW</td>
-                        <td style="white-space:nowrap;">ไม่มีรอยอาร์ค, ผิวเรียบ</td>
+                        <td>ไม่มีรอยอาร์ค, ผิวเรียบ</td>
                         <td class="t-center check-mark">${check(v('gen-ltsw'), 'ปกติ')}</td>
                         <td class="t-center check-mark">${check(v('gen-ltsw'), 'ชำรุด')}</td>
                         <td></td>
@@ -934,8 +940,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>(${cv('cost-accountant') || '....................................'})</div>
                         <div>${cv('cost-accountant-pos') || ''}</div>
                     </div>
-
-<div style="width: 50%; display: flex; flex-direction: column; align-items: center;">
+ <div style="width: 50%; display: flex; flex-direction: column; align-items: center;">
         <div style="text-align: left; width: 290px;">
             เรียน ผจก.กฟส.เบตง<br>
             เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป<br><br><br>
@@ -958,9 +963,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ลงชื่อ ...................................................<br>
         ( ................................................... )<br>
         ตำแหน่ง ...................................................
-    </div>
-</div>
-`;
+
+                </div>
+            </div>
+        </div>`;
     }
 
     if (btnPrintBottom) btnPrintBottom.addEventListener('click', (e) => generatePrintView(e));

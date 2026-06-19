@@ -935,27 +935,32 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>${cv('cost-accountant-pos') || ''}</div>
                     </div>
 
+<div style="width: 50%; display: flex; flex-direction: column; align-items: center;">
+        <div style="text-align: left; width: 290px;">
+            เรียน ผจก.กฟส.เบตง<br>
+            เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป<br><br><br>
+        </div>
+        
+        <div style="text-align: center; width: 100%; margin-top: 15px;">
+            ลงชื่อ ...................................................<br>
+            ( ................................................... )<br>
+            ตำแหน่ง ...................................................
+        </div>
+    </div>
+</div>
 
-  <div style="text-align: center; width: 45%;">
-        เรียน ผจก.กฟส.เบตง<br>
-        เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป<br><br><br>
+<div style="margin-top: 40px; font-family: 'Sarabun', sans-serif; display: flex; flex-direction: column; align-items: flex-start; padding-left: 55%;">
+    <div style="text-align: left; width: 250px;">
+        ผบส., ผบร.<br>
+        อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป<br><br><br>
+    </div>
+    <div style="text-align: center; width: 250px; margin-top: 15px;">
         ลงชื่อ ...................................................<br>
         ( ................................................... )<br>
         ตำแหน่ง ...................................................
     </div>
 </div>
-
-<div style="margin-top: 20px; font-family: 'Sarabun', sans-serif;">
-    ผบส.,ผบร.<br>
-    อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป<br><br><br>
-<div style="text-align: center; width: 45%;">
-        ลงชื่อ ...................................................<br>
-        ( ................................................... )<br>
-        ตำแหน่ง ...................................................
-
-</div>
 `;
-
     }
 
     if (btnPrintBottom) btnPrintBottom.addEventListener('click', (e) => generatePrintView(e));

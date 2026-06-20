@@ -4,9 +4,9 @@
 
 // ฐานข้อมูลผู้ใช้งานจำลองสำหรับ กฟส.เบตง
 const peaUsers = {
-    user1: { name: "นายอับดุลรอฮีม มากาเต", position: "พชง.6 ผมต.เบตง", initial: "อ" },
-    user2: { name: "นายสมชาย มั่นคง", position: "ผจก.กฟส.เบตง", initial: "ส" },
-    user3: { name: "นายณัฐพล รักดี", position: "วศ.6 แผนกปฏิบัติการเบตง", initial: "ณ" }
+    user1: { name: "นายอับดุลรอฮีม มากาเต", position: "พชง.6 ผมต.กฟส.เบตง", initial: "H" },
+    user2: { name: "นายอารีฟ สาลัง", position: "พชง.5 ผมต.กฟส.เบตง", initial: "A" },
+    user3: { name: "ศัสดา มณีศรี", position: "ชชง. ผมต.กฟส.เบตง", initial: "S" }
 };
 
 document.addEventListener("DOMContentLoaded", () => {

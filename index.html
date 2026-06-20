@@ -50,11 +50,11 @@
                     <div class="grid-container">
                         <div class="form-group span-2">
                             <label>สถานที่ติดตั้ง</label>
-                            <input type="text" id="location" placeholder="ศูนย์เครื่องจักรกลเทศบาลเมืองเบตง" value="" required>
+                            <input type="text" id="location" placeholder="หม้อแปลงโรงแรม ABC" value="" required>
                         </div>
                         <div class="form-group">
                             <label>PEA</label>
-                            <input type="text" id="trans-id" placeholder="33-004955" value="">
+                            <input type="text" id="trans-id" placeholder="69-123456" value="">
                         </div>
                         <div class="form-group">
                             <label>กฟฟ.</label>
@@ -62,7 +62,7 @@
                         </div>
                         <div class="form-group">
                             <label>SER.NO</label>
-                            <input type="text" id="ser-no" placeholder="324331" value="">
+                            <input type="text" id="ser-no" placeholder="123456" value="">
                         </div>
                         <div class="form-group">
                             <label>บริษัทผู้ผลิต</label>
@@ -70,11 +70,11 @@
                         </div>
                         <div class="form-group">
                             <label>ปีที่ผลิต</label>
-                            <input type="text" id="year-mfg" inputmode="decimal" placeholder="2533" value="">
+                            <input type="text" id="year-mfg" inputmode="decimal" placeholder="2569" value="">
                         </div>
                         <div class="form-group">
                             <label>ขนาด (KVA)</label>
-                            <input type="text" id="size-kva" inputmode="decimal" placeholder="100" value="">
+                            <input type="text" id="size-kva" inputmode="decimal" placeholder="ระบุขนาดหม้อแปลง" value="">
                         </div>
                         <div class="form-group">
                             <label>ระบบ (KV)</label>
@@ -82,11 +82,11 @@
                         </div>
                         <div class="form-group">
                             <label>เวคเตอร์กรุ๊ป</label>
-                            <input type="text" id="vector-group" placeholder="DYN.11" value="">
+                            <input type="text" id="vector-group" placeholder="DYN11" value="">
                         </div>
                         <div class="form-group">
                             <label>ตำแหน่งแท็ปแรงสูง</label>
-                            <input type="text" id="tap-position" inputmode="decimal" placeholder="3" value="">
+                            <input type="text" id="tap-position" inputmode="decimal" placeholder="ระบุตำแหน่งTAPหม้อแปลง" value="">
                         </div>
                         <div class="form-group">
                             <label>พิกัดแรงสูง (แอมป์)</label>
@@ -112,7 +112,7 @@
                         <div class="table-header">การแก้ไข</div>
 
                         <div class="table-cell">ตรวจสอบค่าฉนวนขดลวด พี – จี (0 MΩ / >500 MΩ)</div>
-                        <div class="table-cell"><input type="text" id="meas-pg" inputmode="decimal" placeholder="286" value=""></div>
+                        <div class="table-cell"><input type="text" id="meas-pg" inputmode="decimal" placeholder="000" value=""></div>
                         <div class="table-cell">
                             <select id="res-pg">
                                 <option value="มาตรฐาน" selected>มาตรฐาน</option>
@@ -122,7 +122,7 @@
                         <div class="table-cell"><input type="text" id="fix-pg" placeholder="การแก้ไข" value=""></div>
 
                         <div class="table-cell">ตรวจสอบค่าฉนวนขดลวด พี – เอส (>400 MΩ / >500 MΩ)</div>
-                        <div class="table-cell"><input type="text" id="meas-ps" inputmode="decimal" placeholder="263" value=""></div>
+                        <div class="table-cell"><input type="text" id="meas-ps" inputmode="decimal" placeholder="000" value=""></div>
                         <div class="table-cell">
                             <select id="res-ps">
                                 <option value="มาตรฐาน" selected>มาตรฐาน</option>
@@ -132,7 +132,7 @@
                         <div class="table-cell"><input type="text" id="fix-ps" placeholder="การแก้ไข" value=""></div>
 
                         <div class="table-cell">ตรวจสอบค่าฉนวนขดลวด เอส – จี (>400 MΩ / >500 MΩ)</div>
-                        <div class="table-cell"><input type="text" id="meas-sg" inputmode="decimal" placeholder="249" value=""></div>
+                        <div class="table-cell"><input type="text" id="meas-sg" inputmode="decimal" placeholder="000" value=""></div>
                         <div class="table-cell">
                             <select id="res-sg">
                                 <option value="มาตรฐาน" selected>มาตรฐาน</option>
@@ -153,7 +153,7 @@
                     </div></div>
                     <div class="form-group mt-1">
                         <label>ค่ากราวด์ (Ω)</label>
-                        <input type="text" id="meas-ground" inputmode="decimal" placeholder="7.4" value="">
+                        <input type="text" id="meas-ground" inputmode="decimal" placeholder="0.0" value="">
                     </div>
                 </section>
 
@@ -264,39 +264,39 @@
                     <div class="load-grid">
                         <div class="load-box">
                             <h4>กระแสก่อนดำเนินการ</h4>
-                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-pre-a" inputmode="decimal" placeholder="16.2" value=""> <span>Amp.</span></div>
-                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-pre-b" inputmode="decimal" placeholder="0.6" value=""> <span>Amp.</span></div>
-                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-pre-c" inputmode="decimal" placeholder="6.4" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-pre-a" inputmode="decimal" placeholder="0" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-pre-b" inputmode="decimal" placeholder="0" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-pre-c" inputmode="decimal" placeholder="0" value=""> <span>Amp.</span></div>
                         </div>
                         <div class="load-box">
                             <h4>แรงดันก่อนดำเนินการ</h4>
-                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-pre-a" inputmode="decimal" placeholder="230" value=""> <span>Volt.</span></div>
-                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-pre-b" inputmode="decimal" placeholder="233" value=""> <span>Volt.</span></div>
-                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-pre-c" inputmode="decimal" placeholder="234" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-pre-a" inputmode="decimal" placeholder="000" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-pre-b" inputmode="decimal" placeholder="000" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-pre-c" inputmode="decimal" placeholder="000" value=""> <span>Volt.</span></div>
                         </div>
                         <div class="load-box">
                             <h4>กระแสหลังดำเนินการ</h4>
-                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-post-a" inputmode="decimal" placeholder="17.6" value=""> <span>Amp.</span></div>
-                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-post-b" inputmode="decimal" placeholder="0.5" value=""> <span>Amp.</span></div>
-                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-post-c" inputmode="decimal" placeholder="7.9" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-cur-post-a" inputmode="decimal" placeholder="0" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-cur-post-b" inputmode="decimal" placeholder="0" value=""> <span>Amp.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-cur-post-c" inputmode="decimal" placeholder="0" value=""> <span>Amp.</span></div>
                         </div>
                         <div class="load-box">
                             <h4>แรงดันหลังดำเนินการ</h4>
-                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-post-a" inputmode="decimal" placeholder="231" value=""> <span>Volt.</span></div>
-                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-post-b" inputmode="decimal" placeholder="233" value=""> <span>Volt.</span></div>
-                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-post-c" inputmode="decimal" placeholder="234" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>A</label><input type="text" id="load-vol-post-a" inputmode="decimal" placeholder="000" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>B</label><input type="text" id="load-vol-post-b" inputmode="decimal" placeholder="000" value=""> <span>Volt.</span></div>
+                            <div class="flex-row"><label>C</label><input type="text" id="load-vol-post-c" inputmode="decimal" placeholder="000" value=""> <span>Volt.</span></div>
                         </div>
                     </div>
 
                     <h3 class="mt-2">ขนาดฟิวส์</h3>
                     <div class="grid-container">
-                        <div class="form-group"><label>แรงสูง A (Amp)</label><input type="text" id="fuse-hv-a" inputmode="decimal" placeholder="3" value=""></div>
-                        <div class="form-group"><label>แรงสูง B (Amp)</label><input type="text" id="fuse-hv-b" inputmode="decimal" placeholder="3" value=""></div>
-                        <div class="form-group"><label>แรงสูง C (Amp)</label><input type="text" id="fuse-hv-c" inputmode="decimal" placeholder="3" value=""></div>
+                        <div class="form-group"><label>แรงสูง A (Amp)</label><input type="text" id="fuse-hv-a" inputmode="decimal" placeholder="0" value=""></div>
+                        <div class="form-group"><label>แรงสูง B (Amp)</label><input type="text" id="fuse-hv-b" inputmode="decimal" placeholder="0" value=""></div>
+                        <div class="form-group"><label>แรงสูง C (Amp)</label><input type="text" id="fuse-hv-c" inputmode="decimal" placeholder="0" value=""></div>
                         
-                        <div class="form-group"><label>แรงต่ำ A (Amp)</label><input type="text" id="fuse-lv-a" inputmode="decimal" placeholder="100" value=""></div>
-                        <div class="form-group"><label>แรงต่ำ B (Amp)</label><input type="text" id="fuse-lv-b" inputmode="decimal" placeholder="100" value=""></div>
-                        <div class="form-group"><label>แรงต่ำ C (Amp)</label><input type="text" id="fuse-lv-c" inputmode="decimal" placeholder="100" value=""></div>
+                        <div class="form-group"><label>แรงต่ำ A (Amp)</label><input type="text" id="fuse-lv-a" inputmode="decimal" placeholder="000" value=""></div>
+                        <div class="form-group"><label>แรงต่ำ B (Amp)</label><input type="text" id="fuse-lv-b" inputmode="decimal" placeholder="000" value=""></div>
+                        <div class="form-group"><label>แรงต่ำ C (Amp)</label><input type="text" id="fuse-lv-c" inputmode="decimal" placeholder="000" value=""></div>
                     </div>
 
                     <div class="form-group mt-2">
@@ -363,7 +363,7 @@
                             <input type="text" id="cost-req-no" placeholder="เลขที่คำร้อง">
                         </div>
                         <div class="form-group">
-                            <label>หมายเลข PEA (อิงจากหน้า 1)</label>
+                            <label>หมายเลข PEA </label>
                             <input type="text" id="cost-pea-no" placeholder="หมายเลข PEA" readonly class="readonly-input">
                         </div>
                         <div class="form-group">
@@ -459,7 +459,7 @@
 
                     <div class="grid-container mt-1">
                         <div class="form-group">
-                            <label>ผู้คิดค่าบริการ (อิงจากหน้า 1)</label>
+                            <label>ผู้คิดค่าบริการ </label>
                             <input type="text" id="cost-accountant" placeholder="ชื่อ-สกุล" readonly class="readonly-input">
                         </div>
                         <div class="form-group">

@@ -197,7 +197,10 @@ body {
 }
 
 @media (max-width: 768px) {
-    .span-2 {
+    /* ใช้กับ .grid-container (ช่องกรอกฟอร์มทั่วไป) เท่านั้น
+       ห้ามใช้กับตารางข้อมูล (.grid-table-4) เพราะ span-2 ที่นั่นคือหัวตาราง
+       ที่ต้องคลุม 2 คอลัมน์เพื่อให้ตรงกับแถวข้อมูลเสมอ ไม่ว่าจอจะแคบแค่ไหน */
+    .grid-container .span-2 {
         grid-column: span 1;
     }
     .app-header {
@@ -600,19 +603,58 @@ select {
         display: none !important;
     }
 
+    /* ป้องกันสีพื้นหลังเข้ม (เช่น ส่วนหัวสีม่วงของแอป หรือองค์ประกอบอื่นใด)
+       หลุดเข้ามาทับหน้ากระดาษระหว่างพิมพ์จากมือถือโดยเด็ดขาด
+       บังคับให้ทุกอย่างใน #print-container โปร่งใส ยกเว้นที่ตั้งใจให้มีสีไว้ชัดเจน */
+    #print-container, #print-container * {
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    html, body, #print-container {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+    }
+    #print-container table, #print-container th, #print-container td {
+        background-color: #ffffff !important;
+    }
+
     #print-container {
         display: block;
         font-size: 10pt;
         line-height: 1.4;
     }
 
+    /* ล็อกความกว้างหน้าพิมพ์เป็นพิกเซลคงที่เทียบเท่าความกว้างกระดาษ A4 จริง (ลบขอบกระดาษ)
+       กันไม่ให้ Mobile Safari คำนวณ layout จากความกว้างจอมือถือ (ทำให้เนื้อหาบีบ/ล้น/แตกหน้าเกิน) */
     .print-page {
+        width: 700px;
+        max-width: 700px;
+        margin: 0 auto;
         page-break-after: always;
+        break-after: page;
         position: relative;
     }
     
     .print-page:last-child {
         page-break-after: auto;
+        break-after: auto;
+    }
+
+    /* ป้องกันแถวตารางถูกตัดแบ่งคร่อมหน้ากระดาษ ซึ่งเป็นสาเหตุหลักที่ทำให้ Safari/มือถือ
+       คำนวณความสูงของเซลล์ที่มี rowspan ผิดพลาดจนยืดเต็มหน้าเป็นแถบสีทึบและเกิดหน้าว่างเกิน */
+    #print-container table {
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+    #print-container tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    #print-container thead {
+        display: table-header-group;
     }
 
     /* Print Typography */

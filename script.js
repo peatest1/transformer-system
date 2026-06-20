@@ -940,30 +940,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>(${cv('cost-accountant') || '....................................'})</div>
                         <div>${cv('cost-accountant-pos') || ''}</div>
                     </div>
- <div style="width: 50%; display: flex; flex-direction: column; align-items: center;">
-        <div style="text-align: left; width: 290px;">
-            เรียน ผจก.กฟส.เบตง<br>
-            เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป<br><br><br>
-        </div>
-        
-        <div style="text-align: center; width: 100%; margin-top: 15px;">
-            ลงชื่อ ...................................................<br>
-            ( ................................................... )<br>
-            ตำแหน่ง ...................................................
-        </div>
-    </div>
-</div>
+                    <div style="text-align:center; width:42%;">
+                        <div style="margin-bottom:25px;">เรียน ผจก.กฟส.เบตง</div>
+                        <div>เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป</div>
+                        <div style="margin-top:20px;">(<span class="p-dotted" style="min-width:130px;"></span>)</div>
+                        <div><span class="p-dotted" style="min-width:130px;"></span></div>
+                    </div>
+                </div>
 
-<div style="margin-top: 40px; font-family: 'Sarabun', sans-serif; display: flex; flex-direction: column; align-items: flex-start; padding-left: 55%;">
-    <div style="text-align: left; width: 250px;">
-        ผบส., ผบร.<br>
-        อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป<br><br><br>
-    </div>
-    <div style="text-align: center; width: 250px; margin-top: 15px;">
-        ลงชื่อ ...................................................<br>
-        ( ................................................... )<br>
-        ตำแหน่ง ...................................................
-
+                <div style="margin-top:20px; font-size:10pt;">
+                    <div>เรียน ผจก.กฟอ.เบตง</div>
+                    <div style="margin-top:5px; margin-left:20px;">อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป</div>
                 </div>
             </div>
         </div>`;

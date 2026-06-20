@@ -98,6 +98,41 @@ function cv(id) {
     if (!el) return ''; 
     return el.checked ? el.value : '';
 }
+
+// ฟังก์ชันแปลงวันที่จาก <input type="date"> (ค.ศ. แบบ YYYY-MM-DD)
+// ให้เป็นรูปแบบไทย {day, month, year พ.ศ.} สำหรับใช้แสดงผลตอนพิมพ์
+const THAI_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+function formatThaiDateParts(isoDate) {
+    if (!isoDate) return { day: '', month: '', year: '' };
+    const parts = isoDate.split('-');
+    if (parts.length !== 3) return { day: '', month: '', year: '' };
+    const y = parseInt(parts[0], 10);
+    const mIdx = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    if (isNaN(y) || isNaN(mIdx) || isNaN(d)) return { day: '', month: '', year: '' };
+    return {
+        day: d.toString(),
+        month: THAI_MONTHS[mIdx] || '',
+        year: (y + 543).toString()
+    };
+}
+
+// ฟังก์ชันแปลงวันที่เป็นข้อความรูปแบบไทยรวดเดียว เช่น "15 มิถุนายน 2567"
+function formatThaiDate(isoDate) {
+    const { day, month, year } = formatThaiDateParts(isoDate);
+    if (!day || !month || !year) return '';
+    return `${day} ${month} ${year}`;
+}
+
+// ฟังก์ชันแปลงเวลาจาก <input type="time"> (HH:MM) ให้เป็นรูปแบบไทย เช่น "14.30 น."
+function formatThaiTime(hhmm) {
+    if (!hhmm) return '';
+    const parts = hhmm.split(':');
+    if (parts.length < 2) return '';
+    return `${parts[0]}.${parts[1]} น.`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const btnPrintBottom = document.getElementById('btn-print-bottom');
 
@@ -114,14 +149,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const peaNoInput_Page1 = document.getElementById('trans-id'); 
     const signNameInput_Page1 = document.getElementById('sign-name'); 
+    const sizeKvaInput_Page1 = document.getElementById('size-kva');
     
     const costPeaNoInput_Page2 = document.getElementById('cost-pea-no');
     const costAccountantInput_Page2 = document.getElementById('cost-accountant');
+    const costTransformerSizeInput_Page2 = document.getElementById('cost-transformer-size');
 
     if (btnNext) {
         btnNext.addEventListener('click', () => {
             if(peaNoInput_Page1) costPeaNoInput_Page2.value = peaNoInput_Page1.value;
             if(signNameInput_Page1) costAccountantInput_Page2.value = signNameInput_Page1.value;
+
+            // ดึงขนาดหม้อแปลง (kVA) จากหน้า 1 มาเติมให้อัตโนมัติ
+            if (sizeKvaInput_Page1 && costTransformerSizeInput_Page2) {
+                const sizeVal = sizeKvaInput_Page1.value.trim();
+                if (sizeVal) {
+                    const matchOption = [...costTransformerSizeInput_Page2.options]
+                        .find(opt => opt.value === sizeVal);
+                    if (matchOption) {
+                        // มีขนาดมาตรฐานตรงกันอยู่แล้ว เลือกตัวเลือกนั้น
+                        costTransformerSizeInput_Page2.value = sizeVal;
+                    } else {
+                        // ไม่ตรงกับขนาดมาตรฐานที่มี ให้เพิ่มตัวเลือกใหม่ตามค่าที่กรอกไว้หน้า 1
+                        const newOption = document.createElement('option');
+                        newOption.value = sizeVal;
+                        newOption.textContent = `${sizeVal} kVA`;
+                        newOption.dataset.autoAdded = 'true';
+                        costTransformerSizeInput_Page2.appendChild(newOption);
+                        costTransformerSizeInput_Page2.value = sizeVal;
+                    }
+                }
+            }
             
             step1.style.display = 'none';
             step2.style.display = 'block';
@@ -156,23 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
-    
-    // --- Sync last-maintenance hidden field from 3 selects ---
-    function syncLastMaintenance() {
-        const d = document.getElementById('last-maint-day');
-        const m = document.getElementById('last-maint-month');
-        const y = document.getElementById('last-maint-year');
-        const hidden = document.getElementById('last-maintenance');
-        if (d && m && y && hidden) {
-            const val = [d.value, m.value, y.value].filter(Boolean).join(' ');
-            hidden.value = val;
-        }
-    }
-    ['last-maint-day','last-maint-month','last-maint-year'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', syncLastMaintenance);
-    });
-    syncLastMaintenance();
 
     function getMousePos(e) {
         const rect = canvas.getBoundingClientRect();
@@ -261,16 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 let el = document.getElementById(key);
                 if (el) el.value = record.data[key];
             });
-            const lm = record.data['last-maintenance'] || '';
-            const parts = lm.split(' ');
-            if (parts.length >= 3) {
-                const d = document.getElementById('last-maint-day');
-                const m = document.getElementById('last-maint-month');
-                const y = document.getElementById('last-maint-year');
-                if (d) d.value = parts[0];
-                if (m) m.value = parts[1];
-                if (y) y.value = parts[2];
-            }
             if (record.signature) {
                 let img = new Image();
                 img.onload = () => {
@@ -491,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     พิกัดแรงต่ำ <span class="p-dotted">${v('lv-amp')}</span> .
                 </div>
                 <div class="p-text">
-                    การบำรุงรักษาหม้อแปลงครั้งสุดท้าย วันที่ <span class="p-dotted" style="min-width: 150px;">${v('last-maintenance')}</span>
+                    การบำรุงรักษาหม้อแปลงครั้งสุดท้าย วันที่ <span class="p-dotted" style="min-width: 150px;">${formatThaiDate(v('last-maintenance'))}</span>
                 </div>
 
                 <div class="p-section-title">2. รายละเอียดค่าที่วัดได้ทางเทคนิค</div>
@@ -816,8 +847,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div>
                         ตำแหน่ง <span class="sig-line" style="text-align: center;"><span class="p-dotted" style="border: none;">${v('sign-pos')}</span></span>
                     </div>
-                    <div style="margin-top: 10px;">วันที่ <span class="p-dotted">${v('date-day')}</span> เดือน <span class="p-dotted">${v('date-month')}</span> พ.ศ. <span class="p-dotted">${v('date-year')}</span></div>
-                    <div>เริ่มเวลา <span class="p-dotted">${v('time-start')}</span> ถึง. <span class="p-dotted">${v('time-end')}</span></div>
+                    <div style="margin-top: 10px;">วันที่ <span class="p-dotted">${formatThaiDateParts(v('sign-date')).day}</span> เดือน <span class="p-dotted">${formatThaiDateParts(v('sign-date')).month}</span> พ.ศ. <span class="p-dotted">${formatThaiDateParts(v('sign-date')).year}</span></div>
+                    <div>เริ่มเวลา <span class="p-dotted">${formatThaiTime(v('time-start'))}</span> ถึง. <span class="p-dotted">${formatThaiTime(v('time-end'))}</span></div>
                 </div>
             </div>
 
@@ -841,11 +872,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const vat = sub * 0.07;
         const total = sub + vat;
 
-        const dateStr = [cv('date-day'), cv('date-month'), cv('date-year')].filter(Boolean).join(' ');
-        const timeStart = cv('time-start');
-        const timeEnd = cv('time-end');
+        const dateStr = formatThaiDate(v('sign-date'));
+        const timeStart = formatThaiTime(v('time-start'));
+        const timeEnd = formatThaiTime(v('time-end'));
         const timeTotal = (timeStart && timeEnd) ? `${timeStart} - ${timeEnd}` : '';
-        const transformerSize = cv('cost-transformer-size');
+        const transformerSize = v('cost-transformer-size');
 
         return `
         <div class="print-page">
@@ -862,12 +893,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <table style="width:100%; border-collapse:collapse; margin-bottom:6px; font-size:10pt;">
                     <tr>
-                        <td style="width:50%; padding:2px 0;">ผู้ใช้ไฟ <span class="p-dotted" style="min-width:120px;">${cv('cost-owner')}</span></td>
-                        <td style="width:50%; padding:2px 0; text-align:right;">หมายเลขผู้ใช้ไฟ <span class="p-dotted" style="min-width:80px;">${cv('cost-owner-no')}</span></td>
+                        <td style="width:50%; padding:2px 0;">ผู้ใช้ไฟ <span class="p-dotted" style="min-width:120px;">${v('cost-owner')}</span></td>
+                        <td style="width:50%; padding:2px 0; text-align:right;">หมายเลขผู้ใช้ไฟ <span class="p-dotted" style="min-width:80px;">${v('cost-owner-no')}</span></td>
                     </tr>
                     <tr>
-                        <td style="padding:2px 0;">เลขที่คำร้อง <span class="p-dotted" style="min-width:120px;">${cv('cost-req-no')}</span></td>
-                        <td style="padding:2px 0; text-align:right;">หมายเลข PEA <span class="p-dotted" style="min-width:80px;">${cv('cost-pea-no')}</span></td>
+                        <td style="padding:2px 0;">เลขที่คำร้อง <span class="p-dotted" style="min-width:120px;">${v('cost-req-no')}</span></td>
+                        <td style="padding:2px 0; text-align:right;">หมายเลข PEA <span class="p-dotted" style="min-width:80px;">${v('cost-pea-no')}</span></td>
                     </tr>
                     <tr>
                         <td style="padding:2px 0;">วันที่ <span class="p-dotted" style="min-width:100px;">${dateStr}</span></td>
@@ -937,20 +968,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="display:flex; justify-content:space-between; margin-top:25px; font-size:10pt;">
                     <div class="print-signature-box" style="text-align:center; width:48%; min-width:140px;">
                         <div style="margin-bottom:5px;">ลงชื่อ <span class="p-dotted" style="min-width:110px;"></span> ผู้คิดค่าบริการ</div>
-                        <div>(${cv('cost-accountant') || '....................................'})</div>
-                        <div>${cv('cost-accountant-pos') || ''}</div>
+                        <div>(${v('cost-accountant') || '....................................'})</div>
+                        <div>${v('cost-accountant-pos') || ''}</div>
                     </div>
-                    <div style="text-align:center; width:42%;">
-                        <div style="margin-bottom:25px;">เรียน ผจก.กฟส.เบตง</div>
-                        <div>เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป</div>
-                        <div style="margin-top:20px;">(<span class="p-dotted" style="min-width:130px;"></span>)</div>
-                        <div><span class="p-dotted" style="min-width:130px;"></span></div>
-                    </div>
-                </div>
 
-                <div style="margin-top:20px; font-size:10pt;">
-                    <div>เรียน ผจก.กฟอ.เบตง</div>
-                    <div style="margin-top:5px; margin-left:20px;">อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป</div>
+                   <div style="width: 50%; display: flex; flex-direction: column; align-items: center;">
+        <div style="text-align: left; width: 290px;">
+            เรียน ผจก.กฟส.เบตง<br>
+            เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป<br><br><br>
+        </div>
+        
+        <div style="text-align: center; width: 100%; margin-top: 15px;">
+            ลงชื่อ ...................................................<br>
+            ( ................................................... )<br>
+            ตำแหน่ง ...................................................
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 40px; font-family: 'Sarabun', sans-serif; display: flex; flex-direction: column; align-items: flex-start; padding-left: 55%;">
+    <div style="text-align: left; width: 250px;">
+        ผบส., ผบร.<br>
+        อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป<br><br><br>
+    </div>
+    <div style="text-align: center; width: 250px; margin-top: 15px;">
+        ลงชื่อ ...................................................<br>
+        ( ................................................... )<br>
+        ตำแหน่ง ...................................................
+
                 </div>
             </div>
         </div>`;

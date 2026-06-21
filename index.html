@@ -17,7 +17,19 @@
                 <div class="brand-emblem" aria-hidden="true">
                     <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="32" cy="32" r="31" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5"/>
-                        <path d="M34 6 L18 34 H30 L28 58 L46 28 H33 Z" fill="currentColor"/>
+                        <g stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                            <line x1="24" y1="26" x2="24" y2="14"/>
+                            <line x1="40" y1="26" x2="40" y2="14"/>
+                        </g>
+                        <g fill="currentColor">
+                            <circle cx="24" cy="11" r="3.2"/>
+                            <circle cx="40" cy="11" r="3.2"/>
+                        </g>
+                        <rect x="16" y="26" width="32" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="3"/>
+                        <line x1="21" y1="30" x2="21" y2="46" stroke="currentColor" stroke-width="2"/>
+                        <line x1="43" y1="30" x2="43" y2="46" stroke="currentColor" stroke-width="2"/>
+                        <line x1="22" y1="50" x2="22" y2="56" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="42" y1="50" x2="42" y2="56" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
                     </svg>
                 </div>
                 <div class="header-content">
@@ -50,7 +62,7 @@
                     <div class="grid-container">
                         <div class="form-group span-2">
                             <label>สถานที่ติดตั้ง</label>
-                            <input type="text" id="location" placeholder="หม้อแปลงโรงแรม ABC" value="" required>
+                            <input type="text" id="location" placeholder="ศูนย์เครื่องจักรกลเทศบาลเมืองเบตง" value="" required>
                         </div>
                         <div class="form-group">
                             <label>PEA</label>
@@ -323,7 +335,7 @@
                         </div>
                         <div class="form-group span-2">
                             <label>ตำแหน่ง</label>
-                            <input type="text" id="sign-pos" placeholder="พชง.6 ผมต.กฟส.เบตง" value="">
+                            <input type="text" id="sign-pos" placeholder="พชง.6 ผมต.เบตง" value="">
                         </div>
                         <div class="form-group">
                             <label>วันที่</label>
@@ -363,7 +375,7 @@
                             <input type="text" id="cost-req-no" placeholder="เลขที่คำร้อง">
                         </div>
                         <div class="form-group">
-                            <label>หมายเลข PEA </label>
+                            <label>หมายเลข PEA</label>
                             <input type="text" id="cost-pea-no" placeholder="หมายเลข PEA" readonly class="readonly-input">
                         </div>
                         <div class="form-group">
@@ -459,7 +471,7 @@
 
                     <div class="grid-container mt-1">
                         <div class="form-group">
-                            <label>ผู้คิดค่าบริการ </label>
+                            <label>ผู้คิดค่าบริการ</label>
                             <input type="text" id="cost-accountant" placeholder="ชื่อ-สกุล" readonly class="readonly-input">
                         </div>
                         <div class="form-group">
@@ -491,6 +503,7 @@
                 <span class="close-modal" id="close-history">&times;</span>
             </div>
             <div class="modal-body">
+                <div id="history-db-status" style="margin-bottom: 0.75rem; font-size: 0.85rem; color: var(--text-muted);"></div>
                 <table id="history-table">
                     <thead>
                         <tr>
@@ -507,6 +520,10 @@
         </div>
     </div>
 
+    <!-- Firebase SDK (compat version - ใช้งานง่ายกับ script tag ปกติ ไม่ต้องใช้ build tool) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="script.js"></script>
 <div id="login-modal" class="modal-login-overlay">
     <div class="login-card">
@@ -520,9 +537,9 @@
                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; text-align: left;">เลือกบัญชีผู้ใช้งาน</label>
                 <select id="login-user-select" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; font-family: 'Sarabun', sans-serif; font-size: 0.95rem;" required>
                     <option value="">-- กรุณาเลือกผู้ใช้งาน --</option>
-                    <option value="user1">นายอับดุลรอฮีม มากาเต (พชง.6 ผมต.กฟส.เบตง)</option>
-                    <option value="user2">นายอารีฟ สาลัง (พชง.5 ผมต.กฟส.เบตง)</option>
-                    <option value="user3">ศัสดา มณีศรี (ชชง. ผมต.กฟส.เบตง)</option>
+                    <option value="user1">นายอับดุลรอฮีม มากาเต (พชง.6 ผมต.เบตง)</option>
+                    <option value="user2">นายสมชาย มั่นคง (ผจก.กฟส.เบตง)</option>
+                    <option value="user3">นายณัฐพล รักดี (วศ.6 แผนกปฏิบัติการเบตง)</option>
                 </select>
             </div>
             <div class="form-group" style="margin-bottom: 1.5rem;">

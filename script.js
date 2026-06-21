@@ -4,9 +4,9 @@
 
 // ฐานข้อมูลผู้ใช้งานจำลองสำหรับ กฟส.เบตง
 const peaUsers = {
-    user1: { name: "นายอับดุลรอฮีม มากาเต", position: "พชง.6 ผมต.กฟส.เบตง", initial: "H" },
-    user2: { name: "นายอารีฟ สาลัง", position: "พชง.5 ผมต.กฟส.เบตง", initial: "A" },
-    user3: { name: "ศัสดา มณีศรี", position: "ชชง. ผมต.กฟส.เบตง", initial: "S" }
+    user1: { name: "นายอับดุลรอฮีม มากาเต", position: "พชง.6 ผมต.เบตง", initial: "อ" },
+    user2: { name: "นายสมชาย มั่นคง", position: "ผจก.กฟส.เบตง", initial: "ส" },
+    user3: { name: "นายณัฐพล รักดี", position: "วศ.6 แผนกปฏิบัติการเบตง", initial: "ณ" }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -132,6 +132,42 @@ function formatThaiTime(hhmm) {
     if (parts.length < 2) return '';
     return `${parts[0]}.${parts[1]} น.`;
 }
+
+// =====================================================================
+// Firebase Initialization
+// ถ้ายังไม่ได้ตั้งค่า firebase-config.js (หรือโหลด SDK ไม่สำเร็จ เช่น เน็ตหลุด)
+// ระบบจะสลับไปบันทึกข้อมูลในเครื่อง (localStorage) แทนโดยอัตโนมัติ
+// เพื่อไม่ให้แอปพังใช้งานไม่ได้
+// =====================================================================
+let db = null;
+let firebaseReady = false;
+const FIRESTORE_COLLECTION = 'maintenance_records';
+
+function initFirebase() {
+    try {
+        if (typeof firebase === 'undefined') {
+            console.warn('โหลด Firebase SDK ไม่สำเร็จ (อาจเน็ตหลุด) จะใช้การบันทึกในเครื่องแทน');
+            return false;
+        }
+        if (typeof firebaseConfig === 'undefined' || !firebaseConfig.apiKey || firebaseConfig.apiKey.indexOf('ใส่') === 0) {
+            console.warn('ยังไม่ได้ตั้งค่า Firebase ใน firebase-config.js จะใช้การบันทึกในเครื่องแทน');
+            return false;
+        }
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        // เปิดแคชข้อมูลในเครื่อง ให้ใช้งานได้แม้ออฟไลน์ชั่วคราว แล้วซิงค์อัตโนมัติเมื่อกลับมาออนไลน์
+        db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+            console.warn('เปิด offline persistence ไม่สำเร็จ:', err.code);
+        });
+        return true;
+    } catch (err) {
+        console.error('เชื่อมต่อ Firebase ไม่สำเร็จ:', err);
+        return false;
+    }
+}
+
+firebaseReady = initFirebase();
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const btnPrintBottom = document.getElementById('btn-print-bottom');
@@ -271,9 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- History System ---
     const HISTORY_KEY = 'pea_transformer_history';
 
-    function saveToHistory() {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-        
+    async function saveToHistory() {
         let record = {
             id: Date.now(),
             date: new Date().toLocaleString('th-TH'),
@@ -281,66 +315,140 @@ document.addEventListener('DOMContentLoaded', () => {
             location: document.getElementById('location') ? document.getElementById('location').value : '',
             data: {}
         };
-        
+
         document.querySelectorAll('input, select, textarea').forEach(el => {
             if(el.id) record.data[el.id] = el.value;
         });
-        
+
         if (!isCanvasBlank()) {
             record.signature = canvas.toDataURL('image/png');
         }
-        
+
+        if (firebaseReady && db) {
+            try {
+                await db.collection(FIRESTORE_COLLECTION).add(Object.assign({}, record, {
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }));
+                return;
+            } catch (err) {
+                console.error('บันทึกขึ้น Firebase ไม่สำเร็จ จะบันทึกสำรองไว้ในเครื่องนี้แทน:', err);
+            }
+        }
+
+        // โหมดสำรอง: บันทึกในเครื่อง (ใช้เมื่อยังไม่ได้ตั้งค่า Firebase หรือบันทึกขึ้น Firebase ไม่สำเร็จ)
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
         history.push(record);
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     }
 
-    function loadHistoryRecord(id) {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-        let record = history.find(r => r.id === id);
-        if (record) {
-            Object.keys(record.data).forEach(key => {
-                let el = document.getElementById(key);
-                if (el) el.value = record.data[key];
-            });
-            if (record.signature) {
-                let img = new Image();
-                img.onload = () => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                };
-                img.src = record.signature;
-            } else {
+    function applyHistoryRecord(record) {
+        Object.keys(record.data).forEach(key => {
+            let el = document.getElementById(key);
+            if (el) el.value = record.data[key];
+        });
+        if (record.signature) {
+            let img = new Image();
+            img.onload = () => {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-            document.getElementById('history-modal').style.display = 'none';
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            };
+            img.src = record.signature;
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
+        document.getElementById('history-modal').style.display = 'none';
     }
 
-    function deleteHistoryRecord(id) {
-        if(confirm('ต้องการลบประวัตินี้ใช่หรือไม่?')) {
+    async function loadHistoryRecord(id) {
+        if (firebaseReady && db) {
+            try {
+                const doc = await db.collection(FIRESTORE_COLLECTION).doc(String(id)).get();
+                if (doc.exists) applyHistoryRecord(doc.data());
+            } catch (err) {
+                console.error('โหลดข้อมูลจาก Firebase ไม่สำเร็จ:', err);
+                alert('โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่อีกครั้ง');
+            }
+            return;
+        }
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        let record = history.find(r => r.id === id);
+        if (record) applyHistoryRecord(record);
+    }
+
+    async function deleteHistoryRecord(id) {
+        if (!confirm('ต้องการลบประวัตินี้ใช่หรือไม่?')) return;
+
+        if (firebaseReady && db) {
+            try {
+                await db.collection(FIRESTORE_COLLECTION).doc(String(id)).delete();
+            } catch (err) {
+                console.error('ลบข้อมูลจาก Firebase ไม่สำเร็จ:', err);
+                alert('ลบข้อมูลไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่อีกครั้ง');
+                return;
+            }
+        } else {
             let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
             history = history.filter(r => r.id !== id);
             localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-            renderHistory();
         }
+        renderHistory();
     }
 
-    function renderHistory() {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    function historyRowHTML(idLiteral, dateText, peaId, location) {
+        return `
+            <td>${dateText || '-'}</td>
+            <td>${peaId || '-'}</td>
+            <td>${location || '-'}</td>
+            <td>
+                <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${idLiteral})">โหลด</button>
+                <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${idLiteral})" style="color:red;">ลบ</button>
+            </td>
+        `;
+    }
+
+    function historyEmptyOrErrorRow(message, isError) {
+        return `<tr><td colspan="4" style="text-align:center; padding:1.5rem; color:${isError ? '#c0392b' : '#888'};">${message}</td></tr>`;
+    }
+
+    async function renderHistory() {
         let tbody = document.getElementById('history-list');
         if(!tbody) return;
+        const statusEl = document.getElementById('history-db-status');
+
+        if (firebaseReady && db) {
+            if (statusEl) statusEl.innerHTML = '🟢 เชื่อมต่อฐานข้อมูลออนไลน์ (Firebase) — ข้อมูลซิงค์ทุกอุปกรณ์';
+            tbody.innerHTML = historyEmptyOrErrorRow('กำลังโหลดข้อมูล...', false);
+            try {
+                const snapshot = await db.collection(FIRESTORE_COLLECTION).orderBy('createdAt', 'desc').limit(200).get();
+                if (snapshot.empty) {
+                    tbody.innerHTML = historyEmptyOrErrorRow('ยังไม่มีประวัติการบันทึก', false);
+                    return;
+                }
+                tbody.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const r = doc.data();
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = historyRowHTML(`'${doc.id}'`, r.date, r.peaId, r.location);
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error('โหลดประวัติจาก Firebase ไม่สำเร็จ:', err);
+                tbody.innerHTML = historyEmptyOrErrorRow('โหลดข้อมูลไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', true);
+            }
+            return;
+        }
+
+        // โหมดสำรอง: ยังไม่ได้ตั้งค่า Firebase หรือเชื่อมต่อไม่สำเร็จ — ใช้ localStorage แทน
+        if (statusEl) statusEl.innerHTML = '🟡 ยังไม่ได้เชื่อมต่อฐานข้อมูลออนไลน์ — บันทึกไว้ในเครื่องนี้เท่านั้น (ตั้งค่าใน firebase-config.js)';
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        if (history.length === 0) {
+            tbody.innerHTML = historyEmptyOrErrorRow('ยังไม่มีประวัติการบันทึก', false);
+            return;
+        }
         tbody.innerHTML = '';
         history.slice().reverse().forEach(r => {
             let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${r.date}</td>
-                <td>${r.peaId || '-'}</td>
-                <td>${r.location || '-'}</td>
-                <td>
-                    <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${r.id})">โหลด</button>
-                    <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${r.id})" style="color:red;">ลบ</button>
-                </td>
-            `;
+            tr.innerHTML = historyRowHTML(r.id, r.date, r.peaId, r.location);
             tbody.appendChild(tr);
         });
     }
@@ -480,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (!logoBase64) {
             await fetchLogoAsBase64();
         }
-        saveToHistory();
+        await saveToHistory();
         const v = (id) => {
             const el = document.getElementById(id);
             return el ? el.value : '';
@@ -971,31 +1079,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>(${v('cost-accountant') || '....................................'})</div>
                         <div>${v('cost-accountant-pos') || ''}</div>
                     </div>
+                    <div style="text-align:center; width:42%;">
+                        <div>เรียน ผจก.กฟส.เบตง</div>
+                        <div>เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป</div>
 
-                   <div style="width: 50%; display: flex; flex-direction: column; align-items: center;">
-        <div style="text-align: left; width: 290px;">
-            เรียน ผจก.กฟส.เบตง<br>
-            เพื่อโปรดอนุมัติเรียกเก็บค่าใช้จ่ายฯ ต่อไป<br><br><br>
-        </div>
-        
-        <div style="text-align: center; width: 100%; margin-top: 15px;">
-            ลงชื่อ ...................................................<br>
-            ( ................................................... )<br>
-            ตำแหน่ง ...................................................
-        </div>
-    </div>
-</div>
+                        <div style="margin-top:25px;">ลงชื่อ <span class="p-dotted" style="min-width:130px;"></span></div>
+                        <div>( <span class="p-dotted" style="min-width:130px;"></span> )</div>
+                        <div>ตำแหน่ง <span class="p-dotted" style="min-width:130px;"></span></div>
 
-<div style="margin-top: 40px; font-family: 'Sarabun', sans-serif; display: flex; flex-direction: column; align-items: flex-start; padding-left: 55%;">
-    <div style="text-align: left; width: 250px;">
-        ผบส., ผบร.<br>
-        อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป<br><br><br>
-    </div>
-    <div style="text-align: center; width: 250px; margin-top: 15px;">
-        ลงชื่อ ...................................................<br>
-        ( ................................................... )<br>
-        ตำแหน่ง ...................................................
+                        <div style="margin-top:20px;">ผบส., ผบร.</div>
+                        <div>อนุมัติและดำเนินการในส่วนเกี่ยวข้องต่อไป</div>
 
+                        <div style="margin-top:25px;">ลงชื่อ <span class="p-dotted" style="min-width:130px;"></span></div>
+                        <div>( <span class="p-dotted" style="min-width:130px;"></span> )</div>
+                        <div>ตำแหน่ง <span class="p-dotted" style="min-width:130px;"></span></div>
+                    </div>
                 </div>
             </div>
         </div>`;

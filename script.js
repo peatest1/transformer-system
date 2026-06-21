@@ -168,6 +168,15 @@ function initFirebase() {
 
 firebaseReady = initFirebase();
 
+// ป้องกันไม่ให้การเรียก Firestore ค้างไม่มีกำหนด (เช่น เน็ตช้า, ไฟร์วอลล์บล็อก, กฎความปลอดภัยตั้งผิด)
+// ถ้าเกินเวลาที่กำหนด จะถือว่าล้มเหลวและให้ระบบ fallback ไปใช้ localStorage แทนทันที
+function withTimeout(promise, ms) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('หมดเวลาเชื่อมต่อฐานข้อมูล (timeout)')), ms))
+    ]);
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const btnPrintBottom = document.getElementById('btn-print-bottom');
@@ -326,9 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (firebaseReady && db) {
             try {
-                await db.collection(FIRESTORE_COLLECTION).add(Object.assign({}, record, {
+                await withTimeout(db.collection(FIRESTORE_COLLECTION).add(Object.assign({}, record, {
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }));
+                })), 8000);
                 return;
             } catch (err) {
                 console.error('บันทึกขึ้น Firebase ไม่สำเร็จ จะบันทึกสำรองไว้ในเครื่องนี้แทน:', err);
@@ -362,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadHistoryRecord(id) {
         if (firebaseReady && db) {
             try {
-                const doc = await db.collection(FIRESTORE_COLLECTION).doc(String(id)).get();
+                const doc = await withTimeout(db.collection(FIRESTORE_COLLECTION).doc(String(id)).get(), 8000);
                 if (doc.exists) applyHistoryRecord(doc.data());
             } catch (err) {
                 console.error('โหลดข้อมูลจาก Firebase ไม่สำเร็จ:', err);
@@ -380,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (firebaseReady && db) {
             try {
-                await db.collection(FIRESTORE_COLLECTION).doc(String(id)).delete();
+                await withTimeout(db.collection(FIRESTORE_COLLECTION).doc(String(id)).delete(), 8000);
             } catch (err) {
                 console.error('ลบข้อมูลจาก Firebase ไม่สำเร็จ:', err);
                 alert('ลบข้อมูลไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่อีกครั้ง');
@@ -419,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (statusEl) statusEl.innerHTML = '🟢 เชื่อมต่อฐานข้อมูลออนไลน์ (Firebase) — ข้อมูลซิงค์ทุกอุปกรณ์';
             tbody.innerHTML = historyEmptyOrErrorRow('กำลังโหลดข้อมูล...', false);
             try {
-                const snapshot = await db.collection(FIRESTORE_COLLECTION).orderBy('createdAt', 'desc').limit(200).get();
+                const snapshot = await withTimeout(db.collection(FIRESTORE_COLLECTION).orderBy('createdAt', 'desc').limit(200).get(), 8000);
                 if (snapshot.empty) {
                     tbody.innerHTML = historyEmptyOrErrorRow('ยังไม่มีประวัติการบันทึก', false);
                     return;
@@ -588,7 +597,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (!logoBase64) {
             await fetchLogoAsBase64();
         }
-        await saveToHistory();
+        // บันทึกประวัติแบบไม่บล็อกการปริ้น (ทำงานเบื้องหลัง)
+        // ถ้าฐานข้อมูลช้าหรือเชื่อมต่อไม่ได้ ผู้ใช้ยังกดปริ้น PDF ได้ตามปกติทันที ไม่ค้าง
+        saveToHistory().catch(err => console.error('บันทึกประวัติไม่สำเร็จ:', err));
         const v = (id) => {
             const el = document.getElementById(id);
             return el ? el.value : '';

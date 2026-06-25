@@ -62,7 +62,7 @@
                     <div class="grid-container">
                         <div class="form-group span-2">
                             <label>สถานที่ติดตั้ง</label>
-                            <input type="text" id="location" placeholder="บริษัทABC" value="" required>
+                            <input type="text" id="location" placeholder="ศูนย์เครื่องจักรกลเทศบาลเมืองเบตง" value="" required>
                         </div>
                         <div class="form-group">
                             <label>PEA</label>
@@ -481,13 +481,17 @@
                     </div>
                 </section>
                 
-                <div class="form-actions" style="display: flex; gap: 10px;">
+                <div class="form-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <button type="button" id="btn-back" class="btn-secondary large" style="font-size: 1.05rem; padding: 1rem 2.5rem; border-radius: 9px;">
                         ⬅️ ย้อนกลับไปแก้ไข
                     </button>
+                    <button type="button" id="btn-save-only" class="btn-secondary large" style="font-size: 1.05rem; padding: 1rem 2rem; border-radius: 9px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        บันทึก
+                    </button>
                     <button type="button" id="btn-print-bottom" class="btn-primary large">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-                        บันทึกและสร้าง PDF
+                        บันทึกและปริ้น PDF
                     </button>
                 </div>
             </div> </form>
@@ -503,6 +507,7 @@
                 <span class="close-modal" id="close-history">&times;</span>
             </div>
             <div class="modal-body">
+                <div id="history-db-status" style="margin-bottom: 0.75rem; font-size: 0.85rem; color: var(--text-muted);"></div>
                 <table id="history-table">
                     <thead>
                         <tr>
@@ -519,6 +524,10 @@
         </div>
     </div>
 
+    <!-- Firebase SDK (compat version - ใช้งานง่ายกับ script tag ปกติ ไม่ต้องใช้ build tool) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="script.js"></script>
 <div id="login-modal" class="modal-login-overlay">
     <div class="login-card">

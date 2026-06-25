@@ -161,9 +161,17 @@ function initFirebase() {
         }
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
-        db.enablePersistence({ synchronizeTabs: true }).catch(err => {
-            console.warn('เปิด offline persistence ไม่สำเร็จ:', err.code);
+        // ปิด offline persistence เพื่อหลีกเลี่ยง timeout errors
+        // db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+        //     console.warn('เปิด offline persistence ไม่สำเร็จ:', err.code);
+        // });
+        
+        // เพิ่ม Settings เพื่อเร่งความเร็ว
+        db.settings({
+            cacheSizeBytes: 1024 * 1024  // 1MB cache
         });
+        
+        console.log('✅ Firebase initialized successfully');
         return true;
     } catch (err) {
         console.error('เชื่อมต่อ Firebase ไม่สำเร็จ:', err);

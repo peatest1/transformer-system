@@ -412,6 +412,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const record = await fetchHistoryRecordById(id);
             if (record) {
                 applyHistoryRecord(record);
+                // 🎯 ปิด history modal
+                document.getElementById('history-modal').style.display = 'none';
+                // 🎯 Scroll ไปที่ form
+                document.getElementById('step-1').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                alert('✅ โหลดข้อมูลเสร็จแล้ว - สามารถแก้ไขหรือบันทึกใหม่ได้');
             } else {
                 alert('ไม่พบข้อมูลนี้แล้ว อาจถูกลบไปก่อนหน้านี้');
             }
@@ -430,7 +435,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             applyHistoryRecord(record);
-            await triggerPrint();
+            // 🎯 ปิด history modal
+            document.getElementById('history-modal').style.display = 'none';
+            // 🎯 ไปที่ step 2 (ค่าใช้จ่าย) เพื่อปริ้น
+            const step1 = document.getElementById('step-1');
+            const step2 = document.getElementById('step-2');
+            if (step1 && step2) {
+                step1.style.display = 'none';
+                step2.style.display = 'block';
+            }
+            // 🎯 รอให้ step 2 โหลดเสร็จ แล้วเลื่อน + ปริ้น
+            setTimeout(() => {
+                step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                setTimeout(() => {
+                    triggerPrint();
+                }, 500);
+            }, 300);
         } catch (err) {
             console.error('โหลดข้อมูลเพื่อพิมพ์ไม่สำเร็จ:', err);
             alert('ไม่สามารถพิมพ์เอกสารนี้ได้: ' + explainFirebaseError(err));
@@ -461,10 +481,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>${dateText || '-'}</td>
             <td>${peaId || '-'}</td>
             <td>${location || '-'}</td>
-            <td style="white-space:nowrap;">
-                <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${idLiteral})">โหลด</button>
-                <button type="button" class="btn-secondary btn-sm" onclick="window.printHistoryRecord(${idLiteral})">ปริ้น</button>
-                <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${idLiteral})" style="color:red;">ลบ</button>
+            <td style="white-space:nowrap; display:flex; gap:4px;">
+                <button type="button" class="btn-secondary btn-sm" title="โหลดข้อมูลเพื่อแก้ไข" onclick="window.loadHistoryRecord(${idLiteral})">✏️ แก้ไข</button>
+                <button type="button" class="btn-secondary btn-sm" title="ปริ้นเอกสาร PDF" onclick="window.printHistoryRecord(${idLiteral})">🖨️ ปริ้น</button>
+                <button type="button" class="btn-secondary btn-sm" title="ลบข้อมูลนี้" onclick="window.deleteHistoryRecord(${idLiteral})" style="color:red;">🗑️ ลบ</button>
             </td>
         `;
     }

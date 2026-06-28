@@ -9,6 +9,192 @@ const peaUsers = {
     user3: { name: "นายณัฐพล รักดี", position: "วศ.6 แผนกปฏิบัติการเบตง", initial: "ณ" }
 };
 
+// ==========================================================================
+// 🏠 NAVIGATION FUNCTIONS - สำหรับเลื่อนหน้า
+// ==========================================================================
+
+function goToForm() {
+    const homePage = document.getElementById('home-page');
+    const formPage = document.getElementById('form-page');
+    if (homePage) homePage.style.display = 'none';
+    if (formPage) formPage.style.display = 'block';
+    window.scrollTo(0, 0);
+}
+
+function showHistory() {
+    goToForm();
+    // เลื่อนไปประวัติ
+    setTimeout(() => {
+        const historyBtn = document.getElementById('btn-history');
+        if (historyBtn) historyBtn.click();
+    }, 100);
+}
+
+function logout() {
+    if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+        localStorage.removeItem("pea_current_user");
+        location.reload();
+    }
+}
+
+function showHomePage() {
+    const homePage = document.getElementById('home-page');
+    const formPage = document.getElementById('form-page');
+    if (homePage) homePage.style.display = 'block';
+    if (formPage) formPage.style.display = 'none';
+    window.scrollTo(0, 0);
+    
+    // โหลดสถิติ
+    setTimeout(() => {
+        loadHomePageStats();
+    }, 300);
+}
+
+// 📊 Load HOME Page Statistics
+async function loadHomePageStats() {
+    try {
+        const sessionData = localStorage.getItem("pea_current_user");
+        if (sessionData) {
+            const currentUser = JSON.parse(sessionData);
+            const userNameHeader = document.getElementById('home-user-name-header');
+            const userPosHeader = document.getElementById('home-user-pos-header');
+            const infoUsername = document.getElementById('info-username');
+            const infoUserpos = document.getElementById('info-userpos');
+            
+            if (userNameHeader) userNameHeader.textContent = currentUser.name;
+            if (userPosHeader) userPosHeader.textContent = currentUser.position;
+            if (infoUsername) infoUsername.textContent = currentUser.name;
+            if (infoUserpos) infoUserpos.textContent = currentUser.position;
+        }
+        
+        // โหลดข้อมูลจาก localStorage
+        const records = JSON.parse(localStorage.getItem('pea_records') || '[]');
+        const totalRecords = records.length;
+        
+        // คำนวณสถิติ
+        const today = new Date();
+        const thisMonth = records.filter(r => {
+            if (!r.createdDate) return false;
+            const recordDate = new Date(r.createdDate);
+            return recordDate.getMonth() === today.getMonth() && 
+                   recordDate.getFullYear() === today.getFullYear();
+        });
+        
+        const latestRecord = records.length > 0 ? records[records.length - 1] : null;
+        const latestDate = latestRecord && latestRecord.createdDate ? 
+            new Date(latestRecord.createdDate).toLocaleDateString('th-TH') : '-';
+        
+        // อัปเดต UI
+        const statsTotal = document.getElementById('stats-total');
+        const statsMonth = document.getElementById('stats-month');
+        const statsLatest = document.getElementById('stats-latest');
+        
+        if (statsTotal) statsTotal.textContent = totalRecords;
+        if (statsMonth) statsMonth.textContent = thisMonth.length;
+        if (statsLatest) statsLatest.textContent = latestDate;
+        
+        // โหลดบันทึกล่าสุด
+        loadRecentRecords(records);
+        
+        // สร้างกราฟ
+        setTimeout(() => initStatsChart(records), 100);
+        
+    } catch (err) {
+        console.error('Error loading home stats:', err);
+    }
+}
+
+// โหลดบันทึกล่าสุด 5 รายการ
+function loadRecentRecords(records) {
+    const container = document.getElementById('recent-records');
+    if (!container) return;
+    
+    if (!records || records.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #999;">ยังไม่มีบันทึก</p>';
+        return;
+    }
+    
+    const recent = records.slice(-5).reverse();
+    let html = '<div style="max-height: 200px; overflow-y: auto;">';
+    
+    recent.forEach(r => {
+        const date = r.createdDate ? new Date(r.createdDate).toLocaleDateString('th-TH') : '-';
+        const location = (r.data && r.data.location) ? r.data.location : '-';
+        const transId = (r.data && r.data.transId) ? r.data.transId : '-';
+        html += `<div style="padding: 0.75rem 0; border-bottom: 1px solid #eee; font-size: 0.85rem;">
+            <div style="font-weight: 600; color: #6C2B85;">${location}</div>
+            <div style="color: #999;">📅 ${date} | ID: ${transId}</div>
+        </div>`;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+// สร้างกราฟ
+function initStatsChart(records) {
+    const ctx = document.getElementById('stats-chart');
+    if (!ctx) return;
+    
+    // ตรวจสอบว่า Chart instance มีอยู่แล้วหรือไม่
+    if (window.statsChartInstance) {
+        window.statsChartInstance.destroy();
+    }
+    
+    // นับจำนวน record ต่อเดือน (6 เดือนล่าสุด)
+    const months = [];
+    const counts = [];
+    
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+        const monthName = date.toLocaleDateString('th-TH', { month: 'short', year: '2-digit' });
+        months.push(monthName);
+        
+        const count = records.filter(r => {
+            if (!r.createdDate) return false;
+            const rDate = new Date(r.createdDate);
+            return `${rDate.getFullYear()}-${rDate.getMonth()}` === monthKey;
+        }).length;
+        counts.push(count);
+    }
+    
+    // สร้าง chart
+    window.statsChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'จำนวนบันทึก',
+                data: counts,
+                backgroundColor: '#6C2B85',
+                borderColor: '#4a1c5c',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
     checkLoginSession();
 
@@ -53,6 +239,8 @@ function checkLoginSession() {
     const sessionData = localStorage.getItem("pea_current_user");
     const loginModal = document.getElementById("login-modal");
     const profileInfo = document.getElementById("user-profile-info");
+    const homePage = document.getElementById("home-page");
+    const formPage = document.getElementById("form-page");
 
     if (sessionData) {
         const currentUser = JSON.parse(sessionData);
@@ -60,13 +248,17 @@ function checkLoginSession() {
         // 1. ซ่อนหน้าต่าง Login และแสดงแถบโปรไฟล์บน Header
         if (loginModal) loginModal.style.display = "none";
         if (profileInfo) profileInfo.style.display = "flex";
+        
+        // 2. แสดงหน้า HOME page
+        if (homePage) homePage.style.display = 'block';
+        if (formPage) formPage.style.display = 'none';
 
-        // 2. อัปเดตข้อมูลบน Header ด้านบน
+        // 3. อัปเดตข้อมูลบน Header ด้านบน
         document.getElementById("header-user-name").textContent = currentUser.name;
         document.getElementById("header-user-pos").textContent = currentUser.position;
         document.getElementById("user-avatar-text").textContent = currentUser.initial;
 
-        // 3. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
+        // 4. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
         
         // ส่วนที่ 5: ผู้คิดค่าบริการและตำแหน่ง
         const costAccountantInput = document.getElementById("cost-accountant");
@@ -84,6 +276,8 @@ function checkLoginSession() {
         // หากไม่มีการล็อกอิน ให้บังคับเปิดหน้าต่าง Login Modal ไว้
         if (loginModal) loginModal.style.display = "flex";
         if (profileInfo) profileInfo.style.display = "none";
+        if (homePage) homePage.style.display = 'none';
+        if (formPage) formPage.style.display = 'none';
     }
 }
 // ฟังก์ชันดึงค่าจากช่องกรอกทั่วไปอย่างปลอดภัย (Text, Textarea, Select)
@@ -161,17 +355,9 @@ function initFirebase() {
         }
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
-        // ปิด offline persistence เพื่อหลีกเลี่ยง timeout errors
-        // db.enablePersistence({ synchronizeTabs: true }).catch(err => {
-        //     console.warn('เปิด offline persistence ไม่สำเร็จ:', err.code);
-        // });
-        
-        // เพิ่ม Settings เพื่อเร่งความเร็ว
-        db.settings({
-            cacheSizeBytes: 1024 * 1024  // 1MB cache
+        db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+            console.warn('เปิด offline persistence ไม่สำเร็จ:', err.code);
         });
-        
-        console.log('✅ Firebase initialized successfully');
         return true;
     } catch (err) {
         console.error('เชื่อมต่อ Firebase ไม่สำเร็จ:', err);
@@ -412,11 +598,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const record = await fetchHistoryRecordById(id);
             if (record) {
                 applyHistoryRecord(record);
-                // 🎯 ปิด history modal
-                document.getElementById('history-modal').style.display = 'none';
-                // 🎯 Scroll ไปที่ form
-                document.getElementById('step-1').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                alert('✅ โหลดข้อมูลเสร็จแล้ว - สามารถแก้ไขหรือบันทึกใหม่ได้');
             } else {
                 alert('ไม่พบข้อมูลนี้แล้ว อาจถูกลบไปก่อนหน้านี้');
             }
@@ -435,22 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             applyHistoryRecord(record);
-            // 🎯 ปิด history modal
-            document.getElementById('history-modal').style.display = 'none';
-            // 🎯 ไปที่ step 2 (ค่าใช้จ่าย) เพื่อปริ้น
-            const step1 = document.getElementById('step-1');
-            const step2 = document.getElementById('step-2');
-            if (step1 && step2) {
-                step1.style.display = 'none';
-                step2.style.display = 'block';
-            }
-            // 🎯 รอให้ step 2 โหลดเสร็จ แล้วเลื่อน + ปริ้น
-            setTimeout(() => {
-                step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                setTimeout(() => {
-                    triggerPrint();
-                }, 500);
-            }, 300);
+            await triggerPrint();
         } catch (err) {
             console.error('โหลดข้อมูลเพื่อพิมพ์ไม่สำเร็จ:', err);
             alert('ไม่สามารถพิมพ์เอกสารนี้ได้: ' + explainFirebaseError(err));
@@ -481,10 +647,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>${dateText || '-'}</td>
             <td>${peaId || '-'}</td>
             <td>${location || '-'}</td>
-            <td style="white-space:nowrap; display:flex; gap:4px;">
-                <button type="button" class="btn-secondary btn-sm" title="โหลดข้อมูลเพื่อแก้ไข" onclick="window.loadHistoryRecord(${idLiteral})">✏️ แก้ไข</button>
-                <button type="button" class="btn-secondary btn-sm" title="ปริ้นเอกสาร PDF" onclick="window.printHistoryRecord(${idLiteral})">🖨️ ปริ้น</button>
-                <button type="button" class="btn-secondary btn-sm" title="ลบข้อมูลนี้" onclick="window.deleteHistoryRecord(${idLiteral})" style="color:red;">🗑️ ลบ</button>
+            <td style="white-space:nowrap;">
+                <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${idLiteral})">โหลด</button>
+                <button type="button" class="btn-secondary btn-sm" onclick="window.printHistoryRecord(${idLiteral})">ปริ้น</button>
+                <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${idLiteral})" style="color:red;">ลบ</button>
             </td>
         `;
     }
@@ -1206,11 +1372,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         await renderHistory();
-        document.getElementById('history-modal').style.display = 'block';
+        // 🏠 ไปหน้า HOME แทนแสดง history modal
+        alert('✅ บันทึกข้อมูลสำเร็จแล้ว');
+        setTimeout(() => {
+            showHomePage();
+        }, 300);
 
         if (autoPrint) {
-            // หน่วงเล็กน้อยให้หน้าต่างประวัติแสดงผลก่อน แล้วค่อยสั่งพิมพ์
-            setTimeout(() => { triggerPrint(); }, 400);
+            // หน่วงเล็กน้อยให้ print dialog ขึ้นมา
+            setTimeout(() => { triggerPrint(); }, 800);
         }
     }
 

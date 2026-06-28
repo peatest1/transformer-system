@@ -11,7 +11,106 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="app-container">
+    <!-- ===== 🏠 HOME PAGE (ENHANCED DASHBOARD) ===== -->
+    <div id="home-page" style="display: none; background: linear-gradient(135deg, #f4f3f7 0%, #e8e5f0 100%); min-height: 100vh; padding-bottom: 3rem;">
+        <!-- HEADER -->
+        <header style="background: linear-gradient(135deg, #6C2B85 0%, #9b51b5 100%); color: white; padding: 2rem 1rem;">
+            <div style="max-width: 1200px; margin: 0 auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                        <h1 style="margin: 0; font-size: 1.8rem;">⚙️ ระบบบำรุงรักษาหม้อแปลง</h1>
+                        <p style="margin: 0.5rem 0 0; opacity: 0.9;">PEA Transformer Maintenance System</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 600; font-size: 1.1rem;" id="home-user-name-header">-</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;" id="home-user-pos-header">-</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <button onclick="goToForm()" style="background: white; color: #6C2B85; border: none; padding: 0.6rem 1.2rem; font-size: 0.95rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                        📝 บันทึกข้อมูลใหม่
+                    </button>
+                    <button onclick="showHistory()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.6rem 1.2rem; font-size: 0.95rem; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                        📋 ประวัติ
+                    </button>
+                    <button onclick="logout()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); padding: 0.6rem 1.2rem; font-size: 0.95rem; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                        🚪 ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <div style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem;">
+            <!-- WELCOME MESSAGE -->
+            <div style="background: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h2 style="margin-top: 0; color: #6C2B85;">👋 ยินดีต้อนรับ!</h2>
+                <p style="margin: 0.5rem 0; color: #555;">ระบบบันทึกผลการบำรุงรักษาหม้อแปลง กฟส.เบตง</p>
+                <div style="background: #f9f7fc; padding: 1rem; border-left: 4px solid #E8B425; border-radius: 4px; margin-top: 1rem;">
+                    <p style="margin: 0; color: #666; font-size: 0.95rem;">
+                        💡 <strong>เคล็ดลับ:</strong> ใช้ปุ่ม "บันทึกข้อมูลใหม่" เพื่อเพิ่มประวัติการบำรุงรักษา และสามารถดูประวัติได้ทุกเวลา
+                    </p>
+                </div>
+            </div>
+
+            <!-- STATISTICS CARDS -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-top: 4px solid #6C2B85;">
+                    <div style="font-size: 2.5rem; font-weight: bold; color: #6C2B85;" id="stats-total">-</div>
+                    <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">📊 ทั้งหมด Record</div>
+                </div>
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-top: 4px solid #E8B425;">
+                    <div style="font-size: 2.5rem; font-weight: bold; color: #E8B425;" id="stats-month">-</div>
+                    <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">📅 เดือนนี้</div>
+                </div>
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-top: 4px solid #2f9e5b;">
+                    <div style="font-size: 2.5rem; font-weight: bold; color: #2f9e5b;" id="stats-latest">-</div>
+                    <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">⏰ บันทึกล่าสุด</div>
+                </div>
+            </div>
+
+            <!-- DASHBOARD & RECENT RECORDS -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                <!-- CHART SECTION -->
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; color: #6C2B85;">📈 สถิติการบำรุงรักษา</h3>
+                    <canvas id="stats-chart" style="max-height: 250px;"></canvas>
+                </div>
+
+                <!-- RECENT RECORDS SECTION -->
+                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="margin-top: 0; color: #6C2B85;">⭐ บันทึกล่าสุด</h3>
+                    <div id="recent-records" style="font-size: 0.9rem; color: #666;">
+                        <p style="text-align: center; margin: 1rem 0;">loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS & INFO -->
+            <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 2rem;">
+                <h3 style="margin-top: 0; color: #6C2B85;">⚙️ ข้อมูลและตั้งค่า</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div style="padding: 1rem; background: #f9f7fc; border-radius: 8px;">
+                        <div style="color: #6C2B85; font-weight: 600; margin-bottom: 0.5rem;">👤 ผู้ใช้ปัจจุบัน</div>
+                        <div style="color: #555;" id="info-username">-</div>
+                        <div style="color: #999; font-size: 0.85rem;" id="info-userpos">-</div>
+                    </div>
+                    <div style="padding: 1rem; background: #f9f7fc; border-radius: 8px;">
+                        <div style="color: #6C2B85; font-weight: 600; margin-bottom: 0.5rem;">🏢 สาขา</div>
+                        <div style="color: #555;">กฟส.เบตง</div>
+                    </div>
+                    <div style="padding: 1rem; background: #f9f7fc; border-radius: 8px;">
+                        <div style="color: #6C2B85; font-weight: 600; margin-bottom: 0.5rem;">📱 เวอร์ชั่น</div>
+                        <div style="color: #555;">v1.0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 📋 FORM PAGE (ORIGINAL) ===== -->
+    <div id="form-page" style="display: none;">
+        <div id="app-container">
         <header class="app-header">
             <div class="header-brand">
                 <div class="brand-emblem" aria-hidden="true">
@@ -523,10 +622,14 @@
             </div>
         </div>
     </div>
+        </div>
+    </div>
 
     <!-- Firebase SDK (compat version - ใช้งานง่ายกับ script tag ปกติ ไม่ต้องใช้ build tool) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <!-- Chart.js for statistics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="firebase-config.js"></script>
     <script src="script.js"></script>
 <div id="login-modal" class="modal-login-overlay">

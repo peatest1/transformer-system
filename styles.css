@@ -505,7 +505,7 @@ select {
 
 /* Modal */
 .modal {
-    display: none;
+    display: none !important;
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -514,6 +514,13 @@ select {
     height: 100%;
     background-color: rgba(0,0,0,0.5);
     backdrop-filter: blur(4px);
+}
+
+.modal.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 9999 !important;
 }
 .modal-content {
     background-color: var(--card-bg);

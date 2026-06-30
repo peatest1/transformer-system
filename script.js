@@ -24,29 +24,53 @@ function goToForm() {
     if (h) h.style.display = 'none';
     if (f) f.style.display = 'block';
     window.scrollTo(0, 0);
-    // รีเซท editing flag เมื่อเปิดฟอร์มใหม่
-    currentEditingRecordId = null;
-    // เคลียร์ฟอร์ม
-    clearAllForm();
+    
+    // เฉพาะเมื่อ "บันทึกข้อมูลใหม่" (ไม่ได้กำลัง edit) ค่อยลบข้อมูล
+    if (currentEditingRecordId === null) {
+        clearAllForm();
+    }
 }
 
 function clearAllForm() {
+    const sessionData = localStorage.getItem("pea_current_user");
+    const currentUser = sessionData ? JSON.parse(sessionData) : null;
+    
     document.querySelectorAll('input, select, textarea').forEach(el => {
-        if (el.id && el.id !== 'sign-date') {  // เก็บวันที่วันนี้
+        if (el.id && el.id !== 'sign-date') {
             el.value = '';
         }
     });
+    
     if (typeof ctx !== 'undefined') {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    // Re-apply auto-fill สำหรับข้อมูล user
+    if (currentUser) {
+        const costAccountantInput = document.getElementById("cost-accountant");
+        const costAccountantPosInput = document.getElementById("cost-accountant-pos");
+        if (costAccountantInput) costAccountantInput.value = currentUser.name;
+        if (costAccountantPosInput) costAccountantPosInput.value = currentUser.position;
+
+        const signNameInput = document.getElementById("sign-name");
+        const signPosInput = document.getElementById("sign-pos");
+        if (signNameInput) signNameInput.value = currentUser.name;
+        if (signPosInput) signPosInput.value = currentUser.position;
     }
 }
 
 function showHistory() {
-    goToForm();
-    setTimeout(() => {
-        const btn = document.getElementById('btn-history');
-        if (btn) btn.click();
-    }, 100);
+    if (typeof window.renderHistory === 'function') {
+        window.renderHistory();
+    }
+    const historyModal = document.getElementById('history-modal');
+    if (historyModal) {
+        historyModal.classList.add('show');
+        historyModal.style.display = 'block';
+        historyModal.style.visibility = 'visible';
+        historyModal.style.opacity = '1';
+        historyModal.style.zIndex = '9999';
+    }
 }
 
 function logout() {
@@ -55,6 +79,9 @@ function logout() {
         location.reload();
     }
 }
+
+// Global variable to track if we're editing an existing record
+let currentEditingRecordId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     checkLoginSession();
@@ -324,10 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- History System ---
     const HISTORY_KEY = 'pea_transformer_history';
 
-// Global variable to track if we're editing an existing record
-let currentEditingRecordId = null;
-
-function saveToHistory() {
+    function saveToHistory() {
     let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
     
     // ถ้า editing record เดิม → ลบ record เก่าออก
@@ -379,9 +403,17 @@ function loadHistoryRecord(id) {
         } else {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-        document.getElementById('history-modal').style.display = 'none';
-        // ไปหน้ากรอก เพื่อแก้ไขข้อมูลที่โหลด
-        setTimeout(() => goToForm(), 300);
+        const modal = document.getElementById('history-modal');
+        if (modal) {
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            modal.style.visibility = 'hidden';
+        }
+        
+        // ไปแสดงฟอร์มพร้อมข้อมูลที่โหลด
+        setTimeout(() => {
+            goToForm();
+        }, 200);
     }
 }
 
@@ -429,6 +461,7 @@ function loadHistoryRecord(id) {
     window.loadHistoryRecord = loadHistoryRecord;
     window.deleteHistoryRecord = deleteHistoryRecord;
     window.printHistoryRecord = printHistoryRecord;
+    window.renderHistory = renderHistory;
 
     const btnHome = document.getElementById('btn-home');
     const btnHistory = document.getElementById('btn-history');
@@ -442,14 +475,25 @@ function loadHistoryRecord(id) {
     if(btnHistory) {
         btnHistory.addEventListener('click', () => {
             renderHistory();
+            historyModal.classList.add('show');
             historyModal.style.display = 'block';
+            historyModal.style.visibility = 'visible';
+            historyModal.style.zIndex = '9999';
         });
     }
     if(closeHistory) {
-        closeHistory.addEventListener('click', () => historyModal.style.display = 'none');
+        closeHistory.addEventListener('click', () => {
+            historyModal.classList.remove('show');
+            historyModal.style.display = 'none';
+            historyModal.style.visibility = 'hidden';
+        });
     }
     window.addEventListener('click', (e) => {
-        if (e.target === historyModal) historyModal.style.display = 'none';
+        if (e.target === historyModal) {
+            historyModal.classList.remove('show');
+            historyModal.style.display = 'none';
+            historyModal.style.visibility = 'hidden';
+        }
     });
 
     // =========================================================

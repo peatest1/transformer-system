@@ -24,6 +24,8 @@ function goToForm() {
     if (h) h.style.display = 'none';
     if (f) f.style.display = 'block';
     window.scrollTo(0, 0);
+    // รีเซท editing flag เมื่อเปิดฟอร์มใหม่
+    currentEditingRecordId = null;
 }
 
 function showHistory() {
@@ -309,50 +311,64 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- History System ---
     const HISTORY_KEY = 'pea_transformer_history';
 
-    function saveToHistory() {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-        
-        let record = {
-            id: Date.now(),
-            date: new Date().toLocaleString('th-TH'),
-            peaId: document.getElementById('trans-id') ? document.getElementById('trans-id').value : '',
-            location: document.getElementById('location') ? document.getElementById('location').value : '',
-            data: {}
-        };
-        
-        document.querySelectorAll('input, select, textarea').forEach(el => {
-            if(el.id) record.data[el.id] = el.value;
-        });
-        
-        if (!isCanvasBlank()) {
-            record.signature = canvas.toDataURL('image/png');
-        }
-        
-        history.push(record);
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-    }
+// Global variable to track if we're editing an existing record
+let currentEditingRecordId = null;
 
-    function loadHistoryRecord(id) {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-        let record = history.find(r => r.id === id);
-        if (record) {
-            Object.keys(record.data).forEach(key => {
-                let el = document.getElementById(key);
-                if (el) el.value = record.data[key];
-            });
-            if (record.signature) {
-                let img = new Image();
-                img.onload = () => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                };
-                img.src = record.signature;
-            } else {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-            document.getElementById('history-modal').style.display = 'none';
-        }
+function saveToHistory() {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    
+    // ถ้า editing record เดิม → ลบ record เก่าออก
+    if (currentEditingRecordId !== null) {
+        history = history.filter(r => r.id !== currentEditingRecordId);
     }
+    
+    let record = {
+        id: currentEditingRecordId || Date.now(),  // ใช้ ID เก่า หรือสร้างใหม่
+        date: new Date().toLocaleString('th-TH'),
+        peaId: document.getElementById('trans-id') ? document.getElementById('trans-id').value : '',
+        location: document.getElementById('location') ? document.getElementById('location').value : '',
+        data: {}
+    };
+    
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if(el.id) record.data[el.id] = el.value;
+    });
+    
+    if (!isCanvasBlank()) {
+        record.signature = canvas.toDataURL('image/png');
+    }
+    
+    history.push(record);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    
+    // รีเซท editing flag
+    currentEditingRecordId = null;
+}
+
+function loadHistoryRecord(id) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    let record = history.find(r => r.id === id);
+    if (record) {
+        // เซท flag ว่ากำลัง edit record นี้
+        currentEditingRecordId = id;
+        
+        Object.keys(record.data).forEach(key => {
+            let el = document.getElementById(key);
+            if (el) el.value = record.data[key];
+        });
+        if (record.signature) {
+            let img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            };
+            img.src = record.signature;
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        document.getElementById('history-modal').style.display = 'none';
+    }
+}
 
     function deleteHistoryRecord(id) {
         if(confirm('ต้องการลบประวัตินี้ใช่หรือไม่?')) {

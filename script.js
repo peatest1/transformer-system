@@ -26,6 +26,19 @@ function goToForm() {
     window.scrollTo(0, 0);
     // รีเซท editing flag เมื่อเปิดฟอร์มใหม่
     currentEditingRecordId = null;
+    // เคลียร์ฟอร์ม
+    clearAllForm();
+}
+
+function clearAllForm() {
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.id && el.id !== 'sign-date') {  // เก็บวันที่วันนี้
+            el.value = '';
+        }
+    });
+    if (typeof ctx !== 'undefined') {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 }
 
 function showHistory() {
@@ -367,6 +380,8 @@ function loadHistoryRecord(id) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
         document.getElementById('history-modal').style.display = 'none';
+        // ไปหน้ากรอก เพื่อแก้ไขข้อมูลที่โหลด
+        setTimeout(() => goToForm(), 300);
     }
 }
 

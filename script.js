@@ -9,24 +9,28 @@ const peaUsers = {
     user3: { name: "นายณัฐพล รักดี", position: "วศ.6 แผนกปฏิบัติการเบตง", initial: "ณ" }
 };
 
-// ==========================================================================
-// 🏠 NAVIGATION FUNCTIONS - สำหรับเลื่อนหน้า
-// ==========================================================================
+// 🏠 NAVIGATION
+function showHomePage() {
+    const h = document.getElementById('home-page');
+    const f = document.getElementById('form-page');
+    if (h) h.style.display = 'block';
+    if (f) f.style.display = 'none';
+    window.scrollTo(0, 0);
+}
 
 function goToForm() {
-    const homePage = document.getElementById('home-page');
-    const formPage = document.getElementById('form-page');
-    if (homePage) homePage.style.display = 'none';
-    if (formPage) formPage.style.display = 'block';
+    const h = document.getElementById('home-page');
+    const f = document.getElementById('form-page');
+    if (h) h.style.display = 'none';
+    if (f) f.style.display = 'block';
     window.scrollTo(0, 0);
 }
 
 function showHistory() {
     goToForm();
-    // เลื่อนไปประวัติ
     setTimeout(() => {
-        const historyBtn = document.getElementById('btn-history');
-        if (historyBtn) historyBtn.click();
+        const btn = document.getElementById('btn-history');
+        if (btn) btn.click();
     }, 100);
 }
 
@@ -36,164 +40,6 @@ function logout() {
         location.reload();
     }
 }
-
-function showHomePage() {
-    const homePage = document.getElementById('home-page');
-    const formPage = document.getElementById('form-page');
-    if (homePage) homePage.style.display = 'block';
-    if (formPage) formPage.style.display = 'none';
-    window.scrollTo(0, 0);
-    
-    // โหลดสถิติ
-    setTimeout(() => {
-        loadHomePageStats();
-    }, 300);
-}
-
-// 📊 Load HOME Page Statistics
-async function loadHomePageStats() {
-    try {
-        const sessionData = localStorage.getItem("pea_current_user");
-        if (sessionData) {
-            const currentUser = JSON.parse(sessionData);
-            const userNameHeader = document.getElementById('home-user-name-header');
-            const userPosHeader = document.getElementById('home-user-pos-header');
-            const infoUsername = document.getElementById('info-username');
-            const infoUserpos = document.getElementById('info-userpos');
-            
-            if (userNameHeader) userNameHeader.textContent = currentUser.name;
-            if (userPosHeader) userPosHeader.textContent = currentUser.position;
-            if (infoUsername) infoUsername.textContent = currentUser.name;
-            if (infoUserpos) infoUserpos.textContent = currentUser.position;
-        }
-        
-        // โหลดข้อมูลจาก localStorage
-        const records = JSON.parse(localStorage.getItem('pea_records') || '[]');
-        const totalRecords = records.length;
-        
-        // คำนวณสถิติ
-        const today = new Date();
-        const thisMonth = records.filter(r => {
-            if (!r.createdDate) return false;
-            const recordDate = new Date(r.createdDate);
-            return recordDate.getMonth() === today.getMonth() && 
-                   recordDate.getFullYear() === today.getFullYear();
-        });
-        
-        const latestRecord = records.length > 0 ? records[records.length - 1] : null;
-        const latestDate = latestRecord && latestRecord.createdDate ? 
-            new Date(latestRecord.createdDate).toLocaleDateString('th-TH') : '-';
-        
-        // อัปเดต UI
-        const statsTotal = document.getElementById('stats-total');
-        const statsMonth = document.getElementById('stats-month');
-        const statsLatest = document.getElementById('stats-latest');
-        
-        if (statsTotal) statsTotal.textContent = totalRecords;
-        if (statsMonth) statsMonth.textContent = thisMonth.length;
-        if (statsLatest) statsLatest.textContent = latestDate;
-        
-        // โหลดบันทึกล่าสุด
-        loadRecentRecords(records);
-        
-        // สร้างกราฟ
-        setTimeout(() => initStatsChart(records), 100);
-        
-    } catch (err) {
-        console.error('Error loading home stats:', err);
-    }
-}
-
-// โหลดบันทึกล่าสุด 5 รายการ
-function loadRecentRecords(records) {
-    const container = document.getElementById('recent-records');
-    if (!container) return;
-    
-    if (!records || records.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #999;">ยังไม่มีบันทึก</p>';
-        return;
-    }
-    
-    const recent = records.slice(-5).reverse();
-    let html = '<div style="max-height: 200px; overflow-y: auto;">';
-    
-    recent.forEach(r => {
-        const date = r.createdDate ? new Date(r.createdDate).toLocaleDateString('th-TH') : '-';
-        const location = (r.data && r.data.location) ? r.data.location : '-';
-        const transId = (r.data && r.data.transId) ? r.data.transId : '-';
-        html += `<div style="padding: 0.75rem 0; border-bottom: 1px solid #eee; font-size: 0.85rem;">
-            <div style="font-weight: 600; color: #6C2B85;">${location}</div>
-            <div style="color: #999;">📅 ${date} | ID: ${transId}</div>
-        </div>`;
-    });
-    
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-// สร้างกราฟ
-function initStatsChart(records) {
-    const ctx = document.getElementById('stats-chart');
-    if (!ctx) return;
-    
-    // ตรวจสอบว่า Chart instance มีอยู่แล้วหรือไม่
-    if (window.statsChartInstance) {
-        window.statsChartInstance.destroy();
-    }
-    
-    // นับจำนวน record ต่อเดือน (6 เดือนล่าสุด)
-    const months = [];
-    const counts = [];
-    
-    for (let i = 5; i >= 0; i--) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-        const monthName = date.toLocaleDateString('th-TH', { month: 'short', year: '2-digit' });
-        months.push(monthName);
-        
-        const count = records.filter(r => {
-            if (!r.createdDate) return false;
-            const rDate = new Date(r.createdDate);
-            return `${rDate.getFullYear()}-${rDate.getMonth()}` === monthKey;
-        }).length;
-        counts.push(count);
-    }
-    
-    // สร้าง chart
-    window.statsChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: months,
-            datasets: [{
-                label: 'จำนวนบันทึก',
-                data: counts,
-                backgroundColor: '#6C2B85',
-                borderColor: '#4a1c5c',
-                borderWidth: 1,
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
-        }
-    });
-}
-
 
 document.addEventListener("DOMContentLoaded", () => {
     checkLoginSession();
@@ -239,8 +85,6 @@ function checkLoginSession() {
     const sessionData = localStorage.getItem("pea_current_user");
     const loginModal = document.getElementById("login-modal");
     const profileInfo = document.getElementById("user-profile-info");
-    const homePage = document.getElementById("home-page");
-    const formPage = document.getElementById("form-page");
 
     if (sessionData) {
         const currentUser = JSON.parse(sessionData);
@@ -248,17 +92,19 @@ function checkLoginSession() {
         // 1. ซ่อนหน้าต่าง Login และแสดงแถบโปรไฟล์บน Header
         if (loginModal) loginModal.style.display = "none";
         if (profileInfo) profileInfo.style.display = "flex";
-        
-        // 2. แสดงหน้า HOME page
-        if (homePage) homePage.style.display = 'block';
-        if (formPage) formPage.style.display = 'none';
 
-        // 3. อัปเดตข้อมูลบน Header ด้านบน
+        // แสดงหน้า HOME หลัง login
+        const homePage = document.getElementById("home-page");
+        const formPage = document.getElementById("form-page");
+        if (homePage) homePage.style.display = "block";
+        if (formPage) formPage.style.display = "none";
+
+        // 2. อัปเดตข้อมูลบน Header ด้านบน
         document.getElementById("header-user-name").textContent = currentUser.name;
         document.getElementById("header-user-pos").textContent = currentUser.position;
         document.getElementById("user-avatar-text").textContent = currentUser.initial;
 
-        // 4. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
+        // 3. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
         
         // ส่วนที่ 5: ผู้คิดค่าบริการและตำแหน่ง
         const costAccountantInput = document.getElementById("cost-accountant");
@@ -276,8 +122,6 @@ function checkLoginSession() {
         // หากไม่มีการล็อกอิน ให้บังคับเปิดหน้าต่าง Login Modal ไว้
         if (loginModal) loginModal.style.display = "flex";
         if (profileInfo) profileInfo.style.display = "none";
-        if (homePage) homePage.style.display = 'none';
-        if (formPage) formPage.style.display = 'none';
     }
 }
 // ฟังก์ชันดึงค่าจากช่องกรอกทั่วไปอย่างปลอดภัย (Text, Textarea, Select)
@@ -327,75 +171,8 @@ function formatThaiTime(hhmm) {
     return `${parts[0]}.${parts[1]} น.`;
 }
 
-// =====================================================================
-// Firebase Initialization
-// ถ้ายังไม่ได้ตั้งค่า firebase-config.js (หรือโหลด SDK ไม่สำเร็จ เช่น เน็ตหลุด)
-// ระบบจะสลับไปบันทึกข้อมูลในเครื่อง (localStorage) แทนโดยอัตโนมัติ
-// เพื่อไม่ให้แอปพังใช้งานไม่ได้
-// =====================================================================
-let db = null;
-let firebaseReady = false;
-const FIRESTORE_COLLECTION = 'maintenance_records';
-
-function initFirebase() {
-    try {
-        // ตรวจสอบว่าเปิดผ่าน file:// หรือเปล่า — ถ้าใช่ Firebase จะ timeout ทุกครั้ง
-        // เพราะเบราว์เซอร์บล็อกการเชื่อมต่อออกไปภายนอกจาก file:// โดยค่าเริ่มต้น
-        if (window.location.protocol === 'file:') {
-            console.warn('เปิดผ่าน file:// — Firebase จะไม่ทำงาน ต้องอัปโหลดขึ้น GitHub Pages ก่อน');
-            return false;
-        }
-        if (typeof firebase === 'undefined') {
-            console.warn('โหลด Firebase SDK ไม่สำเร็จ (อาจเน็ตหลุด) จะใช้การบันทึกในเครื่องแทน');
-            return false;
-        }
-        if (typeof firebaseConfig === 'undefined' || !firebaseConfig.apiKey || firebaseConfig.apiKey.indexOf('ใส่') === 0) {
-            console.warn('ยังไม่ได้ตั้งค่า Firebase ใน firebase-config.js จะใช้การบันทึกในเครื่องแทน');
-            return false;
-        }
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-        db.enablePersistence({ synchronizeTabs: true }).catch(err => {
-            console.warn('เปิด offline persistence ไม่สำเร็จ:', err.code);
-        });
-        return true;
-    } catch (err) {
-        console.error('เชื่อมต่อ Firebase ไม่สำเร็จ:', err);
-        return false;
-    }
-}
-
-firebaseReady = initFirebase();
-
-// แปล error code จาก Firebase ให้เป็นข้อความที่อ่านเข้าใจง่ายและบอกวิธีแก้ไขเบื้องต้น
-function explainFirebaseError(err) {
-    const code = err && err.code ? err.code : '';
-    if (code === 'permission-denied') {
-        return 'เชื่อมต่อ Firebase ได้ แต่ไม่มีสิทธิ์อ่าน/เขียนข้อมูล (permission-denied) — ไปที่ Firebase Console > Firestore Database > แท็บ Rules แล้วตรวจสอบว่าอนุญาตให้อ่าน/เขียนได้ (โหมด test mode หรือยังไม่หมดอายุ)';
-    }
-    if (code === 'unavailable' || code === 'deadline-exceeded') {
-        return 'เชื่อมต่อฐานข้อมูลไม่ได้ (เน็ตหลุด/ไฟร์วอลล์บล็อก) — ลองตรวจสอบอินเทอร์เน็ตแล้วลองใหม่';
-    }
-    if (code === 'not-found') {
-        return 'ไม่พบฐานข้อมูล Firestore ในโปรเจกต์นี้ — ไปที่ Firebase Console > Build > Firestore Database แล้วกด "Create database" ก่อน';
-    }
-    return `เกิดข้อผิดพลาด: ${err && err.message ? err.message : 'ไม่ทราบสาเหตุ'}${code ? ' (' + code + ')' : ''}`;
-}
-
-
-// ป้องกันไม่ให้การเรียก Firestore ค้างไม่มีกำหนด (เช่น เน็ตช้า, ไฟร์วอลล์บล็อก, กฎความปลอดภัยตั้งผิด)
-// ถ้าเกินเวลาที่กำหนด จะถือว่าล้มเหลวและให้ระบบ fallback ไปใช้ localStorage แทนทันที
-function withTimeout(promise, ms) {
-    return Promise.race([
-        promise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('หมดเวลาเชื่อมต่อฐานข้อมูล (timeout)')), ms))
-    ]);
-}
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const btnPrintBottom = document.getElementById('btn-print-bottom');
-    const btnSaveOnly = document.getElementById('btn-save-only');
 
     // !!! หมายเหตุสำคัญ !!! 
     // โปรดนำรหัส Base64 ของโลโก้ PEA เดิมของคุณมาใส่ในเครื่องหมายคำพูดด้านล่างนี้
@@ -532,7 +309,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- History System ---
     const HISTORY_KEY = 'pea_transformer_history';
 
-    async function saveToHistory() {
+    function saveToHistory() {
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        
         let record = {
             id: Date.now(),
             date: new Date().toLocaleString('th-TH'),
@@ -540,175 +319,94 @@ document.addEventListener('DOMContentLoaded', () => {
             location: document.getElementById('location') ? document.getElementById('location').value : '',
             data: {}
         };
-
+        
         document.querySelectorAll('input, select, textarea').forEach(el => {
             if(el.id) record.data[el.id] = el.value;
         });
-
+        
         if (!isCanvasBlank()) {
             record.signature = canvas.toDataURL('image/png');
         }
-
-        if (firebaseReady && db) {
-            try {
-                await withTimeout(db.collection(FIRESTORE_COLLECTION).add(Object.assign({}, record, {
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                })), 8000);
-                return;
-            } catch (err) {
-                console.error('บันทึกขึ้น Firebase ไม่สำเร็จ จะบันทึกสำรองไว้ในเครื่องนี้แทน:', err);
-            }
-        }
-
-        // โหมดสำรอง: บันทึกในเครื่อง (ใช้เมื่อยังไม่ได้ตั้งค่า Firebase หรือบันทึกขึ้น Firebase ไม่สำเร็จ)
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        
         history.push(record);
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     }
 
-    function applyHistoryRecord(record) {
-        Object.keys(record.data).forEach(key => {
-            let el = document.getElementById(key);
-            if (el) el.value = record.data[key];
-        });
-        if (record.signature) {
-            let img = new Image();
-            img.onload = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            };
-            img.src = record.signature;
-        } else {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-        document.getElementById('history-modal').style.display = 'none';
-    }
-
-    async function fetchHistoryRecordById(id) {
-        if (firebaseReady && db) {
-            const doc = await withTimeout(db.collection(FIRESTORE_COLLECTION).doc(String(id)).get(), 8000);
-            return doc.exists ? doc.data() : null;
-        }
+    function loadHistoryRecord(id) {
         let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-        return history.find(r => r.id === id) || null;
-    }
-
-    async function loadHistoryRecord(id) {
-        try {
-            const record = await fetchHistoryRecordById(id);
-            if (record) {
-                applyHistoryRecord(record);
+        let record = history.find(r => r.id === id);
+        if (record) {
+            Object.keys(record.data).forEach(key => {
+                let el = document.getElementById(key);
+                if (el) el.value = record.data[key];
+            });
+            if (record.signature) {
+                let img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+                img.src = record.signature;
             } else {
-                alert('ไม่พบข้อมูลนี้แล้ว อาจถูกลบไปก่อนหน้านี้');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
-        } catch (err) {
-            console.error('โหลดข้อมูลจากฐานข้อมูลไม่สำเร็จ:', err);
-            alert('โหลดข้อมูลไม่สำเร็จ: ' + explainFirebaseError(err));
+            document.getElementById('history-modal').style.display = 'none';
         }
     }
 
-    // โหลดข้อมูลของประวัติรายการนี้กลับเข้าฟอร์ม แล้วสั่งพิมพ์ PDF ทันที
-    async function printHistoryRecord(id) {
-        try {
-            const record = await fetchHistoryRecordById(id);
-            if (!record) {
-                alert('ไม่พบข้อมูลนี้แล้ว อาจถูกลบไปก่อนหน้านี้');
-                return;
-            }
-            applyHistoryRecord(record);
-            await triggerPrint();
-        } catch (err) {
-            console.error('โหลดข้อมูลเพื่อพิมพ์ไม่สำเร็จ:', err);
-            alert('ไม่สามารถพิมพ์เอกสารนี้ได้: ' + explainFirebaseError(err));
-        }
-    }
-
-    async function deleteHistoryRecord(id) {
-        if (!confirm('ต้องการลบประวัตินี้ใช่หรือไม่?')) return;
-
-        if (firebaseReady && db) {
-            try {
-                await withTimeout(db.collection(FIRESTORE_COLLECTION).doc(String(id)).delete(), 8000);
-            } catch (err) {
-                console.error('ลบข้อมูลจาก Firebase ไม่สำเร็จ:', err);
-                alert('ลบข้อมูลไม่สำเร็จ: ' + explainFirebaseError(err));
-                return;
-            }
-        } else {
+    function deleteHistoryRecord(id) {
+        if(confirm('ต้องการลบประวัตินี้ใช่หรือไม่?')) {
             let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
             history = history.filter(r => r.id !== id);
             localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            renderHistory();
         }
-        renderHistory();
     }
 
-    function historyRowHTML(idLiteral, dateText, peaId, location) {
-        return `
-            <td>${dateText || '-'}</td>
-            <td>${peaId || '-'}</td>
-            <td>${location || '-'}</td>
-            <td style="white-space:nowrap;">
-                <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${idLiteral})">โหลด</button>
-                <button type="button" class="btn-secondary btn-sm" onclick="window.printHistoryRecord(${idLiteral})">ปริ้น</button>
-                <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${idLiteral})" style="color:red;">ลบ</button>
-            </td>
-        `;
+    function printHistoryRecord(id) {
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        let record = history.find(r => r.id === id);
+        if (record) {
+            loadHistoryRecord(id);
+            setTimeout(() => {
+                generatePrintView();
+            }, 300);
+        }
     }
 
-    function historyEmptyOrErrorRow(message, isError) {
-        return `<tr><td colspan="4" style="text-align:center; padding:1.5rem; color:${isError ? '#c0392b' : '#888'};">${message}</td></tr>`;
-    }
-
-    async function renderHistory() {
+    function renderHistory() {
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
         let tbody = document.getElementById('history-list');
         if(!tbody) return;
-        const statusEl = document.getElementById('history-db-status');
-
-        if (firebaseReady && db) {
-            if (statusEl) statusEl.innerHTML = '🟢 เชื่อมต่อฐานข้อมูลออนไลน์ (Firebase) — ข้อมูลซิงค์ทุกอุปกรณ์';
-            tbody.innerHTML = historyEmptyOrErrorRow('กำลังโหลดข้อมูล...', false);
-            try {
-                const snapshot = await withTimeout(db.collection(FIRESTORE_COLLECTION).orderBy('createdAt', 'desc').limit(200).get(), 8000);
-                if (snapshot.empty) {
-                    tbody.innerHTML = historyEmptyOrErrorRow('ยังไม่มีประวัติการบันทึก', false);
-                    return;
-                }
-                tbody.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const r = doc.data();
-                    let tr = document.createElement('tr');
-                    tr.innerHTML = historyRowHTML(`'${doc.id}'`, r.date, r.peaId, r.location);
-                    tbody.appendChild(tr);
-                });
-            } catch (err) {
-                console.error('โหลดประวัติจาก Firebase ไม่สำเร็จ:', err);
-                tbody.innerHTML = historyEmptyOrErrorRow(explainFirebaseError(err), true);
-            }
-            return;
-        }
-
-        // โหมดสำรอง: ยังไม่ได้ตั้งค่า Firebase หรือเชื่อมต่อไม่สำเร็จ — ใช้ localStorage แทน
-        if (statusEl) statusEl.innerHTML = '🟡 ยังไม่ได้เชื่อมต่อฐานข้อมูลออนไลน์ — บันทึกไว้ในเครื่องนี้เท่านั้น (ตั้งค่าใน firebase-config.js)';
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-        if (history.length === 0) {
-            tbody.innerHTML = historyEmptyOrErrorRow('ยังไม่มีประวัติการบันทึก', false);
-            return;
-        }
         tbody.innerHTML = '';
         history.slice().reverse().forEach(r => {
             let tr = document.createElement('tr');
-            tr.innerHTML = historyRowHTML(r.id, r.date, r.peaId, r.location);
+            tr.innerHTML = `
+                <td>${r.date}</td>
+                <td>${r.peaId || '-'}</td>
+                <td>${r.location || '-'}</td>
+                <td>
+                    <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${r.id})">โหลด</button>
+                    <button type="button" class="btn-secondary btn-sm" onclick="window.printHistoryRecord(${r.id})">ปริ้น</button>
+                    <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${r.id})" style="color:red;">ลบ</button>
+                </td>
+            `;
             tbody.appendChild(tr);
         });
     }
 
     window.loadHistoryRecord = loadHistoryRecord;
-    window.printHistoryRecord = printHistoryRecord;
     window.deleteHistoryRecord = deleteHistoryRecord;
+    window.printHistoryRecord = printHistoryRecord;
 
+    const btnHome = document.getElementById('btn-home');
     const btnHistory = document.getElementById('btn-history');
     const historyModal = document.getElementById('history-modal');
     const closeHistory = document.getElementById('close-history');
+
+    if(btnHome) {
+        btnHome.addEventListener('click', () => { showHomePage(); });
+    }
 
     if(btnHistory) {
         btnHistory.addEventListener('click', () => {
@@ -833,10 +531,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return result;
     }
 
-    async function triggerPrint() {
-        if (!logoBase64) {
+    async function generatePrintView(e) {
+        if (e) e.preventDefault();
+	if (!logoBase64) {
             await fetchLogoAsBase64();
         }
+        saveToHistory();
         const v = (id) => {
             const el = document.getElementById(id);
             return el ? el.value : '';
@@ -1216,6 +916,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // สั่งให้ Print PDF ทำงานหลังจากเรนเดอร์ข้อมูลเสร็จ
         setTimeout(() => {
             window.print();
+            // หลังปิด print dialog ไป HOME page
+            setTimeout(() => {
+                showHomePage();
+            }, 1000);
         }, 300);
     }
 
@@ -1347,43 +1051,13 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
     }
 
-    // บันทึกข้อมูล จากนั้นเด้งไปหน้าประวัติ — ถ้า autoPrint เป็นจริง จะสั่งพิมพ์ PDF ให้อัตโนมัติด้วย
-    async function handleSaveAction(autoPrint) {
-        const targetBtn = autoPrint ? btnPrintBottom : btnSaveOnly;
-        const originalLabel = targetBtn ? targetBtn.innerHTML : '';
-        if (targetBtn) {
-            targetBtn.disabled = true;
-            targetBtn.innerHTML = 'กำลังบันทึก...';
-        }
-
-        if (!logoBase64) {
-            await fetchLogoAsBase64();
-        }
-
-        try {
-            await withTimeout(saveToHistory(), 9000);
-        } catch (err) {
-            console.error('บันทึกไม่สำเร็จ:', err);
-        }
-
-        if (targetBtn) {
-            targetBtn.disabled = false;
-            targetBtn.innerHTML = originalLabel;
-        }
-
-        await renderHistory();
-        // 🏠 ไปหน้า HOME แทนแสดง history modal
+    if (btnPrintBottom) btnPrintBottom.addEventListener('click', (e) => generatePrintView(e));
+    
+    const btnSaveOnly = document.getElementById('btn-save-only');
+    if (btnSaveOnly) btnSaveOnly.addEventListener('click', (e) => {
+        e.preventDefault();
+        saveToHistory();
         alert('✅ บันทึกข้อมูลสำเร็จแล้ว');
-        setTimeout(() => {
-            showHomePage();
-        }, 300);
-
-        if (autoPrint) {
-            // หน่วงเล็กน้อยให้ print dialog ขึ้นมา
-            setTimeout(() => { triggerPrint(); }, 800);
-        }
-    }
-
-    if (btnSaveOnly) btnSaveOnly.addEventListener('click', (e) => { e.preventDefault(); handleSaveAction(false); });
-    if (btnPrintBottom) btnPrintBottom.addEventListener('click', (e) => { e.preventDefault(); handleSaveAction(true); });
+        showHomePage();
+    });
 });

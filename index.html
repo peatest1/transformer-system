@@ -18,7 +18,40 @@
             <div style="max-width: 1200px; margin: 0 auto;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                     <div>
-                        <h1 style="margin: 0; font-size: 1.8rem;">⚙️ ระบบบำรุงรักษาหม้อแปลง</h1>
+                        <h1 style="margin: 0; font-size: 1.8rem; display: flex; align-items: center; gap: 0.8rem;">
+                        <svg width="55" height="55" viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Container box -->
+                            <rect x="12" y="58" width="96" height="62" rx="3" fill="#E8E8E8" stroke="#6C2B85" stroke-width="3"/>
+                            <rect x="14" y="52" width="92" height="8" fill="#D0D0D0" stroke="#6C2B85" stroke-width="2" rx="2"/>
+                            
+                            <!-- Simple transformers - geometric -->
+                            <g fill="#6C2B85">
+                                <!-- Left stack -->
+                                <rect x="20" y="8" width="18" height="9" rx="1"/>
+                                <rect x="20" y="20" width="18" height="9" rx="1"/>
+                                <rect x="20" y="32" width="18" height="9" rx="1"/>
+                                <rect x="21" y="44" width="16" height="6" rx="1" fill="#9b51b5"/>
+                                
+                                <!-- Center stack -->
+                                <rect x="52" y="8" width="18" height="9" rx="1"/>
+                                <rect x="52" y="20" width="18" height="9" rx="1"/>
+                                <rect x="52" y="32" width="18" height="9" rx="1"/>
+                                <rect x="53" y="44" width="16" height="6" rx="1" fill="#9b51b5"/>
+                                
+                                <!-- Right stack -->
+                                <rect x="84" y="8" width="18" height="9" rx="1"/>
+                                <rect x="84" y="20" width="18" height="9" rx="1"/>
+                                <rect x="84" y="32" width="18" height="9" rx="1"/>
+                                <rect x="85" y="44" width="16" height="6" rx="1" fill="#9b51b5"/>
+                            </g>
+                            
+                            <!-- Warning symbol -->
+                            <polygon points="60,72 75,105 45,105" fill="#FFD700" stroke="#6C2B85" stroke-width="2.5"/>
+                            <path d="M 60 80 L 60 93" stroke="#6C2B85" stroke-width="2.5" stroke-linecap="round"/>
+                            <circle cx="60" cy="99" r="1.5" fill="#6C2B85"/>
+                        </svg>
+                        <span>ระบบบำรุงรักษาหม้อแปลง</span>
+                        </h1>
                         <p style="margin: 0.5rem 0 0; opacity: 0.9;">PEA Transformer Maintenance System</p>
                     </div>
                     <div style="text-align: right;">
@@ -27,7 +60,7 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                    <button onclick="goToForm()" style="background: white; color: #6C2B85; border: none; padding: 0.6rem 1.2rem; font-size: 0.95rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                    <button onclick="newRecordClick()" style="background: white; color: #6C2B85; border: none; padding: 0.6rem 1.2rem; font-size: 0.95rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
                         📝 บันทึกข้อมูลใหม่
                     </button>
                     <button onclick="showHistory()" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 0.6rem 1.2rem; font-size: 0.95rem; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
@@ -55,17 +88,21 @@
 
             <!-- STATISTICS CARDS -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-top: 4px solid #6C2B85;">
+                <div style="background: linear-gradient(135deg, rgba(108,43,133,0.05) 0%, rgba(232,180,37,0.02) 100%); padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-top: 4px solid #6C2B85;">
                     <div style="font-size: 2.5rem; font-weight: bold; color: #6C2B85;" id="stats-total">-</div>
                     <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">📊 ทั้งหมด Record</div>
                 </div>
-                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-top: 4px solid #E8B425;">
+                <div style="background: linear-gradient(135deg, rgba(232,180,37,0.08) 0%, rgba(108,43,133,0.02) 100%); padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-top: 4px solid #E8B425;">
                     <div style="font-size: 2.5rem; font-weight: bold; color: #E8B425;" id="stats-month">-</div>
                     <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">📅 เดือนนี้</div>
                 </div>
-                <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-top: 4px solid #2f9e5b;">
-                    <div style="font-size: 2.5rem; font-weight: bold; color: #2f9e5b;" id="stats-latest">-</div>
-                    <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">⏰ บันทึกล่าสุด</div>
+                <div style="background: linear-gradient(135deg, rgba(47,158,91,0.08) 0%, rgba(108,43,133,0.02) 100%); padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-top: 4px solid #2f9e5b;">
+                    <div style="font-size: 0.95rem; font-weight: 600; color: #2f9e5b; line-height: 1.6; white-space: pre-wrap; word-break: break-word;" id="stats-latest">-</div>
+                    <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">📍 บันทึกล่าสุด</div>
+                </div>
+                <div style="background: linear-gradient(135deg, rgba(217,119,6,0.08) 0%, rgba(108,43,133,0.02) 100%); padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-top: 4px solid #d97706;">
+                    <div style="font-size: 2.5rem; font-weight: bold; color: #d97706;" id="stats-maintenance">-</div>
+                    <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">💰 ค่าบำรุงรักษารวม</div>
                 </div>
             </div>
 
@@ -137,7 +174,7 @@
                 </div>
             </div>
             <div class="header-actions">
-                <div id="user-profile-info" style="display: none; align-items: center; gap: 0.75rem; color: #fff; font-size: 0.9rem; margin-right: 0.5rem;">
+                <div id="user-profile-info" style="display: flex; align-items: center; gap: 0.75rem; color: #fff; font-size: 0.9rem; margin-right: 0.5rem;">
                     <div class="user-avatar" id="user-avatar-text">U</div>
                     <div style="text-align: left;">
                         <div id="header-user-name" style="font-weight: 600; line-height: 1.2;">-</div>
@@ -330,32 +367,32 @@
 
                         <div class="table-cell fw-bold" style="grid-row: span 4">อุปกรณ์ป้องกันหม้อแปลง</div>
                         <div class="table-cell">ล่อฟ้า HT</div>
-                        <div class="table-cell"><select id="gen-arr-ht"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-arr-ht"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-arr-ht-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell">ล่อฟ้า LT</div>
-                        <div class="table-cell"><select id="gen-arr-lt"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-arr-lt"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-arr-lt-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell">HT.SW</div>
-                        <div class="table-cell"><select id="gen-htsw"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-htsw"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-htsw-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell">LT.SW</div>
-                        <div class="table-cell"><select id="gen-ltsw"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-ltsw"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-ltsw-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell fw-bold" style="grid-row: span 2">BUSHING</div>
                         <div class="table-cell">ด้านแรงสูง</div>
-                        <div class="table-cell"><select id="gen-bush-hv"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-bush-hv"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-bush-hv-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell">ด้านแรงต่ำ</div>
-                        <div class="table-cell"><select id="gen-bush-lv"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-bush-lv"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-bush-lv-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell fw-bold span-2">รอยรั่วซึม (ไม่มีรอยรั่วซึมทุกจุด)</div>
-                        <div class="table-cell"><select id="gen-leak"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-leak"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-leak-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell fw-bold span-2">ตำแหน่ง TAP CHANGER (ตรงตามหมายเลข)</div>
@@ -363,15 +400,15 @@
                         <div class="table-cell"><input type="text" id="gen-tap-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell fw-bold span-2">สภาพภายนอกทั่วไป (นั่งร้านเสา มาตรฐาน)</div>
-                        <div class="table-cell"><select id="gen-ext"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-ext"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-ext-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell fw-bold span-2">ระยะห่างระหว่าง ARCING HORN</div>
-                        <div class="table-cell"><select id="gen-arcing"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-arcing"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-arcing-rem" placeholder="หมายเหตุ"></div>
 
                         <div class="table-cell fw-bold span-2">สภาพประเด็น (ยืดหยุ่นได้)</div>
-                        <div class="table-cell"><select id="gen-flex"><option value="ปกติ">ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
+                        <div class="table-cell"><select id="gen-flex"><option value="ปกติ" selected>ปกติ</option><option value="ชำรุด">ชำรุด</option></select></div>
                         <div class="table-cell"><input type="text" id="gen-flex-rem" placeholder="หมายเหตุ"></div>
                     </div></div>
 

@@ -16,6 +16,9 @@ function showHomePage() {
     if (h) h.style.display = 'block';
     if (f) f.style.display = 'none';
     window.scrollTo(0, 0);
+    
+    // โหลด stats เมื่อไปหน้า HOME
+    setTimeout(() => loadHomePageStats(), 200);
 }
 
 function goToForm() {
@@ -25,10 +28,22 @@ function goToForm() {
     if (f) f.style.display = 'block';
     window.scrollTo(0, 0);
     
+    // รีเซท form ไปหน้า 1
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    if (step1) step1.style.display = 'block';
+    if (step2) step2.style.display = 'none';
+    
     // เฉพาะเมื่อ "บันทึกข้อมูลใหม่" (ไม่ได้กำลัง edit) ค่อยลบข้อมูล
     if (currentEditingRecordId === null) {
         clearAllForm();
     }
+}
+
+function newRecordClick() {
+    // รีเซท flag editing เมื่อกด "บันทึกข้อมูลใหม่"
+    currentEditingRecordId = null;
+    goToForm();
 }
 
 function clearAllForm() {
@@ -83,6 +98,86 @@ function logout() {
 // Global variable to track if we're editing an existing record
 let currentEditingRecordId = null;
 
+function loadHomePageStats() {
+    const records = JSON.parse(localStorage.getItem('pea_transformer_history') || '[]');
+    
+    // นับทั้งหมด
+    const total = records.length;
+    
+    // นับเดือนนี้
+    const now = new Date();
+    const thisMonth = records.filter(r => {
+        try {
+            const rDate = new Date(r.date);
+            return rDate.getMonth() === now.getMonth() && rDate.getFullYear() === now.getFullYear();
+        } catch {
+            return false;
+        }
+    }).length;
+    
+    // Latest 3 records - แสดง สถานที่/PEA ด้วยการเว้นบรรทัด
+    let latestInfo = '-';
+    if (records.length > 0) {
+        const last3 = records.slice(-3).reverse();
+        latestInfo = last3.map(r => {
+            const location = r.data?.['location'] || 'N/A';
+            const peaId = r.data?.['trans-id'] || 'N/A';
+            return `${location} / ${peaId}`;
+        }).join('\n');
+    }
+    
+    // คำนวณราคาค่าบำรุงรักษา จาก costState หรือ localStorage
+    let maintenanceCost = '0.00';
+    try {
+        // ดึงจาก costState ถ้าอยู่ในฟอร์ม
+        if (typeof costState !== 'undefined') {
+            let cost = 0;
+            [1,2,3].forEach(s => {
+                if (costState[s]) {
+                    costState[s].forEach(row => {
+                        cost += (parseFloat(row.qty) || 0) * (parseFloat(row.price) || 0);
+                    });
+                }
+            });
+            maintenanceCost = cost.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2});
+        } else {
+            // ดึงจากบันทึกทั้งหมด
+            let totalCost = 0;
+            records.forEach(r => {
+                if (r.data) {
+                    [1,2,3].forEach(s => {
+                        const section = r.data[`cost-section-${s}`];
+                        if (typeof section === 'string') {
+                            try {
+                                const parsed = JSON.parse(section);
+                                if (Array.isArray(parsed)) {
+                                    parsed.forEach(row => {
+                                        totalCost += (parseFloat(row.qty) || 0) * (parseFloat(row.price) || 0);
+                                    });
+                                }
+                            } catch (e) {}
+                        }
+                    });
+                }
+            });
+            maintenanceCost = totalCost.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2});
+        }
+    } catch (e) {
+        console.log('Cost calc error:', e);
+    }
+    
+    // อัปเดต DOM
+    const statsTotal = document.getElementById('stats-total');
+    const statsMonth = document.getElementById('stats-month');
+    const statsLatest = document.getElementById('stats-latest');
+    const statsMaintenance = document.getElementById('stats-maintenance');
+    
+    if (statsTotal) statsTotal.textContent = total;
+    if (statsMonth) statsMonth.textContent = thisMonth;
+    if (statsLatest) statsLatest.textContent = latestInfo;
+    if (statsMaintenance) statsMaintenance.textContent = maintenanceCost + ' บาท';
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     checkLoginSession();
 
@@ -133,13 +228,19 @@ function checkLoginSession() {
 
         // 1. ซ่อนหน้าต่าง Login และแสดงแถบโปรไฟล์บน Header
         if (loginModal) loginModal.style.display = "none";
-        if (profileInfo) profileInfo.style.display = "flex";
+        if (profileInfo) {
+            profileInfo.style.display = "flex";
+            profileInfo.classList.add('show');
+        }
 
         // แสดงหน้า HOME หลัง login
         const homePage = document.getElementById("home-page");
         const formPage = document.getElementById("form-page");
         if (homePage) homePage.style.display = "block";
         if (formPage) formPage.style.display = "none";
+        
+        // โหลด stats
+        loadHomePageStats();
 
         // 2. อัปเดตข้อมูลบน Header ด้านบน
         document.getElementById("header-user-name").textContent = currentUser.name;

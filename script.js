@@ -91,7 +91,9 @@ function showHistory() {
 function logout() {
     if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
         localStorage.removeItem("pea_current_user");
-        location.reload();
+        localStorage.removeItem("pea_user_email");
+        localStorage.removeItem("pea_remember_me");
+        window.location.href = 'login.html';
     }
 }
 

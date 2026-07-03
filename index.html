@@ -11,6 +11,16 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <script>
+        // Check login on page load - redirect to login page if not logged in
+        (function() {
+            const user = localStorage.getItem('pea_current_user');
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        })();
+    </script>
+    
     <!-- ===== 🏠 HOME PAGE (ENHANCED DASHBOARD) ===== -->
     <div id="home-page" style="display: none; background: linear-gradient(135deg, #f4f3f7 0%, #e8e5f0 100%); min-height: 100vh; padding-bottom: 3rem;">
         <!-- HEADER -->

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบบำรุงรักษาหม้อแปลง - สมัครสมาชิก</title>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
     <style>
         * {
             margin: 0;
@@ -32,7 +32,7 @@
             border-radius: 25px;
             overflow: hidden;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
-            min-height: 650px;
+            min-height: 700px;
         }
 
         .left-section {
@@ -70,13 +70,13 @@
 
         .right-section {
             background: linear-gradient(135deg, #E8D5F2 0%, #F5E8F8 100%);
-            padding: 3rem 2.5rem;
+            padding: 2.5rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
             position: relative;
             overflow-y: auto;
-            max-height: 650px;
+            max-height: 700px;
         }
 
         .right-section::before {
@@ -114,21 +114,18 @@
 
         .right-section .section-subtitle {
             color: #666;
+            font-size: 0.9rem;
         }
 
         .form-group {
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.4rem;
             font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .left-section .form-group label {
-            color: white;
+            font-size: 0.9rem;
         }
 
         .right-section .form-group label {
@@ -137,29 +134,12 @@
 
         .form-group input {
             width: 100%;
-            padding: 0.9rem 1.1rem;
+            padding: 0.75rem 1rem;
             border: 2px solid transparent;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
             transition: all 0.3s;
             font-family: 'Sarabun', sans-serif;
-        }
-
-        .left-section .form-group input {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .left-section .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .left-section .form-group input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.6);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
         }
 
         .right-section .form-group input {
@@ -180,7 +160,7 @@
         }
 
         .password-strength {
-            margin-top: 0.5rem;
+            margin-top: 0.3rem;
             height: 4px;
             background: rgba(0, 0, 0, 0.1);
             border-radius: 2px;
@@ -215,8 +195,8 @@
         }
 
         .strength-text {
-            font-size: 0.8rem;
-            margin-top: 0.3rem;
+            font-size: 0.75rem;
+            margin-top: 0.2rem;
             opacity: 0.8;
             color: #666;
         }
@@ -224,7 +204,7 @@
         .checkbox-group {
             display: flex;
             align-items: flex-start;
-            margin: 1.2rem 0;
+            margin: 1rem 0;
             gap: 0.8rem;
         }
 
@@ -241,21 +221,18 @@
             margin: 0;
             cursor: pointer;
             font-weight: 400;
-            font-size: 0.9rem;
-        }
-
-        .right-section .checkbox-group label {
+            font-size: 0.85rem;
             color: #333;
         }
 
         .submit-btn {
             width: 100%;
-            padding: 1rem;
+            padding: 0.9rem;
             background: linear-gradient(135deg, #6C2B85 0%, #9b51b5 100%);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
@@ -263,12 +240,20 @@
         }
 
         .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
 
-        .submit-btn:active {
-            transform: translateY(-1px);
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-msg {
+            color: #e74c3c;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            display: none;
         }
 
         .divider {
@@ -322,36 +307,11 @@
             transform: translateY(-3px);
         }
 
-        .error-msg {
-            color: #e74c3c;
-            font-size: 0.85rem;
-            margin-top: 0.4rem;
-            display: none;
-        }
-
-        .right-section .info-box {
-            background: rgba(255, 255, 255, 0.6);
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-top: 1.5rem;
-        }
-
-        .right-section .info-box h3 {
-            color: #6C2B85;
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .right-section .info-box p {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
         .login-link {
             text-align: center;
             margin-top: 1.5rem;
             color: #666;
+            font-size: 0.9rem;
         }
 
         .login-link a {
@@ -468,17 +428,17 @@
         <div class="left-section">
             <div class="section-content">
                 <h2 class="section-title">สมัครสมาชิก</h2>
-                <p class="section-subtitle">สร้างบัญชีใหม่เพื่อใช้งานระบบบำรุงรักษาหม้อแปลง เพิ่มประสิทธิภาพการทำงาน</p>
+                <p class="section-subtitle">สร้างบัญชีใหม่เพื่อใช้งานระบบบำรุงรักษาหม้อแปลง</p>
 
                 <div style="margin: 2rem 0;">
                     <div style="background: rgba(255, 255, 255, 0.15); padding: 1.2rem; border-radius: 12px; margin-bottom: 1rem;">
-                        <p style="font-size: 0.95rem; line-height: 1.6;">✨ สร้างบัญชีใหม่เพื่อเข้าใช้งานระบบบำรุงรักษาหม้อแปลง และสามารถจัดการข้อมูลได้อย่างมีประสิทธิภาพ</p>
+                        <p style="font-size: 0.95rem; line-height: 1.6;">✨ สร้างบัญชีใหม่เพื่อเข้าใช้งานระบบบำรุงรักษาหม้อแปลง</p>
                     </div>
                     <div style="background: rgba(255, 255, 255, 0.15); padding: 1.2rem; border-radius: 12px; margin-bottom: 1rem;">
-                        <p style="font-size: 0.95rem; line-height: 1.6;">🔐 ยืนยันอีเมลของคุณเพื่อเข้าใช้งานระบบ โดยการรับรหัสยืนยัน OTP ผ่านอีเมล</p>
+                        <p style="font-size: 0.95rem; line-height: 1.6;">🔐 ยืนยันอีเมลผ่าน OTP เพื่อความปลอดภัย</p>
                     </div>
                     <div style="background: rgba(255, 255, 255, 0.15); padding: 1.2rem; border-radius: 12px;">
-                        <p style="font-size: 0.95rem; line-height: 1.6;">📊 เข้าใช้งานระบบจัดการบันทึกผลการบำรุงรักษาหม้อแปลง ได้อย่างสมบูรณ์</p>
+                        <p style="font-size: 0.95rem; line-height: 1.6;">📊 เข้าใช้งานระบบจัดการข้อมูลได้สมบูรณ์</p>
                     </div>
                 </div>
 
@@ -503,8 +463,14 @@
                 <form id="registerForm" onsubmit="handleRegister(event)">
                     <div class="form-group">
                         <label>👤 ชื่อ-นามสกุล</label>
-                        <input type="text" id="registerName" placeholder="เช่น สมชาย ใจเด็ก" required>
+                        <input type="text" id="registerName" placeholder="สมชาย ใจเด็ก" required style="font-size: 0.9rem;">
                         <div class="error-msg" id="registerNameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>💼 ตำแหน่ง</label>
+                        <input type="text" id="registerPosition" placeholder="เช่น วิศวกร, เจ้าหน้าที่" required style="font-size: 0.9rem;">
+                        <div class="error-msg" id="registerPositionError"></div>
                     </div>
 
                     <div class="form-group">
@@ -515,7 +481,7 @@
 
                     <div class="form-group">
                         <label>🔐 รหัสผ่าน</label>
-                        <input type="password" id="registerPassword" placeholder="8+ ตัว (ตัวอักษร+ตัวเลข+สัญลักษณ์)" required onkeyup="checkPasswordStrength()">
+                        <input type="password" id="registerPassword" placeholder="8+ ตัว" required onkeyup="checkPasswordStrength()">
                         <div class="password-strength" id="passwordStrength">
                             <div class="strength-bar"></div>
                             <div class="strength-text" id="strengthText"></div>
@@ -531,16 +497,11 @@
 
                     <div class="checkbox-group">
                         <input type="checkbox" id="agreeTerms" required>
-                        <label for="agreeTerms">ฉันยอมรับเงื่อนไขการใช้งานและนโยบายความเป็นส่วนตัว</label>
+                        <label for="agreeTerms">ฉันยอมรับเงื่อนไขการใช้งาน</label>
                     </div>
 
                     <button type="submit" class="submit-btn">✓ สมัครสมาชิก</button>
                 </form>
-
-                <div class="info-box">
-                    <h3>📧 ยืนยันอีเมล</h3>
-                    <p>หลังจากสมัคร คุณจะได้รับรหัส OTP 6 หลักทางอีเมล ใส่รหัสนั้นเพื่อยืนยันบัญชี</p>
-                </div>
 
                 <div class="login-link">
                     มีบัญชีแล้ว? <a href="login.html">เข้าสู่ระบบ</a>
@@ -553,7 +514,7 @@
     <div class="modal" id="verificationModal">
         <div class="modal-content">
             <h2>✉️ ยืนยันอีเมล</h2>
-            <p>เราได้ส่งรหัสยืนยัน 6 หลักไปยังอีเมลของคุณแล้ว<br><strong id="verifyEmail"></strong></p>
+            <p>เราได้ส่งรหัส OTP 6 หลักไปยัง<br><strong id="verifyEmail"></strong></p>
 
             <div class="otp-inputs" id="otpInputs">
                 <input type="text" class="otp-input" maxlength="1" oninput="handleOtpInput(this)">
@@ -567,7 +528,7 @@
             <button class="verify-btn" onclick="verifyOTP()">✓ ยืนยัน</button>
 
             <div style="margin-top: 1.5rem; font-size: 0.9rem;">
-                ยังไม่ได้รับรหัสหรือ? <a onclick="resendOTP()" style="color: #6C2B85; cursor: pointer; font-weight: 600;">ส่งอีกครั้ง</a>
+                ยังไม่ได้รับหรือ? <a onclick="resendOTP()" style="color: #6C2B85; cursor: pointer; font-weight: 600;">ส่งอีกครั้ง</a>
             </div>
         </div>
     </div>
@@ -583,7 +544,10 @@
             appId: "1:964466534616:web:1a0a55aecace235a84fad"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const auth = firebase.auth();
 
         // EmailJS Config
@@ -614,13 +578,13 @@
             bar.classList.remove('weak', 'medium', 'strong');
             if (strength < 3) {
                 bar.classList.add('weak');
-                strengthText.textContent = 'ความแข็งแรง: อ่อน ⚠️';
+                strengthText.textContent = 'อ่อน ⚠️';
             } else if (strength < 4) {
                 bar.classList.add('medium');
-                strengthText.textContent = 'ความแข็งแรง: ปานกลาง ⚡';
+                strengthText.textContent = 'ปานกลาง ⚡';
             } else {
                 bar.classList.add('strong');
-                strengthText.textContent = 'ความแข็งแรง: แข็งแกร่ง ✓';
+                strengthText.textContent = 'แข็งแกร่ง ✓';
             }
         }
 
@@ -634,7 +598,7 @@
             if (!/[a-z]/.test(password)) return { valid: false, msg: 'ต้องมีตัวอักษรเล็ก' };
             if (!/[A-Z]/.test(password)) return { valid: false, msg: 'ต้องมีตัวอักษรใหญ่' };
             if (!/[0-9]/.test(password)) return { valid: false, msg: 'ต้องมีตัวเลข' };
-            if (!/[!@#$%^&*]/.test(password)) return { valid: false, msg: 'ต้องมีสัญลักษณ์ (!@#$%^&*)' };
+            if (!/[!@#$%^&*]/.test(password)) return { valid: false, msg: 'ต้องมีสัญลักษณ์' };
             return { valid: true };
         }
 
@@ -643,6 +607,7 @@
             clearErrors();
 
             const name = document.getElementById('registerName').value;
+            const position = document.getElementById('registerPosition').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const confirm = document.getElementById('registerConfirm').value;
@@ -651,6 +616,11 @@
 
             if (name.length < 3) {
                 showError('registerNameError', 'ชื่อต้องมี 3 ตัวอักษรขึ้นไป');
+                isValid = false;
+            }
+
+            if (position.length < 2) {
+                showError('registerPositionError', 'กรุณาใส่ตำแหน่ง');
                 isValid = false;
             }
 
@@ -683,7 +653,7 @@
                     const user = userCredential.user;
 
                     // Generate OTP
-                    registrationData = { name, email, password, uid: user.uid };
+                    registrationData = { name, position, email, password, uid: user.uid };
                     currentOTP = generateOTP();
 
                     // Send OTP Email
@@ -715,7 +685,6 @@
                 })
                 .catch((error) => {
                     console.error('❌ ส่งอีเมลล้มเหลว:', error);
-                    alert('⚠️ ส่งอีเมลล้มเหลว กรุณาลองอีกครั้ง');
                 });
         }
 
@@ -740,26 +709,29 @@
                 return;
             }
 
-            // Update Firebase User Profile and Send Verification Email
+            // Save user data
             const user = auth.currentUser;
             user.updateProfile({
                 displayName: registrationData.name
             }).then(() => {
-                // Send verification email
-                user.sendEmailVerification().then(() => {
-                    alert('✅ สมัครสมาชิกสำเร็จ! กรุณายืนยันอีเมลจาก Firebase Email');
-                    
-                    document.getElementById('verificationModal').classList.remove('show');
-                    document.getElementById('registerForm').reset();
-                    document.querySelectorAll('.otp-input').forEach(input => input.value = '');
-                    
-                    // Redirect to login after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-                }).catch((error) => {
-                    console.error('ส่ง verification email ล้มเหลว:', error);
-                });
+                // Save to localStorage
+                localStorage.setItem('pea_current_user', JSON.stringify({
+                    email: registrationData.email,
+                    name: registrationData.name,
+                    position: registrationData.position,
+                    uid: user.uid,
+                    emailVerified: true
+                }));
+
+                alert('✅ สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ');
+                
+                document.getElementById('verificationModal').classList.remove('show');
+                document.getElementById('registerForm').reset();
+                document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
             });
         }
 

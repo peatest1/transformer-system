@@ -674,9 +674,9 @@
 
         function sendOTPEmail(email, name, otp) {
             const templateParams = {
-                to_email: email,
+                email: email,
                 user_name: name,
-                otp_code: otp
+                passcode: otp
             };
 
             emailjs.send('service_30l4igp', 'template_ri6vx0x', templateParams)

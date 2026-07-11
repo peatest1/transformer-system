@@ -248,6 +248,17 @@ function checkLoginSession() {
         document.getElementById("header-user-name").textContent = currentUser.name;
         document.getElementById("header-user-pos").textContent = currentUser.position;
         document.getElementById("user-avatar-text").textContent = currentUser.initial;
+        
+        // 3. อัปเดตข้อมูลในหน้า HOME (ที่วงสีส้ม)
+        const homeUserNameEl = document.getElementById("home-user-name-header");
+        const homeUserPosEl = document.getElementById("home-user-pos-header");
+        
+        if (homeUserNameEl) {
+            homeUserNameEl.textContent = currentUser.name || "-";
+        }
+        if (homeUserPosEl) {
+            homeUserPosEl.textContent = currentUser.position || "-";
+        }
 
         // 3. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
         

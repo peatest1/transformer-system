@@ -507,22 +507,25 @@
                     const user = userCredential.user;
                     console.log('✅ User logged in:', user.email);
                     
-                    // ✅ ตรวจสอบจาก localStorage แล้ว (set ที่ register)
-                    const userData = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+                    // 🔑 ตรวจสอบ localStorage ก่อน (ถ้า OTP ยืนยัน emailVerified: true อยู่)
+                    const savedUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+                    const emailVerified = savedUser.emailVerified || user.emailVerified;
                     
-                    if (!userData.emailVerified) {
+                    if (!emailVerified) {
                         console.log('⚠️ Email not verified');
                         showError('loginEmailError', 'กรุณายืนยันอีเมลของคุณก่อน');
                         auth.signOut();
                         return;
                     }
 
-                    // Update ด้วยข้อมูล Firebase ล่าสุด
+                    console.log('✅ Email verified, proceeding...');
+
+                    // Update localStorage ด้วยข้อมูล Firebase ล่าสุด
                     localStorage.setItem('pea_current_user', JSON.stringify({
                         email: user.email,
                         uid: user.uid,
-                        name: user.displayName || userData.name || 'User',
-                        position: userData.position || '',
+                        name: user.displayName || savedUser.name || 'User',
+                        position: savedUser.position || '',
                         emailVerified: true
                     }));
 

@@ -674,9 +674,10 @@
 
         function sendOTPEmail(email, name, otp) {
             const templateParams = {
-                email: email,
+                to_email: email,
                 user_name: name,
-                passcode: otp
+                passcode: otp,
+                email: email
             };
 
             emailjs.send('service_30l4igp', 'template_ri6vx0x', templateParams)
@@ -685,6 +686,7 @@
                 })
                 .catch((error) => {
                     console.error('❌ ส่งอีเมลล้มเหลว:', error);
+                    alert('❌ ไม่สามารถส่งอีเมลได้ - ' + error.text);
                 });
         }
 

@@ -711,20 +711,21 @@
                 return;
             }
 
-            // Save user data
+            // Save user data ที่ localStorage
             const user = auth.currentUser;
             user.updateProfile({
                 displayName: registrationData.name
             }).then(() => {
-                // Save to localStorage
+                // ✅ เพิ่ม emailVerified = true แล้ว
                 localStorage.setItem('pea_current_user', JSON.stringify({
                     email: registrationData.email,
                     name: registrationData.name,
                     position: registrationData.position,
                     uid: user.uid,
-                    emailVerified: true
+                    emailVerified: true  // ← ✅ ยืนยันแล้ว
                 }));
 
+                console.log('✅ OTP verified successfully');
                 alert('✅ สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ');
                 
                 document.getElementById('verificationModal').classList.remove('show');
@@ -734,6 +735,8 @@
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 1500);
+            }).catch(error => {
+                console.error('Error updating profile:', error);
             });
         }
 

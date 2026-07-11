@@ -88,12 +88,53 @@ function showHistory() {
     }
 }
 
-function logout() {
-    if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-        localStorage.removeItem("pea_current_user");
-        localStorage.removeItem("pea_user_email");
-        localStorage.removeItem("pea_remember_me");
-        window.location.href = 'login.html';
+// ===== AVATAR UPLOAD HANDLER =====
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarUpload = document.getElementById('avatar-upload');
+    
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64Image = event.target.result;
+                    
+                    // บันทึก avatar ลง localStorage
+                    const userData = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+                    userData.avatar = base64Image;
+                    localStorage.setItem('pea_current_user', JSON.stringify(userData));
+                    
+                    // แสดง avatar
+                    displayAvatar(base64Image);
+                    
+                    alert('✅ บันทึกรูปโปรไฟล์สำเร็จ!');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Load avatar ตอน page load
+    const currentUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+    if (currentUser.avatar) {
+        displayAvatar(currentUser.avatar);
+    }
+});
+
+// ===== DISPLAY AVATAR FUNCTION =====
+function displayAvatar(avatarBase64) {
+    const avatarDisplay = document.getElementById('avatar-display');
+    if (avatarDisplay) {
+        const img = document.createElement('img');
+        img.src = avatarBase64;
+        img.style.width = '50px';
+        img.style.height = '50px';
+        img.style.borderRadius = '50%';
+        img.style.objectFit = 'cover';
+        
+        avatarDisplay.innerHTML = '';
+        avatarDisplay.appendChild(img);
     }
 }
 
@@ -258,6 +299,17 @@ function checkLoginSession() {
         }
         if (homeUserPosEl) {
             homeUserPosEl.textContent = currentUser.position || "-";
+        }
+        
+        // 4. อัปเดตข้อมูลในกล่อง Settings (ด้านล่าง)
+        const infoUsername = document.getElementById("info-username");
+        const infoUserpos = document.getElementById("info-userpos");
+        
+        if (infoUsername) {
+            infoUsername.textContent = currentUser.name || "-";
+        }
+        if (infoUserpos) {
+            infoUserpos.textContent = currentUser.position || "-";
         }
 
         // 3. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
@@ -1249,4 +1301,54 @@ function loadHistoryRecord(id) {
         alert('✅ บันทึกข้อมูลสำเร็จแล้ว');
         showHomePage();
     });
+
+    // ===== AVATAR UPLOAD =====
+    const avatarUpload = document.getElementById('avatar-upload');
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Avatar = event.target.result;
+                
+                // Save avatar to localStorage
+                const currentUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+                currentUser.avatar = base64Avatar;
+                localStorage.setItem('pea_current_user', JSON.stringify(currentUser));
+                
+                // Display avatar
+                displayAvatar(base64Avatar, currentUser.name);
+                
+                alert('✅ บันทึกรูปโปรไฟล์สำเร็จ!');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Function to display avatar
+    function displayAvatar(avatarBase64, userName) {
+        const avatarDisplay = document.getElementById('avatar-display');
+        if (!avatarDisplay) return;
+
+        if (avatarBase64) {
+            // Display image
+            avatarDisplay.style.background = 'none';
+            avatarDisplay.style.padding = '0';
+            avatarDisplay.innerHTML = `<img src="${avatarBase64}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">`;
+        } else {
+            // Display initial letter
+            const initial = (userName || 'U').charAt(0).toUpperCase();
+            avatarDisplay.style.background = 'linear-gradient(135deg, #6C2B85, #9b51b5)';
+            avatarDisplay.style.padding = '0';
+            avatarDisplay.textContent = initial;
+        }
+    }
+
+    // Load avatar on page load
+    const currentUserData = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+    if (currentUserData.avatar) {
+        displayAvatar(currentUserData.avatar, currentUserData.name);
+    }
 });

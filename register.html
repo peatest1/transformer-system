@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบบำรุงรักษาหม้อแปลง - สมัครสมาชิก</title>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -462,26 +462,26 @@
             <div class="section-content">
                 <form id="registerForm" onsubmit="handleRegister(event)">
                     <div class="form-group">
-                        <label>👤 ชื่อ-นามสกุล</label>
+                        <label><span style="display: inline-block; width: 24px; height: 24px; background: linear-gradient(135deg, #6C2B85, #9b51b5); border-radius: 6px; font-size: 12px; line-height: 24px; text-align: center; color: white; margin-right: 8px; vertical-align: middle;">👤</span>ชื่อ-นามสกุล</label>
                         <input type="text" id="registerName" placeholder="สมชาย ใจเด็ก" required style="font-size: 0.9rem;">
                         <div class="error-msg" id="registerNameError"></div>
                     </div>
 
                     <div class="form-group">
-                        <label>💼 ตำแหน่ง</label>
+                        <label><span style="display: inline-block; width: 24px; height: 24px; background: linear-gradient(135deg, #6C2B85, #9b51b5); border-radius: 6px; font-size: 12px; line-height: 24px; text-align: center; color: white; margin-right: 8px; vertical-align: middle;">💼</span>ตำแหน่ง</label>
                         <input type="text" id="registerPosition" placeholder="เช่น วิศวกร, เจ้าหน้าที่" required style="font-size: 0.9rem;">
                         <div class="error-msg" id="registerPositionError"></div>
                     </div>
 
                     <div class="form-group">
-                        <label>📧 ที่อยู่อีเมล</label>
+                        <label><span style="display: inline-block; width: 24px; height: 24px; background: linear-gradient(135deg, #6C2B85, #9b51b5); border-radius: 6px; font-size: 12px; line-height: 24px; text-align: center; color: white; margin-right: 8px; vertical-align: middle;">✉</span>ที่อยู่อีเมล</label>
                         <input type="email" id="registerEmail" placeholder="example@email.com" required>
                         <div class="error-msg" id="registerEmailError"></div>
                     </div>
 
                     <div class="form-group">
-                        <label>🔐 รหัสผ่าน</label>
-                        <input type="password" id="registerPassword" placeholder="8+ ตัว" required onkeyup="checkPasswordStrength()">
+                        <label><span style="display: inline-block; width: 24px; height: 24px; background: linear-gradient(135deg, #6C2B85, #9b51b5); border-radius: 6px; font-size: 12px; line-height: 24px; text-align: center; color: white; margin-right: 8px; vertical-align: middle;">🔑</span>รหัสผ่าน</label>
+                        <input type="password" id="registerPassword" placeholder="8+ ตัว (ตัวอักษร+ตัวเลข+สัญลักษณ์)" required onkeyup="checkPasswordStrength()">
                         <div class="password-strength" id="passwordStrength">
                             <div class="strength-bar"></div>
                             <div class="strength-text" id="strengthText"></div>
@@ -490,7 +490,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>🔐 ยืนยันรหัสผ่าน</label>
+                        <label><span style="display: inline-block; width: 24px; height: 24px; background: linear-gradient(135deg, #6C2B85, #9b51b5); border-radius: 6px; font-size: 12px; line-height: 24px; text-align: center; color: white; margin-right: 8px; vertical-align: middle;">🔑</span>ยืนยันรหัสผ่าน</label>
                         <input type="password" id="registerConfirm" placeholder="ใส่รหัสผ่านอีกครั้ง" required>
                         <div class="error-msg" id="registerConfirmError"></div>
                     </div>
@@ -573,7 +573,7 @@
             if (/[a-z]/.test(password)) strength++;
             if (/[A-Z]/.test(password)) strength++;
             if (/[0-9]/.test(password)) strength++;
-            if (/[!@#$%^&*]/.test(password)) strength++;
+            if (/[!@#$%^&*+]/.test(password)) strength++;
 
             bar.classList.remove('weak', 'medium', 'strong');
             if (strength < 3) {
@@ -598,7 +598,7 @@
             if (!/[a-z]/.test(password)) return { valid: false, msg: 'ต้องมีตัวอักษรเล็ก' };
             if (!/[A-Z]/.test(password)) return { valid: false, msg: 'ต้องมีตัวอักษรใหญ่' };
             if (!/[0-9]/.test(password)) return { valid: false, msg: 'ต้องมีตัวเลข' };
-            if (!/[!@#$%^&*]/.test(password)) return { valid: false, msg: 'ต้องมีสัญลักษณ์' };
+            if (!/[!@#$%^&*+]/.test(password)) return { valid: false, msg: 'ต้องมีสัญลักษณ์ (!@#$%^&*+)' };
             return { valid: true };
         }
 

@@ -478,27 +478,37 @@
 
         function handleLogin(e) {
             e.preventDefault();
+            console.log('🔍 handleLogin called');
             clearErrors();
 
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
+            console.log('📧 Email:', email);
+            console.log('🔐 Password:', password);
+
             if (!isValidEmail(email)) {
+                console.log('❌ Email invalid');
                 showError('loginEmailError', 'อีเมลไม่ถูกต้อง');
                 return;
             }
 
             if (password.length < 8) {
+                console.log('❌ Password too short');
                 showError('loginPasswordError', 'รหัสผ่านต้องมี 8 ตัวขึ้นไป');
                 return;
             }
+
+            console.log('🚀 Signing in with Firebase...');
 
             // Firebase Login
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     const user = userCredential.user;
+                    console.log('✅ User logged in:', user.email);
                     
                     if (!user.emailVerified) {
+                        console.log('⚠️ Email not verified');
                         showError('loginEmailError', 'กรุณายืนยันอีเมลของคุณก่อน');
                         auth.signOut();
                         return;
@@ -514,6 +524,7 @@
                     window.location.href = 'index.html';
                 })
                 .catch((error) => {
+                    console.log('❌ Login error:', error.code, error.message);
                     if (error.code === 'auth/user-not-found') {
                         showError('loginEmailError', 'ไม่พบบัญชีนี้ กรุณาสมัครสมาชิก');
                     } else if (error.code === 'auth/wrong-password') {

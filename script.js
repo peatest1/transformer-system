@@ -19,6 +19,12 @@ function showHomePage() {
     
     // โหลด stats เมื่อไปหน้า HOME
     setTimeout(() => loadHomePageStats(), 200);
+    
+    // Refresh avatar display
+    const currentUser = JSON.parse(localStorage.getItem("pea_current_user") || '{}');
+    if (currentUser.name) {
+        displayAvatar(currentUser.avatar, currentUser.name);
+    }
 }
 
 function goToForm() {
@@ -254,7 +260,8 @@ document.addEventListener("DOMContentLoaded", () => {
         btnLogout.addEventListener("click", () => {
             if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
                 localStorage.removeItem("pea_current_user");
-                location.reload(); // รีเฟรชเพื่อเคลียร์สถานะทั้งหมด
+                // ไม่ clear localStorage ทั้งหมด เพื่อเก็บประวัติและข้อมูลอื่น
+                window.location.href = 'login.html'; // Redirect ไป login
             }
         });
     }
@@ -288,7 +295,22 @@ function checkLoginSession() {
         // 2. อัปเดตข้อมูลบน Header ด้านบน
         document.getElementById("header-user-name").textContent = currentUser.name;
         document.getElementById("header-user-pos").textContent = currentUser.position;
-        document.getElementById("user-avatar-text").textContent = currentUser.initial;
+        
+        // Display avatar in header
+        const headerAvatarEl = document.getElementById("user-avatar-text");
+        if (headerAvatarEl) {
+            if (currentUser.avatar) {
+                // Show image
+                headerAvatarEl.style.backgroundImage = `url('${currentUser.avatar}')`;
+                headerAvatarEl.style.backgroundSize = 'cover';
+                headerAvatarEl.style.backgroundPosition = 'center';
+                headerAvatarEl.textContent = '';
+            } else {
+                // Show initial letter
+                headerAvatarEl.style.backgroundImage = 'none';
+                headerAvatarEl.textContent = currentUser.initial || 'U';
+            }
+        }
         
         // 3. อัปเดตข้อมูลในหน้า HOME (ที่วงสีส้ม)
         const homeUserNameEl = document.getElementById("home-user-name-header");
@@ -311,6 +333,9 @@ function checkLoginSession() {
         if (infoUserpos) {
             infoUserpos.textContent = currentUser.position || "-";
         }
+        
+        // Display avatar in both header and settings
+        displayAvatar(currentUser.avatar, currentUser.name);
 
         // 3. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
         
@@ -1329,20 +1354,34 @@ function loadHistoryRecord(id) {
 
     // Function to display avatar
     function displayAvatar(avatarBase64, userName) {
+        // Display in settings section
         const avatarDisplay = document.getElementById('avatar-display');
-        if (!avatarDisplay) return;
+        if (avatarDisplay) {
+            if (avatarBase64) {
+                avatarDisplay.style.background = 'none';
+                avatarDisplay.style.padding = '0';
+                avatarDisplay.innerHTML = `<img src="${avatarBase64}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">`;
+            } else {
+                const initial = (userName || 'U').charAt(0).toUpperCase();
+                avatarDisplay.style.background = 'linear-gradient(135deg, #6C2B85, #9b51b5)';
+                avatarDisplay.style.padding = '0';
+                avatarDisplay.textContent = initial;
+            }
+        }
 
-        if (avatarBase64) {
-            // Display image
-            avatarDisplay.style.background = 'none';
-            avatarDisplay.style.padding = '0';
-            avatarDisplay.innerHTML = `<img src="${avatarBase64}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">`;
-        } else {
-            // Display initial letter
-            const initial = (userName || 'U').charAt(0).toUpperCase();
-            avatarDisplay.style.background = 'linear-gradient(135deg, #6C2B85, #9b51b5)';
-            avatarDisplay.style.padding = '0';
-            avatarDisplay.textContent = initial;
+        // Display in header
+        const headerAvatarEl = document.getElementById("user-avatar-text");
+        if (headerAvatarEl) {
+            if (avatarBase64) {
+                headerAvatarEl.style.backgroundImage = `url('${avatarBase64}')`;
+                headerAvatarEl.style.backgroundSize = 'cover';
+                headerAvatarEl.style.backgroundPosition = 'center';
+                headerAvatarEl.textContent = '';
+            } else {
+                headerAvatarEl.style.backgroundImage = 'none';
+                const initial = (userName || 'U').charAt(0).toUpperCase();
+                headerAvatarEl.textContent = initial;
+            }
         }
     }
 

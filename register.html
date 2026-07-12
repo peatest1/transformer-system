@@ -717,6 +717,10 @@
                 displayName: registrationData.name
             }).then(() => {
                 // ✅ เพิ่ม emailVerified = true แล้ว
+                
+                // บันทึก position แยกเพื่อไม่ให้หาย
+                localStorage.setItem('pea_user_position_' + registrationData.email, registrationData.position);
+                
                 localStorage.setItem('pea_current_user', JSON.stringify({
                     email: registrationData.email,
                     name: registrationData.name,

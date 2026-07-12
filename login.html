@@ -512,11 +512,13 @@
 
                     // Save to localStorage
                     const savedUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+                    const savedPosition = localStorage.getItem('pea_user_position_' + user.email) || '';
+                    
                     localStorage.setItem('pea_current_user', JSON.stringify({
                         email: user.email,
                         uid: user.uid,
                         name: user.displayName || savedUser.name || 'User',
-                        position: savedUser.position || '',
+                        position: savedPosition || savedUser.position || '',
                         emailVerified: true  // ✅ ยังคง set true เพื่อ consistency
                     }));
 

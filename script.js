@@ -107,35 +107,53 @@ function showHistory() {
     }
 }
 
+// ===== AVATAR UPLOAD HANDLER =====
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarUpload = document.getElementById('avatar-upload');
+    
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64Image = event.target.result;
+                    
+                    // บันทึก avatar ลง localStorage
+                    const userData = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+                    userData.avatar = base64Image;
+                    localStorage.setItem('pea_current_user', JSON.stringify(userData));
+                    
+                    // แสดง avatar
+                    displayAvatar(base64Image);
+                    
+                    alert('✅ บันทึกรูปโปรไฟล์สำเร็จ!');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Load avatar ตอน page load
+    const currentUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+    if (currentUser.avatar) {
+        displayAvatar(currentUser.avatar);
+    }
+});
+
 // ===== DISPLAY AVATAR FUNCTION =====
-// (การผูก event ของ #avatar-upload และการโหลด avatar ตอน page load
-//  ทำอยู่แค่จุดเดียวด้านล่างของไฟล์ เพื่อไม่ให้เกิดการทำงานซ้ำซ้อน/แจ้งเตือนซ้ำ)
-function displayAvatar(avatarBase64, userName) {
+function displayAvatar(avatarBase64) {
     const avatarDisplay = document.getElementById('avatar-display');
     if (avatarDisplay) {
-        if (avatarBase64) {
-            avatarDisplay.style.background = 'none';
-            avatarDisplay.style.padding = '0';
-            avatarDisplay.innerHTML = `<img src="${avatarBase64}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">`;
-        } else {
-            const initial = (userName || 'U').charAt(0).toUpperCase();
-            avatarDisplay.style.background = 'linear-gradient(135deg, #6C2B85, #9b51b5)';
-            avatarDisplay.style.padding = '0';
-            avatarDisplay.textContent = initial;
-        }
-    }
-    const headerAvatarEl = document.getElementById("user-avatar-text");
-    if (headerAvatarEl) {
-        if (avatarBase64) {
-            headerAvatarEl.style.backgroundImage = `url('${avatarBase64}')`;
-            headerAvatarEl.style.backgroundSize = 'cover';
-            headerAvatarEl.style.backgroundPosition = 'center';
-            headerAvatarEl.textContent = '';
-        } else {
-            headerAvatarEl.style.backgroundImage = 'none';
-            const initial = (userName || 'U').charAt(0).toUpperCase();
-            headerAvatarEl.textContent = initial;
-        }
+        const img = document.createElement('img');
+        img.src = avatarBase64;
+        img.style.width = '50px';
+        img.style.height = '50px';
+        img.style.borderRadius = '50%';
+        img.style.objectFit = 'cover';
+        
+        avatarDisplay.innerHTML = '';
+        avatarDisplay.appendChild(img);
     }
 }
 
@@ -265,30 +283,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ฟังก์ชันตรวจสอบ Session และทำการ Auto-fill ลงฟิลด์ข้อมูล
-async function checkLoginSession() {
+function checkLoginSession() {
     const sessionData = localStorage.getItem("pea_current_user");
     const loginModal = document.getElementById("login-modal");
     const profileInfo = document.getElementById("user-profile-info");
 
     if (sessionData) {
         const currentUser = JSON.parse(sessionData);
-
-        // ✅ ดึงโปรไฟล์ล่าสุด (ชื่อ/ตำแหน่ง/รูป) จาก Firestore มาทับค่าที่เก็บไว้ในเครื่องนี้
-        // เพื่อแก้ปัญหา "ตำแหน่งหาย"/"รูปไม่ขึ้น" เวลาเข้าจากอุปกรณ์ที่ไม่เคยตั้งค่าไว้
-        if (currentUser.uid && typeof db !== 'undefined' && db) {
-            try {
-                const docSnap = await db.collection('users').doc(currentUser.uid).get();
-                if (docSnap.exists) {
-                    const cloud = docSnap.data();
-                    if (cloud.name) currentUser.name = cloud.name;
-                    if (cloud.position) currentUser.position = cloud.position;
-                    if (cloud.avatar) currentUser.avatar = cloud.avatar;
-                    localStorage.setItem('pea_current_user', JSON.stringify(currentUser));
-                }
-            } catch (err) {
-                console.error('ซิงค์โปรไฟล์จาก Firestore ไม่สำเร็จ:', err);
-            }
-        }
 
         // 1. ซ่อนหน้าต่าง Login และแสดงแถบโปรไฟล์บน Header
         if (loginModal) loginModal.style.display = "none";
@@ -644,7 +645,9 @@ async function loadHistoryRecord(id) {
 
     async function printHistoryRecord(id) {
         await loadHistoryRecord(id);
-        generatePrintView();
+        setTimeout(() => {
+            generatePrintView();
+        }, 300);
     }
 
     async function renderHistory() {
@@ -1209,19 +1212,14 @@ async function loadHistoryRecord(id) {
         
         document.getElementById('print-container').innerHTML = printHTML;
 
-        // เรียก print ทันทีหลังอัปเดต DOM (ไม่หน่วงด้วย setTimeout)
-        // เพราะมือถือ (โดยเฉพาะ iOS Safari) มักจะ "ยกเลิก" การอนุญาตเปิดหน้าต่างพิมพ์
-        // ถ้าคำสั่ง window.print() ไม่ได้ถูกเรียกใกล้เคียงกับ event การกดปุ่มของผู้ใช้มากพอ
-        try {
-            window.print();
-        } catch (err) {
-            console.error('เปิดหน้าต่างพิมพ์ไม่สำเร็จ:', err);
-            alert('ไม่สามารถเปิดหน้าต่างพิมพ์ได้ กรุณาลองใหม่อีกครั้ง');
-        }
-        // หลังปิด print dialog ไป HOME page
+        // สั่งให้ Print PDF ทำงานหลังจากเรนเดอร์ข้อมูลเสร็จ
         setTimeout(() => {
-            showHomePage();
-        }, 1000);
+            window.print();
+            // หลังปิด print dialog ไป HOME page
+            setTimeout(() => {
+                showHomePage();
+            }, 1000);
+        }, 300);
     }
 
     function buildCostPage() {
@@ -1370,7 +1368,7 @@ async function loadHistoryRecord(id) {
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = async function(event) {
+            reader.onload = function(event) {
                 const base64Avatar = event.target.result;
                 
                 // Save avatar to localStorage
@@ -1380,23 +1378,44 @@ async function loadHistoryRecord(id) {
                 
                 // Display avatar
                 displayAvatar(base64Avatar, currentUser.name);
-
-                // ✅ ซิงค์รูปโปรไฟล์ขึ้น Firestore ด้วย เพื่อให้เห็นรูปเดียวกันทุกอุปกรณ์
-                // (หมายเหตุ: รูปมีขนาดจำกัดไม่เกิน ~1MB เพราะข้อจำกัดของ Firestore document)
-                if (db && currentUser.uid) {
-                    try {
-                        await db.collection('users').doc(currentUser.uid).set({
-                            avatar: base64Avatar
-                        }, { merge: true });
-                    } catch (err) {
-                        console.error('ซิงค์รูปโปรไฟล์ขึ้น Firestore ไม่สำเร็จ:', err);
-                    }
-                }
                 
                 alert('✅ บันทึกรูปโปรไฟล์สำเร็จ!');
             };
             reader.readAsDataURL(file);
         });
+    }
+
+    // Function to display avatar
+    function displayAvatar(avatarBase64, userName) {
+        // Display in settings section
+        const avatarDisplay = document.getElementById('avatar-display');
+        if (avatarDisplay) {
+            if (avatarBase64) {
+                avatarDisplay.style.background = 'none';
+                avatarDisplay.style.padding = '0';
+                avatarDisplay.innerHTML = `<img src="${avatarBase64}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">`;
+            } else {
+                const initial = (userName || 'U').charAt(0).toUpperCase();
+                avatarDisplay.style.background = 'linear-gradient(135deg, #6C2B85, #9b51b5)';
+                avatarDisplay.style.padding = '0';
+                avatarDisplay.textContent = initial;
+            }
+        }
+
+        // Display in header
+        const headerAvatarEl = document.getElementById("user-avatar-text");
+        if (headerAvatarEl) {
+            if (avatarBase64) {
+                headerAvatarEl.style.backgroundImage = `url('${avatarBase64}')`;
+                headerAvatarEl.style.backgroundSize = 'cover';
+                headerAvatarEl.style.backgroundPosition = 'center';
+                headerAvatarEl.textContent = '';
+            } else {
+                headerAvatarEl.style.backgroundImage = 'none';
+                const initial = (userName || 'U').charAt(0).toUpperCase();
+                headerAvatarEl.textContent = initial;
+            }
+        }
     }
 
     // Load avatar on page load

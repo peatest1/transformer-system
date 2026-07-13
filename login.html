@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -468,7 +467,6 @@
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
-        const db = firebase.firestore();
 
         // EmailJS Config
         emailjs.init('XeEwUEAWGHESN4kHf');
@@ -505,22 +503,12 @@
 
             // Firebase Login
             auth.signInWithEmailAndPassword(email, password)
-                .then(async (userCredential) => {
+                .then((userCredential) => {
                     const user = userCredential.user;
                     console.log('✅ User logged in:', user.email);
                     
                     // ✅ ไม่เช็ก emailVerified - เพียงเช็ก Firebase login สำเร็จ
                     console.log('✅ Password correct, proceeding...');
-
-                    // ✅ ดึงโปรไฟล์ (ตำแหน่ง/รูปประจำตัว) จาก Firestore ก่อน
-                    // เพื่อให้ใช้งานได้ทุกอุปกรณ์ ไม่ใช่แค่เครื่องที่เคยสมัคร/แก้ไขไว้
-                    let cloudProfile = {};
-                    try {
-                        const docSnap = await db.collection('users').doc(user.uid).get();
-                        if (docSnap.exists) cloudProfile = docSnap.data();
-                    } catch (err) {
-                        console.error('ดึงโปรไฟล์จาก Firestore ไม่สำเร็จ:', err);
-                    }
 
                     // Save to localStorage
                     const savedUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
@@ -529,9 +517,8 @@
                     localStorage.setItem('pea_current_user', JSON.stringify({
                         email: user.email,
                         uid: user.uid,
-                        name: user.displayName || cloudProfile.name || savedUser.name || 'User',
-                        position: cloudProfile.position || savedPosition || savedUser.position || '',
-                        avatar: cloudProfile.avatar || savedUser.avatar || '',
+                        name: user.displayName || savedUser.name || 'User',
+                        position: savedPosition || savedUser.position || '',
                         emailVerified: true  // ✅ ยังคง set true เพื่อ consistency
                     }));
 

@@ -9,6 +9,19 @@ const peaUsers = {
     user3: { name: "นายณัฐพล รักดี", position: "วศ.6 แผนกปฏิบัติการเบตง", initial: "ณ" }
 };
 
+// ชื่อ Collection ใน Firestore ที่เก็บประวัติร่วมกันทุกอุปกรณ์
+const HISTORY_COLLECTION = 'transformer_history';
+
+// ===== 🚪 LOGOUT (ผูกกับปุ่ม onclick="logout()" ใน index.html) =====
+function logout() {
+    if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+        localStorage.removeItem("pea_current_user");
+        // ไม่ clear localStorage ทั้งหมด เพื่อเก็บข้อมูลอื่น
+        window.location.href = 'login.html';
+    }
+}
+window.logout = logout;
+
 // 🏠 NAVIGATION
 function showHomePage() {
     const h = document.getElementById('home-page');
@@ -19,6 +32,12 @@ function showHomePage() {
     
     // โหลด stats เมื่อไปหน้า HOME
     setTimeout(() => loadHomePageStats(), 200);
+    
+    // Refresh avatar display
+    const currentUser = JSON.parse(localStorage.getItem("pea_current_user") || '{}');
+    if (currentUser.name) {
+        displayAvatar(currentUser.avatar, currentUser.name);
+    }
 }
 
 function goToForm() {
@@ -88,20 +107,69 @@ function showHistory() {
     }
 }
 
-function logout() {
-    if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-        localStorage.removeItem("pea_current_user");
-        localStorage.removeItem("pea_user_email");
-        localStorage.removeItem("pea_remember_me");
-        window.location.href = 'login.html';
+// ===== AVATAR UPLOAD HANDLER =====
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarUpload = document.getElementById('avatar-upload');
+    
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64Image = event.target.result;
+                    
+                    // บันทึก avatar ลง localStorage
+                    const userData = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+                    userData.avatar = base64Image;
+                    localStorage.setItem('pea_current_user', JSON.stringify(userData));
+                    
+                    // แสดง avatar
+                    displayAvatar(base64Image);
+                    
+                    alert('✅ บันทึกรูปโปรไฟล์สำเร็จ!');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Load avatar ตอน page load
+    const currentUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+    if (currentUser.avatar) {
+        displayAvatar(currentUser.avatar);
+    }
+});
+
+// ===== DISPLAY AVATAR FUNCTION =====
+function displayAvatar(avatarBase64) {
+    const avatarDisplay = document.getElementById('avatar-display');
+    if (avatarDisplay) {
+        const img = document.createElement('img');
+        img.src = avatarBase64;
+        img.style.width = '50px';
+        img.style.height = '50px';
+        img.style.borderRadius = '50%';
+        img.style.objectFit = 'cover';
+        
+        avatarDisplay.innerHTML = '';
+        avatarDisplay.appendChild(img);
     }
 }
 
 // Global variable to track if we're editing an existing record
 let currentEditingRecordId = null;
 
-function loadHomePageStats() {
-    const records = JSON.parse(localStorage.getItem('pea_transformer_history') || '[]');
+async function loadHomePageStats() {
+    let records = [];
+    try {
+        if (db) {
+            const snapshot = await db.collection(HISTORY_COLLECTION).get();
+            snapshot.forEach(doc => records.push(doc.data()));
+        }
+    } catch (e) {
+        console.error('โหลดสถิติจาก Firestore ไม่สำเร็จ:', e);
+    }
     
     // นับทั้งหมด
     const total = records.length;
@@ -210,12 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ดักจับเหตุการณ์การออกจากระบบ
     const btnLogout = document.getElementById("btn-logout");
     if (btnLogout) {
-        btnLogout.addEventListener("click", () => {
-            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-                localStorage.removeItem("pea_current_user");
-                location.reload(); // รีเฟรชเพื่อเคลียร์สถานะทั้งหมด
-            }
-        });
+        btnLogout.addEventListener("click", logout);
     }
 });
 
@@ -247,7 +310,47 @@ function checkLoginSession() {
         // 2. อัปเดตข้อมูลบน Header ด้านบน
         document.getElementById("header-user-name").textContent = currentUser.name;
         document.getElementById("header-user-pos").textContent = currentUser.position;
-        document.getElementById("user-avatar-text").textContent = currentUser.initial;
+        
+        // Display avatar in header
+        const headerAvatarEl = document.getElementById("user-avatar-text");
+        if (headerAvatarEl) {
+            if (currentUser.avatar) {
+                // Show image
+                headerAvatarEl.style.backgroundImage = `url('${currentUser.avatar}')`;
+                headerAvatarEl.style.backgroundSize = 'cover';
+                headerAvatarEl.style.backgroundPosition = 'center';
+                headerAvatarEl.textContent = '';
+            } else {
+                // Show initial letter
+                headerAvatarEl.style.backgroundImage = 'none';
+                headerAvatarEl.textContent = currentUser.initial || 'U';
+            }
+        }
+        
+        // 3. อัปเดตข้อมูลในหน้า HOME (ที่วงสีส้ม)
+        const homeUserNameEl = document.getElementById("home-user-name-header");
+        const homeUserPosEl = document.getElementById("home-user-pos-header");
+        
+        if (homeUserNameEl) {
+            homeUserNameEl.textContent = currentUser.name || "-";
+        }
+        if (homeUserPosEl) {
+            homeUserPosEl.textContent = currentUser.position || "-";
+        }
+        
+        // 4. อัปเดตข้อมูลในกล่อง Settings (ด้านล่าง)
+        const infoUsername = document.getElementById("info-username");
+        const infoUserpos = document.getElementById("info-userpos");
+        
+        if (infoUsername) {
+            infoUsername.textContent = currentUser.name || "-";
+        }
+        if (infoUserpos) {
+            infoUserpos.textContent = currentUser.position || "-";
+        }
+        
+        // Display avatar in both header and settings
+        displayAvatar(currentUser.avatar, currentUser.name);
 
         // 3. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
         
@@ -451,17 +554,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return canvas.toDataURL() === blank.toDataURL();
     }
 
-    // --- History System ---
-    const HISTORY_KEY = 'pea_transformer_history';
+    // --- History System (Firestore - ประวัติร่วมกันทุกอุปกรณ์) ---
 
-    function saveToHistory() {
-    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-    
-    // ถ้า editing record เดิม → ลบ record เก่าออก
-    if (currentEditingRecordId !== null) {
-        history = history.filter(r => r.id !== currentEditingRecordId);
-    }
-    
+    async function saveToHistory() {
     let record = {
         id: currentEditingRecordId || Date.now(),  // ใช้ ID เก่า หรือสร้างใหม่
         date: new Date().toLocaleString('th-TH'),
@@ -478,20 +573,32 @@ document.addEventListener('DOMContentLoaded', () => {
         record.signature = canvas.toDataURL('image/png');
     }
     
-    history.push(record);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    try {
+        if (!db) throw new Error('Firestore ยังไม่พร้อมใช้งาน');
+        // ใช้ doc id = record.id เดียวกัน ถ้า edit record เดิมจะเขียนทับอัตโนมัติ
+        await db.collection(HISTORY_COLLECTION).doc(String(record.id)).set(record);
+    } catch (e) {
+        console.error('บันทึกประวัติไปยัง Firestore ไม่สำเร็จ:', e);
+        alert('ไม่สามารถบันทึกประวัติขึ้น Firestore ได้ กรุณาตรวจสอบอินเทอร์เน็ต/สิทธิ์การเข้าถึง');
+    }
     
     // รีเซท editing flag
     currentEditingRecordId = null;
 }
 
-function loadHistoryRecord(id) {
-    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-    let record = history.find(r => r.id === id);
-    if (record) {
+async function loadHistoryRecord(id) {
+    try {
+        if (!db) throw new Error('Firestore ยังไม่พร้อมใช้งาน');
+        const docSnap = await db.collection(HISTORY_COLLECTION).doc(String(id)).get();
+        if (!docSnap.exists) {
+            alert('ไม่พบประวัตินี้');
+            return;
+        }
+        const record = docSnap.data();
+
         // เซท flag ว่ากำลัง edit record นี้
         currentEditingRecordId = id;
-        
+
         Object.keys(record.data).forEach(key => {
             let el = document.getElementById(key);
             if (el) el.value = record.data[key];
@@ -512,53 +619,67 @@ function loadHistoryRecord(id) {
             modal.style.display = 'none';
             modal.style.visibility = 'hidden';
         }
-        
+
         // ไปแสดงฟอร์มพร้อมข้อมูลที่โหลด
         setTimeout(() => {
             goToForm();
         }, 200);
+    } catch (e) {
+        console.error('โหลดประวัติไม่สำเร็จ:', e);
+        alert('ไม่สามารถโหลดประวัติได้ กรุณาตรวจสอบอินเทอร์เน็ต');
     }
 }
 
-    function deleteHistoryRecord(id) {
+    async function deleteHistoryRecord(id) {
         if(confirm('ต้องการลบประวัตินี้ใช่หรือไม่?')) {
-            let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            history = history.filter(r => r.id !== id);
-            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-            renderHistory();
+            try {
+                if (!db) throw new Error('Firestore ยังไม่พร้อมใช้งาน');
+                await db.collection(HISTORY_COLLECTION).doc(String(id)).delete();
+                renderHistory();
+            } catch (e) {
+                console.error('ลบประวัติไม่สำเร็จ:', e);
+                alert('ไม่สามารถลบประวัติได้ กรุณาตรวจสอบอินเทอร์เน็ต');
+            }
         }
     }
 
-    function printHistoryRecord(id) {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-        let record = history.find(r => r.id === id);
-        if (record) {
-            loadHistoryRecord(id);
-            setTimeout(() => {
-                generatePrintView();
-            }, 300);
-        }
+    async function printHistoryRecord(id) {
+        await loadHistoryRecord(id);
+        setTimeout(() => {
+            generatePrintView();
+        }, 300);
     }
 
-    function renderHistory() {
-        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    async function renderHistory() {
         let tbody = document.getElementById('history-list');
         if(!tbody) return;
-        tbody.innerHTML = '';
-        history.slice().reverse().forEach(r => {
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${r.date}</td>
-                <td>${r.peaId || '-'}</td>
-                <td>${r.location || '-'}</td>
-                <td>
-                    <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${r.id})">โหลด</button>
-                    <button type="button" class="btn-secondary btn-sm" onclick="window.printHistoryRecord(${r.id})">ปริ้น</button>
-                    <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${r.id})" style="color:red;">ลบ</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+        tbody.innerHTML = '<tr><td colspan="4">กำลังโหลดประวัติ...</td></tr>';
+        try {
+            if (!db) throw new Error('Firestore ยังไม่พร้อมใช้งาน');
+            const snapshot = await db.collection(HISTORY_COLLECTION).orderBy('id', 'desc').get();
+            tbody.innerHTML = '';
+            snapshot.forEach(doc => {
+                const r = doc.data();
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${r.date}</td>
+                    <td>${r.peaId || '-'}</td>
+                    <td>${r.location || '-'}</td>
+                    <td>
+                        <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${r.id})">โหลด</button>
+                        <button type="button" class="btn-secondary btn-sm" onclick="window.printHistoryRecord(${r.id})">ปริ้น</button>
+                        <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${r.id})" style="color:red;">ลบ</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            if (snapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="4">ยังไม่มีประวัติ</td></tr>';
+            }
+        } catch (e) {
+            console.error('โหลดประวัติไม่สำเร็จ:', e);
+            tbody.innerHTML = '<tr><td colspan="4">ไม่สามารถโหลดประวัติได้ กรุณาตรวจสอบอินเทอร์เน็ต</td></tr>';
+        }
     }
 
     window.loadHistoryRecord = loadHistoryRecord;
@@ -1238,4 +1359,68 @@ function loadHistoryRecord(id) {
         alert('✅ บันทึกข้อมูลสำเร็จแล้ว');
         showHomePage();
     });
+
+    // ===== AVATAR UPLOAD =====
+    const avatarUpload = document.getElementById('avatar-upload');
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Avatar = event.target.result;
+                
+                // Save avatar to localStorage
+                const currentUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+                currentUser.avatar = base64Avatar;
+                localStorage.setItem('pea_current_user', JSON.stringify(currentUser));
+                
+                // Display avatar
+                displayAvatar(base64Avatar, currentUser.name);
+                
+                alert('✅ บันทึกรูปโปรไฟล์สำเร็จ!');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Function to display avatar
+    function displayAvatar(avatarBase64, userName) {
+        // Display in settings section
+        const avatarDisplay = document.getElementById('avatar-display');
+        if (avatarDisplay) {
+            if (avatarBase64) {
+                avatarDisplay.style.background = 'none';
+                avatarDisplay.style.padding = '0';
+                avatarDisplay.innerHTML = `<img src="${avatarBase64}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">`;
+            } else {
+                const initial = (userName || 'U').charAt(0).toUpperCase();
+                avatarDisplay.style.background = 'linear-gradient(135deg, #6C2B85, #9b51b5)';
+                avatarDisplay.style.padding = '0';
+                avatarDisplay.textContent = initial;
+            }
+        }
+
+        // Display in header
+        const headerAvatarEl = document.getElementById("user-avatar-text");
+        if (headerAvatarEl) {
+            if (avatarBase64) {
+                headerAvatarEl.style.backgroundImage = `url('${avatarBase64}')`;
+                headerAvatarEl.style.backgroundSize = 'cover';
+                headerAvatarEl.style.backgroundPosition = 'center';
+                headerAvatarEl.textContent = '';
+            } else {
+                headerAvatarEl.style.backgroundImage = 'none';
+                const initial = (userName || 'U').charAt(0).toUpperCase();
+                headerAvatarEl.textContent = initial;
+            }
+        }
+    }
+
+    // Load avatar on page load
+    const currentUserData = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+    if (currentUserData.avatar) {
+        displayAvatar(currentUserData.avatar, currentUserData.name);
+    }
 });

@@ -9,19 +9,6 @@ const peaUsers = {
     user3: { name: "นายณัฐพล รักดี", position: "วศ.6 แผนกปฏิบัติการเบตง", initial: "ณ" }
 };
 
-// ชื่อ Collection ใน Firestore ที่เก็บประวัติร่วมกันทุกอุปกรณ์
-const HISTORY_COLLECTION = 'transformer_history';
-
-// ===== 🚪 LOGOUT (ผูกกับปุ่ม onclick="logout()" ใน index.html) =====
-function logout() {
-    if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
-        localStorage.removeItem("pea_current_user");
-        // ไม่ clear localStorage ทั้งหมด เพื่อเก็บข้อมูลอื่น
-        window.location.href = 'login.html';
-    }
-}
-window.logout = logout;
-
 // 🏠 NAVIGATION
 function showHomePage() {
     const h = document.getElementById('home-page');
@@ -32,12 +19,6 @@ function showHomePage() {
     
     // โหลด stats เมื่อไปหน้า HOME
     setTimeout(() => loadHomePageStats(), 200);
-    
-    // Refresh avatar display
-    const currentUser = JSON.parse(localStorage.getItem("pea_current_user") || '{}');
-    if (currentUser.name) {
-        displayAvatar(currentUser.avatar, currentUser.name);
-    }
 }
 
 function goToForm() {
@@ -107,51 +88,20 @@ function showHistory() {
     }
 }
 
-// ===== DISPLAY AVATAR FUNCTION =====
-// (การผูก event ของ #avatar-upload และการโหลด avatar ตอน page load
-//  ทำอยู่แค่จุดเดียวด้านล่างของไฟล์ เพื่อไม่ให้เกิดการทำงานซ้ำซ้อน/แจ้งเตือนซ้ำ)
-function displayAvatar(avatarBase64, userName) {
-    const avatarDisplay = document.getElementById('avatar-display');
-    if (avatarDisplay) {
-        if (avatarBase64) {
-            avatarDisplay.style.background = 'none';
-            avatarDisplay.style.padding = '0';
-            avatarDisplay.innerHTML = `<img src="${avatarBase64}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">`;
-        } else {
-            const initial = (userName || 'U').charAt(0).toUpperCase();
-            avatarDisplay.style.background = 'linear-gradient(135deg, #6C2B85, #9b51b5)';
-            avatarDisplay.style.padding = '0';
-            avatarDisplay.textContent = initial;
-        }
-    }
-    const headerAvatarEl = document.getElementById("user-avatar-text");
-    if (headerAvatarEl) {
-        if (avatarBase64) {
-            headerAvatarEl.style.backgroundImage = `url('${avatarBase64}')`;
-            headerAvatarEl.style.backgroundSize = 'cover';
-            headerAvatarEl.style.backgroundPosition = 'center';
-            headerAvatarEl.textContent = '';
-        } else {
-            headerAvatarEl.style.backgroundImage = 'none';
-            const initial = (userName || 'U').charAt(0).toUpperCase();
-            headerAvatarEl.textContent = initial;
-        }
+function logout() {
+    if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+        localStorage.removeItem("pea_current_user");
+        localStorage.removeItem("pea_user_email");
+        localStorage.removeItem("pea_remember_me");
+        window.location.href = 'login.html';
     }
 }
 
 // Global variable to track if we're editing an existing record
 let currentEditingRecordId = null;
 
-async function loadHomePageStats() {
-    let records = [];
-    try {
-        if (db) {
-            const snapshot = await db.collection(HISTORY_COLLECTION).get();
-            snapshot.forEach(doc => records.push(doc.data()));
-        }
-    } catch (e) {
-        console.error('โหลดสถิติจาก Firestore ไม่สำเร็จ:', e);
-    }
+function loadHomePageStats() {
+    const records = JSON.parse(localStorage.getItem('pea_transformer_history') || '[]');
     
     // นับทั้งหมด
     const total = records.length;
@@ -260,35 +210,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // ดักจับเหตุการณ์การออกจากระบบ
     const btnLogout = document.getElementById("btn-logout");
     if (btnLogout) {
-        btnLogout.addEventListener("click", logout);
+        btnLogout.addEventListener("click", () => {
+            if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+                localStorage.removeItem("pea_current_user");
+                location.reload(); // รีเฟรชเพื่อเคลียร์สถานะทั้งหมด
+            }
+        });
     }
 });
 
 // ฟังก์ชันตรวจสอบ Session และทำการ Auto-fill ลงฟิลด์ข้อมูล
-async function checkLoginSession() {
+function checkLoginSession() {
     const sessionData = localStorage.getItem("pea_current_user");
     const loginModal = document.getElementById("login-modal");
     const profileInfo = document.getElementById("user-profile-info");
 
     if (sessionData) {
         const currentUser = JSON.parse(sessionData);
-
-        // ✅ ดึงโปรไฟล์ล่าสุด (ชื่อ/ตำแหน่ง/รูป) จาก Firestore มาทับค่าที่เก็บไว้ในเครื่องนี้
-        // เพื่อแก้ปัญหา "ตำแหน่งหาย"/"รูปไม่ขึ้น" เวลาเข้าจากอุปกรณ์ที่ไม่เคยตั้งค่าไว้
-        if (currentUser.uid && typeof db !== 'undefined' && db) {
-            try {
-                const docSnap = await db.collection('users').doc(currentUser.uid).get();
-                if (docSnap.exists) {
-                    const cloud = docSnap.data();
-                    if (cloud.name) currentUser.name = cloud.name;
-                    if (cloud.position) currentUser.position = cloud.position;
-                    if (cloud.avatar) currentUser.avatar = cloud.avatar;
-                    localStorage.setItem('pea_current_user', JSON.stringify(currentUser));
-                }
-            } catch (err) {
-                console.error('ซิงค์โปรไฟล์จาก Firestore ไม่สำเร็จ:', err);
-            }
-        }
 
         // 1. ซ่อนหน้าต่าง Login และแสดงแถบโปรไฟล์บน Header
         if (loginModal) loginModal.style.display = "none";
@@ -309,47 +247,7 @@ async function checkLoginSession() {
         // 2. อัปเดตข้อมูลบน Header ด้านบน
         document.getElementById("header-user-name").textContent = currentUser.name;
         document.getElementById("header-user-pos").textContent = currentUser.position;
-        
-        // Display avatar in header
-        const headerAvatarEl = document.getElementById("user-avatar-text");
-        if (headerAvatarEl) {
-            if (currentUser.avatar) {
-                // Show image
-                headerAvatarEl.style.backgroundImage = `url('${currentUser.avatar}')`;
-                headerAvatarEl.style.backgroundSize = 'cover';
-                headerAvatarEl.style.backgroundPosition = 'center';
-                headerAvatarEl.textContent = '';
-            } else {
-                // Show initial letter
-                headerAvatarEl.style.backgroundImage = 'none';
-                headerAvatarEl.textContent = currentUser.initial || 'U';
-            }
-        }
-        
-        // 3. อัปเดตข้อมูลในหน้า HOME (ที่วงสีส้ม)
-        const homeUserNameEl = document.getElementById("home-user-name-header");
-        const homeUserPosEl = document.getElementById("home-user-pos-header");
-        
-        if (homeUserNameEl) {
-            homeUserNameEl.textContent = currentUser.name || "-";
-        }
-        if (homeUserPosEl) {
-            homeUserPosEl.textContent = currentUser.position || "-";
-        }
-        
-        // 4. อัปเดตข้อมูลในกล่อง Settings (ด้านล่าง)
-        const infoUsername = document.getElementById("info-username");
-        const infoUserpos = document.getElementById("info-userpos");
-        
-        if (infoUsername) {
-            infoUsername.textContent = currentUser.name || "-";
-        }
-        if (infoUserpos) {
-            infoUserpos.textContent = currentUser.position || "-";
-        }
-        
-        // Display avatar in both header and settings
-        displayAvatar(currentUser.avatar, currentUser.name);
+        document.getElementById("user-avatar-text").textContent = currentUser.initial;
 
         // 3. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
         
@@ -553,9 +451,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return canvas.toDataURL() === blank.toDataURL();
     }
 
-    // --- History System (Firestore - ประวัติร่วมกันทุกอุปกรณ์) ---
+    // --- History System ---
+    const HISTORY_KEY = 'pea_transformer_history';
 
-    async function saveToHistory() {
+    function saveToHistory() {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    
+    // ถ้า editing record เดิม → ลบ record เก่าออก
+    if (currentEditingRecordId !== null) {
+        history = history.filter(r => r.id !== currentEditingRecordId);
+    }
+    
     let record = {
         id: currentEditingRecordId || Date.now(),  // ใช้ ID เก่า หรือสร้างใหม่
         date: new Date().toLocaleString('th-TH'),
@@ -572,32 +478,20 @@ document.addEventListener('DOMContentLoaded', () => {
         record.signature = canvas.toDataURL('image/png');
     }
     
-    try {
-        if (!db) throw new Error('Firestore ยังไม่พร้อมใช้งาน');
-        // ใช้ doc id = record.id เดียวกัน ถ้า edit record เดิมจะเขียนทับอัตโนมัติ
-        await db.collection(HISTORY_COLLECTION).doc(String(record.id)).set(record);
-    } catch (e) {
-        console.error('บันทึกประวัติไปยัง Firestore ไม่สำเร็จ:', e);
-        alert('ไม่สามารถบันทึกประวัติขึ้น Firestore ได้ กรุณาตรวจสอบอินเทอร์เน็ต/สิทธิ์การเข้าถึง');
-    }
+    history.push(record);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     
     // รีเซท editing flag
     currentEditingRecordId = null;
 }
 
-async function loadHistoryRecord(id) {
-    try {
-        if (!db) throw new Error('Firestore ยังไม่พร้อมใช้งาน');
-        const docSnap = await db.collection(HISTORY_COLLECTION).doc(String(id)).get();
-        if (!docSnap.exists) {
-            alert('ไม่พบประวัตินี้');
-            return;
-        }
-        const record = docSnap.data();
-
+function loadHistoryRecord(id) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    let record = history.find(r => r.id === id);
+    if (record) {
         // เซท flag ว่ากำลัง edit record นี้
         currentEditingRecordId = id;
-
+        
         Object.keys(record.data).forEach(key => {
             let el = document.getElementById(key);
             if (el) el.value = record.data[key];
@@ -618,65 +512,53 @@ async function loadHistoryRecord(id) {
             modal.style.display = 'none';
             modal.style.visibility = 'hidden';
         }
-
+        
         // ไปแสดงฟอร์มพร้อมข้อมูลที่โหลด
         setTimeout(() => {
             goToForm();
         }, 200);
-    } catch (e) {
-        console.error('โหลดประวัติไม่สำเร็จ:', e);
-        alert('ไม่สามารถโหลดประวัติได้ กรุณาตรวจสอบอินเทอร์เน็ต');
     }
 }
 
-    async function deleteHistoryRecord(id) {
+    function deleteHistoryRecord(id) {
         if(confirm('ต้องการลบประวัตินี้ใช่หรือไม่?')) {
-            try {
-                if (!db) throw new Error('Firestore ยังไม่พร้อมใช้งาน');
-                await db.collection(HISTORY_COLLECTION).doc(String(id)).delete();
-                renderHistory();
-            } catch (e) {
-                console.error('ลบประวัติไม่สำเร็จ:', e);
-                alert('ไม่สามารถลบประวัติได้ กรุณาตรวจสอบอินเทอร์เน็ต');
-            }
+            let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            history = history.filter(r => r.id !== id);
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            renderHistory();
         }
     }
 
-    async function printHistoryRecord(id) {
-        await loadHistoryRecord(id);
-        generatePrintView();
+    function printHistoryRecord(id) {
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        let record = history.find(r => r.id === id);
+        if (record) {
+            loadHistoryRecord(id);
+            setTimeout(() => {
+                generatePrintView();
+            }, 300);
+        }
     }
 
-    async function renderHistory() {
+    function renderHistory() {
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
         let tbody = document.getElementById('history-list');
         if(!tbody) return;
-        tbody.innerHTML = '<tr><td colspan="4">กำลังโหลดประวัติ...</td></tr>';
-        try {
-            if (!db) throw new Error('Firestore ยังไม่พร้อมใช้งาน');
-            const snapshot = await db.collection(HISTORY_COLLECTION).orderBy('id', 'desc').get();
-            tbody.innerHTML = '';
-            snapshot.forEach(doc => {
-                const r = doc.data();
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${r.date}</td>
-                    <td>${r.peaId || '-'}</td>
-                    <td>${r.location || '-'}</td>
-                    <td>
-                        <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${r.id})">โหลด</button>
-                        <button type="button" class="btn-secondary btn-sm" onclick="window.printHistoryRecord(${r.id})">ปริ้น</button>
-                        <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${r.id})" style="color:red;">ลบ</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            if (snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="4">ยังไม่มีประวัติ</td></tr>';
-            }
-        } catch (e) {
-            console.error('โหลดประวัติไม่สำเร็จ:', e);
-            tbody.innerHTML = '<tr><td colspan="4">ไม่สามารถโหลดประวัติได้ กรุณาตรวจสอบอินเทอร์เน็ต</td></tr>';
-        }
+        tbody.innerHTML = '';
+        history.slice().reverse().forEach(r => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${r.date}</td>
+                <td>${r.peaId || '-'}</td>
+                <td>${r.location || '-'}</td>
+                <td>
+                    <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${r.id})">โหลด</button>
+                    <button type="button" class="btn-secondary btn-sm" onclick="window.printHistoryRecord(${r.id})">ปริ้น</button>
+                    <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${r.id})" style="color:red;">ลบ</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
     }
 
     window.loadHistoryRecord = loadHistoryRecord;
@@ -1209,19 +1091,14 @@ async function loadHistoryRecord(id) {
         
         document.getElementById('print-container').innerHTML = printHTML;
 
-        // เรียก print ทันทีหลังอัปเดต DOM (ไม่หน่วงด้วย setTimeout)
-        // เพราะมือถือ (โดยเฉพาะ iOS Safari) มักจะ "ยกเลิก" การอนุญาตเปิดหน้าต่างพิมพ์
-        // ถ้าคำสั่ง window.print() ไม่ได้ถูกเรียกใกล้เคียงกับ event การกดปุ่มของผู้ใช้มากพอ
-        try {
-            window.print();
-        } catch (err) {
-            console.error('เปิดหน้าต่างพิมพ์ไม่สำเร็จ:', err);
-            alert('ไม่สามารถเปิดหน้าต่างพิมพ์ได้ กรุณาลองใหม่อีกครั้ง');
-        }
-        // หลังปิด print dialog ไป HOME page
+        // สั่งให้ Print PDF ทำงานหลังจากเรนเดอร์ข้อมูลเสร็จ
         setTimeout(() => {
-            showHomePage();
-        }, 1000);
+            window.print();
+            // หลังปิด print dialog ไป HOME page
+            setTimeout(() => {
+                showHomePage();
+            }, 1000);
+        }, 300);
     }
 
     function buildCostPage() {
@@ -1361,47 +1238,4 @@ async function loadHistoryRecord(id) {
         alert('✅ บันทึกข้อมูลสำเร็จแล้ว');
         showHomePage();
     });
-
-    // ===== AVATAR UPLOAD =====
-    const avatarUpload = document.getElementById('avatar-upload');
-    if (avatarUpload) {
-        avatarUpload.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(event) {
-                const base64Avatar = event.target.result;
-                
-                // Save avatar to localStorage
-                const currentUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
-                currentUser.avatar = base64Avatar;
-                localStorage.setItem('pea_current_user', JSON.stringify(currentUser));
-                
-                // Display avatar
-                displayAvatar(base64Avatar, currentUser.name);
-
-                // ✅ ซิงค์รูปโปรไฟล์ขึ้น Firestore ด้วย เพื่อให้เห็นรูปเดียวกันทุกอุปกรณ์
-                // (หมายเหตุ: รูปมีขนาดจำกัดไม่เกิน ~1MB เพราะข้อจำกัดของ Firestore document)
-                if (db && currentUser.uid) {
-                    try {
-                        await db.collection('users').doc(currentUser.uid).set({
-                            avatar: base64Avatar
-                        }, { merge: true });
-                    } catch (err) {
-                        console.error('ซิงค์รูปโปรไฟล์ขึ้น Firestore ไม่สำเร็จ:', err);
-                    }
-                }
-                
-                alert('✅ บันทึกรูปโปรไฟล์สำเร็จ!');
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // Load avatar on page load
-    const currentUserData = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
-    if (currentUserData.avatar) {
-        displayAvatar(currentUserData.avatar, currentUserData.name);
-    }
 });

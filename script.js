@@ -107,53 +107,35 @@ function showHistory() {
     }
 }
 
-// ===== AVATAR UPLOAD HANDLER =====
-document.addEventListener('DOMContentLoaded', function() {
-    const avatarUpload = document.getElementById('avatar-upload');
-    
-    if (avatarUpload) {
-        avatarUpload.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const base64Image = event.target.result;
-                    
-                    // บันทึก avatar ลง localStorage
-                    const userData = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
-                    userData.avatar = base64Image;
-                    localStorage.setItem('pea_current_user', JSON.stringify(userData));
-                    
-                    // แสดง avatar
-                    displayAvatar(base64Image);
-                    
-                    alert('✅ บันทึกรูปโปรไฟล์สำเร็จ!');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-    
-    // Load avatar ตอน page load
-    const currentUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
-    if (currentUser.avatar) {
-        displayAvatar(currentUser.avatar);
-    }
-});
-
 // ===== DISPLAY AVATAR FUNCTION =====
-function displayAvatar(avatarBase64) {
+// (การผูก event ของ #avatar-upload และการโหลด avatar ตอน page load
+//  ทำอยู่แค่จุดเดียวด้านล่างของไฟล์ เพื่อไม่ให้เกิดการทำงานซ้ำซ้อน/แจ้งเตือนซ้ำ)
+function displayAvatar(avatarBase64, userName) {
     const avatarDisplay = document.getElementById('avatar-display');
     if (avatarDisplay) {
-        const img = document.createElement('img');
-        img.src = avatarBase64;
-        img.style.width = '50px';
-        img.style.height = '50px';
-        img.style.borderRadius = '50%';
-        img.style.objectFit = 'cover';
-        
-        avatarDisplay.innerHTML = '';
-        avatarDisplay.appendChild(img);
+        if (avatarBase64) {
+            avatarDisplay.style.background = 'none';
+            avatarDisplay.style.padding = '0';
+            avatarDisplay.innerHTML = `<img src="${avatarBase64}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">`;
+        } else {
+            const initial = (userName || 'U').charAt(0).toUpperCase();
+            avatarDisplay.style.background = 'linear-gradient(135deg, #6C2B85, #9b51b5)';
+            avatarDisplay.style.padding = '0';
+            avatarDisplay.textContent = initial;
+        }
+    }
+    const headerAvatarEl = document.getElementById("user-avatar-text");
+    if (headerAvatarEl) {
+        if (avatarBase64) {
+            headerAvatarEl.style.backgroundImage = `url('${avatarBase64}')`;
+            headerAvatarEl.style.backgroundSize = 'cover';
+            headerAvatarEl.style.backgroundPosition = 'center';
+            headerAvatarEl.textContent = '';
+        } else {
+            headerAvatarEl.style.backgroundImage = 'none';
+            const initial = (userName || 'U').charAt(0).toUpperCase();
+            headerAvatarEl.textContent = initial;
+        }
     }
 }
 
@@ -290,86 +272,117 @@ function checkLoginSession() {
 
     if (sessionData) {
         const currentUser = JSON.parse(sessionData);
+        renderLoggedInUI(currentUser);
 
-        // 1. ซ่อนหน้าต่าง Login และแสดงแถบโปรไฟล์บน Header
-        if (loginModal) loginModal.style.display = "none";
-        if (profileInfo) {
-            profileInfo.style.display = "flex";
-            profileInfo.classList.add('show');
-        }
-
-        // แสดงหน้า HOME หลัง login
-        const homePage = document.getElementById("home-page");
-        const formPage = document.getElementById("form-page");
-        if (homePage) homePage.style.display = "block";
-        if (formPage) formPage.style.display = "none";
-        
-        // โหลด stats
-        loadHomePageStats();
-
-        // 2. อัปเดตข้อมูลบน Header ด้านบน
-        document.getElementById("header-user-name").textContent = currentUser.name;
-        document.getElementById("header-user-pos").textContent = currentUser.position;
-        
-        // Display avatar in header
-        const headerAvatarEl = document.getElementById("user-avatar-text");
-        if (headerAvatarEl) {
-            if (currentUser.avatar) {
-                // Show image
-                headerAvatarEl.style.backgroundImage = `url('${currentUser.avatar}')`;
-                headerAvatarEl.style.backgroundSize = 'cover';
-                headerAvatarEl.style.backgroundPosition = 'center';
-                headerAvatarEl.textContent = '';
-            } else {
-                // Show initial letter
-                headerAvatarEl.style.backgroundImage = 'none';
-                headerAvatarEl.textContent = currentUser.initial || 'U';
-            }
-        }
-        
-        // 3. อัปเดตข้อมูลในหน้า HOME (ที่วงสีส้ม)
-        const homeUserNameEl = document.getElementById("home-user-name-header");
-        const homeUserPosEl = document.getElementById("home-user-pos-header");
-        
-        if (homeUserNameEl) {
-            homeUserNameEl.textContent = currentUser.name || "-";
-        }
-        if (homeUserPosEl) {
-            homeUserPosEl.textContent = currentUser.position || "-";
-        }
-        
-        // 4. อัปเดตข้อมูลในกล่อง Settings (ด้านล่าง)
-        const infoUsername = document.getElementById("info-username");
-        const infoUserpos = document.getElementById("info-userpos");
-        
-        if (infoUsername) {
-            infoUsername.textContent = currentUser.name || "-";
-        }
-        if (infoUserpos) {
-            infoUserpos.textContent = currentUser.position || "-";
-        }
-        
-        // Display avatar in both header and settings
-        displayAvatar(currentUser.avatar, currentUser.name);
-
-        // 3. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
-        
-        // ส่วนที่ 5: ผู้คิดค่าบริการและตำแหน่ง
-        const costAccountantInput = document.getElementById("cost-accountant");
-        const costAccountantPosInput = document.getElementById("cost-accountant-pos");
-        if (costAccountantInput) costAccountantInput.value = currentUser.name;
-        if (costAccountantPosInput) costAccountantPosInput.value = currentUser.position;
-
-        // ส่วนท้ายฟอร์ม: ข้อมูลผู้ตรวจสอบลงชื่อและตำแหน่ง
-        const signNameInput = document.getElementById("sign-name");
-        const signPosInput = document.getElementById("sign-pos");
-        if (signNameInput) signNameInput.value = currentUser.name;
-        if (signPosInput) signPosInput.value = currentUser.position;
-
+        // ✅ ซิงค์โปรไฟล์ (ชื่อ/ตำแหน่ง/รูป) จาก Firestore แบบ "เบื้องหลัง"
+        // จะไม่บล็อกหรือรบกวนการแสดงผลหลักด้านบน แม้ Firestore จะช้าหรือ error ก็ตาม
+        refreshProfileFromCloud(currentUser);
     } else {
         // หากไม่มีการล็อกอิน ให้บังคับเปิดหน้าต่าง Login Modal ไว้
         if (loginModal) loginModal.style.display = "flex";
         if (profileInfo) profileInfo.style.display = "none";
+    }
+}
+
+function renderLoggedInUI(currentUser) {
+    const loginModal = document.getElementById("login-modal");
+    const profileInfo = document.getElementById("user-profile-info");
+
+    // 1. ซ่อนหน้าต่าง Login และแสดงแถบโปรไฟล์บน Header
+    if (loginModal) loginModal.style.display = "none";
+    if (profileInfo) {
+        profileInfo.style.display = "flex";
+        profileInfo.classList.add('show');
+    }
+
+    // แสดงหน้า HOME หลัง login
+    const homePage = document.getElementById("home-page");
+    const formPage = document.getElementById("form-page");
+    if (homePage) homePage.style.display = "block";
+    if (formPage) formPage.style.display = "none";
+    
+    // โหลด stats
+    loadHomePageStats();
+
+    // 2. อัปเดตข้อมูลบน Header ด้านบน
+    document.getElementById("header-user-name").textContent = currentUser.name;
+    document.getElementById("header-user-pos").textContent = currentUser.position;
+    
+    // Display avatar in header
+    const headerAvatarEl = document.getElementById("user-avatar-text");
+    if (headerAvatarEl) {
+        if (currentUser.avatar) {
+            // Show image
+            headerAvatarEl.style.backgroundImage = `url('${currentUser.avatar}')`;
+            headerAvatarEl.style.backgroundSize = 'cover';
+            headerAvatarEl.style.backgroundPosition = 'center';
+            headerAvatarEl.textContent = '';
+        } else {
+            // Show initial letter
+            headerAvatarEl.style.backgroundImage = 'none';
+            headerAvatarEl.textContent = currentUser.initial || 'U';
+        }
+    }
+    
+    // 3. อัปเดตข้อมูลในหน้า HOME (ที่วงสีส้ม)
+    const homeUserNameEl = document.getElementById("home-user-name-header");
+    const homeUserPosEl = document.getElementById("home-user-pos-header");
+    
+    if (homeUserNameEl) {
+        homeUserNameEl.textContent = currentUser.name || "-";
+    }
+    if (homeUserPosEl) {
+        homeUserPosEl.textContent = currentUser.position || "-";
+    }
+    
+    // 4. อัปเดตข้อมูลในกล่อง Settings (ด้านล่าง)
+    const infoUsername = document.getElementById("info-username");
+    const infoUserpos = document.getElementById("info-userpos");
+    
+    if (infoUsername) {
+        infoUsername.textContent = currentUser.name || "-";
+    }
+    if (infoUserpos) {
+        infoUserpos.textContent = currentUser.position || "-";
+    }
+    
+    // Display avatar in both header and settings
+    displayAvatar(currentUser.avatar, currentUser.name);
+
+    // 3. ดำเนินการ Auto-fill ลงช่องต่างๆ ในระบบแบบอัตโนมัติ
+    
+    // ส่วนที่ 5: ผู้คิดค่าบริการและตำแหน่ง
+    const costAccountantInput = document.getElementById("cost-accountant");
+    const costAccountantPosInput = document.getElementById("cost-accountant-pos");
+    if (costAccountantInput) costAccountantInput.value = currentUser.name;
+    if (costAccountantPosInput) costAccountantPosInput.value = currentUser.position;
+
+    // ส่วนท้ายฟอร์ม: ข้อมูลผู้ตรวจสอบลงชื่อและตำแหน่ง
+    const signNameInput = document.getElementById("sign-name");
+    const signPosInput = document.getElementById("sign-pos");
+    if (signNameInput) signNameInput.value = currentUser.name;
+    if (signPosInput) signPosInput.value = currentUser.position;
+}
+
+// ดึงโปรไฟล์ล่าสุดจาก Firestore มาอัปเดต — ทำงาน "เบื้องหลัง" เท่านั้น
+// ถ้า error หรือช้า จะไม่กระทบการแสดงผลที่ทำไปแล้วจาก localStorage เลย
+async function refreshProfileFromCloud(currentUser) {
+    if (!(currentUser.uid && typeof db !== 'undefined' && db)) return;
+    try {
+        const docSnap = await db.collection('users').doc(currentUser.uid).get();
+        if (!docSnap.exists) return;
+        const cloud = docSnap.data();
+        let changed = false;
+        if (cloud.name && cloud.name !== currentUser.name) { currentUser.name = cloud.name; changed = true; }
+        if (cloud.position && cloud.position !== currentUser.position) { currentUser.position = cloud.position; changed = true; }
+        if (cloud.avatar && cloud.avatar !== currentUser.avatar) { currentUser.avatar = cloud.avatar; changed = true; }
+        if (changed) {
+            localStorage.setItem('pea_current_user', JSON.stringify(currentUser));
+            renderLoggedInUI(currentUser);
+        }
+    } catch (err) {
+        // ไม่ throw ต่อ และไม่แตะ UI ที่แสดงไปแล้ว — ใช้ข้อมูลจากเครื่องนี้ต่อไปตามปกติ
+        console.error('ซิงค์โปรไฟล์จาก Firestore ไม่สำเร็จ (ใช้ข้อมูลจากเครื่องนี้แทน):', err);
     }
 }
 // ฟังก์ชันดึงค่าจากช่องกรอกทั่วไปอย่างปลอดภัย (Text, Textarea, Select)
@@ -645,9 +658,7 @@ async function loadHistoryRecord(id) {
 
     async function printHistoryRecord(id) {
         await loadHistoryRecord(id);
-        setTimeout(() => {
-            generatePrintView();
-        }, 300);
+        generatePrintView();
     }
 
     async function renderHistory() {
@@ -1212,14 +1223,39 @@ async function loadHistoryRecord(id) {
         
         document.getElementById('print-container').innerHTML = printHTML;
 
-        // สั่งให้ Print PDF ทำงานหลังจากเรนเดอร์ข้อมูลเสร็จ
-        setTimeout(() => {
-            window.print();
-            // หลังปิด print dialog ไป HOME page
-            setTimeout(() => {
-                showHomePage();
-            }, 1000);
-        }, 300);
+        const appContainerEl = document.getElementById('app-container');
+        const homePageEl = document.getElementById('home-page');
+        const printContainerEl = document.getElementById('print-container');
+
+        // รอให้เบราว์เซอร์ "วาดหน้าจอ" ใหม่อย่างน้อย 1 รอบก่อนเรียกพิมพ์
+        // (กันปัญหาที่พบ: ถ้าเรียก window.print() ทันทีหลังเปลี่ยน DOM
+        //  บางเบราว์เซอร์อาจยังไม่ทันซ่อน UI เดิม/แสดงเนื้อหาพิมพ์ ทำให้หน้า PDF
+        //  ติดหน้าจอแอปปกติมาด้วย) ใช้ requestAnimationFrame แทน setTimeout(300)
+        // เพราะเร็วกว่ามากและยังใกล้เคียงกับตอนกดปุ่มพอที่มือถือจะไม่ปิดกั้น
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                // ✅ ซ่อน UI หลักของแอป และโชว์เนื้อหาที่จะพิมพ์แบบ "บังคับด้วย JS" โดยตรง
+                // (ไม่พึ่ง @media print CSS อย่างเดียว เผื่อเบราว์เซอร์/ไดรเวอร์เครื่องพิมพ์บางตัว
+                //  ไม่ทำตาม media query ให้ถูกต้องตอนแสดง Print Preview)
+                if (appContainerEl) appContainerEl.style.display = 'none';
+                if (homePageEl) homePageEl.style.display = 'none';
+                if (printContainerEl) printContainerEl.style.display = 'block';
+
+                try {
+                    window.print();
+                } catch (err) {
+                    console.error('เปิดหน้าต่างพิมพ์ไม่สำเร็จ:', err);
+                    alert('ไม่สามารถเปิดหน้าต่างพิมพ์ได้ กรุณาลองใหม่อีกครั้ง');
+                }
+                // หลังปิด print dialog คืนค่าการแสดงผลปกติ แล้วไป HOME page
+                setTimeout(() => {
+                    if (appContainerEl) appContainerEl.style.display = '';
+                    if (homePageEl) homePageEl.style.display = '';
+                    if (printContainerEl) printContainerEl.style.display = 'none';
+                    showHomePage();
+                }, 1000);
+            });
+        });
     }
 
     function buildCostPage() {
@@ -1368,7 +1404,7 @@ async function loadHistoryRecord(id) {
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = async function(event) {
                 const base64Avatar = event.target.result;
                 
                 // Save avatar to localStorage
@@ -1378,44 +1414,23 @@ async function loadHistoryRecord(id) {
                 
                 // Display avatar
                 displayAvatar(base64Avatar, currentUser.name);
+
+                // ✅ ซิงค์รูปโปรไฟล์ขึ้น Firestore ด้วย เพื่อให้เห็นรูปเดียวกันทุกอุปกรณ์
+                // (หมายเหตุ: รูปมีขนาดจำกัดไม่เกิน ~1MB เพราะข้อจำกัดของ Firestore document)
+                if (db && currentUser.uid) {
+                    try {
+                        await db.collection('users').doc(currentUser.uid).set({
+                            avatar: base64Avatar
+                        }, { merge: true });
+                    } catch (err) {
+                        console.error('ซิงค์รูปโปรไฟล์ขึ้น Firestore ไม่สำเร็จ:', err);
+                    }
+                }
                 
                 alert('✅ บันทึกรูปโปรไฟล์สำเร็จ!');
             };
             reader.readAsDataURL(file);
         });
-    }
-
-    // Function to display avatar
-    function displayAvatar(avatarBase64, userName) {
-        // Display in settings section
-        const avatarDisplay = document.getElementById('avatar-display');
-        if (avatarDisplay) {
-            if (avatarBase64) {
-                avatarDisplay.style.background = 'none';
-                avatarDisplay.style.padding = '0';
-                avatarDisplay.innerHTML = `<img src="${avatarBase64}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">`;
-            } else {
-                const initial = (userName || 'U').charAt(0).toUpperCase();
-                avatarDisplay.style.background = 'linear-gradient(135deg, #6C2B85, #9b51b5)';
-                avatarDisplay.style.padding = '0';
-                avatarDisplay.textContent = initial;
-            }
-        }
-
-        // Display in header
-        const headerAvatarEl = document.getElementById("user-avatar-text");
-        if (headerAvatarEl) {
-            if (avatarBase64) {
-                headerAvatarEl.style.backgroundImage = `url('${avatarBase64}')`;
-                headerAvatarEl.style.backgroundSize = 'cover';
-                headerAvatarEl.style.backgroundPosition = 'center';
-                headerAvatarEl.textContent = '';
-            } else {
-                headerAvatarEl.style.backgroundImage = 'none';
-                const initial = (userName || 'U').charAt(0).toUpperCase();
-                headerAvatarEl.textContent = initial;
-            }
-        }
     }
 
     // Load avatar on page load

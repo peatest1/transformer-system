@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -549,6 +550,7 @@
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         // EmailJS Config
         emailjs.init('XeEwUEAWGHESN4kHf');
@@ -715,7 +717,7 @@
             const user = auth.currentUser;
             user.updateProfile({
                 displayName: registrationData.name
-            }).then(() => {
+            }).then(async () => {
                 // ✅ เพิ่ม emailVerified = true แล้ว
                 
                 // บันทึก position แยกเพื่อไม่ให้หาย
@@ -728,6 +730,18 @@
                     uid: user.uid,
                     emailVerified: true  // ← ✅ ยืนยันแล้ว
                 }));
+
+                // ✅ บันทึกโปรไฟล์ลง Firestore ด้วย เพื่อให้ตำแหน่ง/รูปโปรไฟล์
+                // ซิงค์ข้ามอุปกรณ์ได้ (ไม่ใช่แค่เก็บใน localStorage ของเครื่องนี้)
+                try {
+                    await db.collection('users').doc(user.uid).set({
+                        name: registrationData.name,
+                        position: registrationData.position,
+                        email: registrationData.email
+                    }, { merge: true });
+                } catch (err) {
+                    console.error('บันทึกโปรไฟล์ลง Firestore ไม่สำเร็จ:', err);
+                }
 
                 console.log('✅ OTP verified successfully');
                 alert('✅ สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ');

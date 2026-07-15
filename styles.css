@@ -607,7 +607,7 @@ select {
         print-color-adjust: exact;
     }
 
-    #app-container {
+    #app-container, #home-page {
         display: none !important;
     }
 

@@ -1396,6 +1396,44 @@ async function loadHistoryRecord(id) {
         showHomePage();
     });
 
+    // ===== แก้ไขตำแหน่ง =====
+    const btnEditPosition = document.getElementById('btn-edit-position');
+    if (btnEditPosition) {
+        btnEditPosition.addEventListener('click', async function() {
+            const currentUser = JSON.parse(localStorage.getItem('pea_current_user') || '{}');
+            const newPosition = prompt('กรอกตำแหน่งของคุณ:', currentUser.position || '');
+            if (newPosition === null) return; // กดยกเลิก
+            const trimmed = newPosition.trim();
+            if (!trimmed) {
+                alert('กรุณากรอกตำแหน่ง');
+                return;
+            }
+
+            currentUser.position = trimmed;
+            localStorage.setItem('pea_current_user', JSON.stringify(currentUser));
+            if (currentUser.email) {
+                localStorage.setItem('pea_user_position_' + currentUser.email, trimmed);
+            }
+
+            // ✅ ซิงค์ขึ้น Firestore ด้วย เพื่อให้ตำแหน่งใหม่ใช้ได้ทุกอุปกรณ์
+            if (db && currentUser.uid) {
+                try {
+                    await db.collection('users').doc(currentUser.uid).set({
+                        position: trimmed,
+                        name: currentUser.name || ''
+                    }, { merge: true });
+                } catch (err) {
+                    console.error('บันทึกตำแหน่งขึ้น Firestore ไม่สำเร็จ:', err);
+                }
+            }
+
+            if (typeof renderLoggedInUI === 'function') {
+                renderLoggedInUI(currentUser);
+            }
+            alert('✅ บันทึกตำแหน่งสำเร็จ!');
+        });
+    }
+
     // ===== AVATAR UPLOAD =====
     const avatarUpload = document.getElementById('avatar-upload');
     if (avatarUpload) {

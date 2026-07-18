@@ -71,7 +71,14 @@ function clearAllForm() {
     
     document.querySelectorAll('input, select, textarea').forEach(el => {
         if (el.id && el.id !== 'sign-date') {
-            el.value = '';
+            if (el.tagName === 'SELECT') {
+                // สำหรับ dropdown: กลับไปที่ค่า default ที่ตั้งไว้ใน HTML (option ที่มี selected)
+                // เช่น "มาตรฐาน" / "ปกติ" แทนที่จะเคลียร์เป็นค่าว่าง
+                const defaultOption = el.querySelector('option[selected]');
+                el.value = defaultOption ? defaultOption.value : '';
+            } else {
+                el.value = '';
+            }
         }
     });
     

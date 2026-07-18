@@ -1223,37 +1223,29 @@ async function loadHistoryRecord(id) {
         
         document.getElementById('print-container').innerHTML = printHTML;
 
-        const appContainerEl = document.getElementById('app-container');
-        const homePageEl = document.getElementById('home-page');
-        const printContainerEl = document.getElementById('print-container');
-
         // รอให้เบราว์เซอร์ "วาดหน้าจอ" ใหม่อย่างน้อย 1 รอบก่อนเรียกพิมพ์
-        // (กันปัญหาที่พบ: ถ้าเรียก window.print() ทันทีหลังเปลี่ยน DOM
-        //  บางเบราว์เซอร์อาจยังไม่ทันซ่อน UI เดิม/แสดงเนื้อหาพิมพ์ ทำให้หน้า PDF
-        //  ติดหน้าจอแอปปกติมาด้วย) ใช้ requestAnimationFrame แทน setTimeout(300)
-        // เพราะเร็วกว่ามากและยังใกล้เคียงกับตอนกดปุ่มพอที่มือถือจะไม่ปิดกั้น
+        // (กันปัญหาที่พบก่อนหน้านี้: ถ้าเรียก window.print() ทันทีหลังเปลี่ยน DOM
+        //  บางเบราว์เซอร์อาจยังไม่ทันอัปเดตเนื้อหาที่จะพิมพ์)
+        // ใช้ requestAnimationFrame แทน setTimeout(300) เพราะเร็วกว่ามากและยังใกล้เคียง
+        // กับตอนกดปุ่มพอที่มือถือจะไม่ปิดกั้น
+        //
+        // หมายเหตุ: ไม่ต้องสลับการแสดงผลบนหน้าจอด้วย JS อีกต่อไป (ไม่มีการ "เด้ง" ไปโชว์
+        // หน้าเอกสารให้เห็นก่อนพิมพ์) เพราะ CSS @media print (#app-container, #home-page
+        // { display: none } และ #print-container { display: block }) จัดการเรื่องนี้
+        // เฉพาะตอนพิมพ์จริงอยู่แล้ว โดยไม่กระทบหน้าจอปกติเลย
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                // ✅ ซ่อน UI หลักของแอป และโชว์เนื้อหาที่จะพิมพ์แบบ "บังคับด้วย JS" โดยตรง
-                // (ไม่พึ่ง @media print CSS อย่างเดียว เผื่อเบราว์เซอร์/ไดรเวอร์เครื่องพิมพ์บางตัว
-                //  ไม่ทำตาม media query ให้ถูกต้องตอนแสดง Print Preview)
-                if (appContainerEl) appContainerEl.style.display = 'none';
-                if (homePageEl) homePageEl.style.display = 'none';
-                if (printContainerEl) printContainerEl.style.display = 'block';
-
                 try {
                     window.print();
                 } catch (err) {
                     console.error('เปิดหน้าต่างพิมพ์ไม่สำเร็จ:', err);
                     alert('ไม่สามารถเปิดหน้าต่างพิมพ์ได้ กรุณาลองใหม่อีกครั้ง');
                 }
-                // หลังปิด print dialog คืนค่าการแสดงผลปกติ แล้วไป HOME page
+                // หลัง print dialog ปิดไป กลับไปหน้า HOME
                 setTimeout(() => {
-                    if (appContainerEl) appContainerEl.style.display = '';
-                    if (homePageEl) homePageEl.style.display = '';
-                    if (printContainerEl) printContainerEl.style.display = 'none';
+                    document.getElementById('print-container').innerHTML = '';
                     showHomePage();
-                }, 1000);
+                }, 500);
             });
         });
     }

@@ -1230,29 +1230,46 @@ async function loadHistoryRecord(id) {
         
         document.getElementById('print-container').innerHTML = printHTML;
 
+        const appContainerEl = document.getElementById('app-container');
+        const homePageEl = document.getElementById('home-page');
+        const printContainerEl = document.getElementById('print-container');
+
+        function cleanupAfterPrint() {
+            if (appContainerEl) appContainerEl.style.display = '';
+            if (homePageEl) homePageEl.style.display = '';
+            if (printContainerEl) {
+                printContainerEl.style.display = 'none';
+                printContainerEl.innerHTML = '';
+            }
+            showHomePage();
+            window.removeEventListener('afterprint', cleanupAfterPrint);
+        }
+
         // รอให้เบราว์เซอร์ "วาดหน้าจอ" ใหม่อย่างน้อย 1 รอบก่อนเรียกพิมพ์
-        // (กันปัญหาที่พบก่อนหน้านี้: ถ้าเรียก window.print() ทันทีหลังเปลี่ยน DOM
-        //  บางเบราว์เซอร์อาจยังไม่ทันอัปเดตเนื้อหาที่จะพิมพ์)
-        // ใช้ requestAnimationFrame แทน setTimeout(300) เพราะเร็วกว่ามากและยังใกล้เคียง
-        // กับตอนกดปุ่มพอที่มือถือจะไม่ปิดกั้น
-        //
-        // หมายเหตุ: ไม่ต้องสลับการแสดงผลบนหน้าจอด้วย JS อีกต่อไป (ไม่มีการ "เด้ง" ไปโชว์
-        // หน้าเอกสารให้เห็นก่อนพิมพ์) เพราะ CSS @media print (#app-container, #home-page
-        // { display: none } และ #print-container { display: block }) จัดการเรื่องนี้
-        // เฉพาะตอนพิมพ์จริงอยู่แล้ว โดยไม่กระทบหน้าจอปกติเลย
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
+                // ✅ บังคับซ่อน UI หลัก + โชว์เนื้อหาที่จะพิมพ์ด้วย JS โดยตรง
+                // (จำเป็นสำหรับความเสถียรข้ามเบราว์เซอร์ โดยเฉพาะมือถือ ซึ่งบางตัว
+                //  ไม่ re-render ตาม @media print ได้ทันเวลาพอ)
+                if (appContainerEl) appContainerEl.style.display = 'none';
+                if (homePageEl) homePageEl.style.display = 'none';
+                if (printContainerEl) printContainerEl.style.display = 'block';
+
+                // ✅ ใช้ event 'afterprint' แทนการเดาเวลาด้วย setTimeout สั้นๆ
+                // เพราะบนมือถือ window.print() มักทำงานแบบ async (คืนค่าทันทีโดยไม่รอ
+                // ผู้ใช้ปิดหน้าต่างพิมพ์) ถ้าเคลียร์/ซ่อนเนื้อหาเร็วเกินไปก่อนเบราว์เซอร์
+                // จะแคปเจอร์หน้าจอเสร็จ จะได้ PDF/หน้าพิมพ์เปล่าๆ ออกมา
+                window.addEventListener('afterprint', cleanupAfterPrint);
+
                 try {
                     window.print();
                 } catch (err) {
                     console.error('เปิดหน้าต่างพิมพ์ไม่สำเร็จ:', err);
                     alert('ไม่สามารถเปิดหน้าต่างพิมพ์ได้ กรุณาลองใหม่อีกครั้ง');
                 }
-                // หลัง print dialog ปิดไป กลับไปหน้า HOME
-                setTimeout(() => {
-                    document.getElementById('print-container').innerHTML = '';
-                    showHomePage();
-                }, 500);
+
+                // สำรอง เผื่อเบราว์เซอร์บางตัวไม่ยิง 'afterprint' เลย (กันค้างอยู่หน้าพิมพ์ตลอดไป)
+                setTimeout(cleanupAfterPrint, 15000);
             });
         });
     }

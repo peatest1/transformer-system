@@ -1,0 +1,1072 @@
+/* Base Variables */
+:root {
+    --primary-color: #6C2B85; /* PEA Purple */
+    --primary-light: #9b51b5;
+    --primary-dark: #4a1c5c;
+    --primary-soft: #f5edf8;
+    --accent-color: #E8B425; /* Gold */
+    --accent-dark: #c89412;
+    --bg-color: #f4f3f7;
+    --card-bg: #ffffff;
+    --text-main: #2d3142;
+    --text-muted: #7c7a8c;
+    --border-color: #e7e3ee;
+    --success-color: #2f9e5b;
+    --danger-color: #d6534a;
+    --border-radius: 14px;
+    --shadow-sm: 0 2px 4px rgba(76,28,92,0.05);
+    --shadow-md: 0 6px 16px -4px rgba(76,28,92,0.12);
+    --shadow-lg: 0 18px 40px -12px rgba(76,28,92,0.28);
+    --transition: all 0.2s ease;
+}
+
+/* Global Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: var(--bg-color);
+    background-image:
+        radial-gradient(circle at 100% 0%, rgba(108,43,133,0.05) 0%, transparent 45%),
+        radial-gradient(circle at 0% 100%, rgba(232,180,37,0.06) 0%, transparent 40%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* App Container (Screen Only) */
+#app-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-color) 45%, var(--primary-dark) 100%);
+    color: white;
+    padding: 1.75rem 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.app-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 85% -10%, rgba(232,180,37,0.35) 0%, transparent 55%);
+    pointer-events: none;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    z-index: 1;
+}
+
+.brand-emblem {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(232,180,37,0.6);
+    color: var(--accent-color);
+}
+
+.brand-emblem svg {
+    width: 28px;
+    height: 28px;
+}
+
+.app-header h1 {
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.2rem;
+}
+
+.app-header p {
+    color: rgba(255,255,255,0.78);
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    z-index: 1;
+}
+
+.btn-on-dark {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+}
+
+.btn-on-dark:hover {
+    background: rgba(255,255,255,0.22);
+}
+
+/* Cards */
+.form-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.form-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.form-card h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-main);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--bg-color);
+}
+
+.section-badge {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary-color);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.section-badge-accent {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+/* Layout */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.span-2 {
+    grid-column: span 2;
+}
+
+/* ห่อตารางกริดข้อมูล (grid-table / grid-table-4) ให้เลื่อนซ้าย-ขวาได้บนจอแคบ
+   แทนการถูกบีบจนข้อความล้น/หาย */
+.table-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+}
+.table-scroll-wrapper .grid-table,
+.table-scroll-wrapper .grid-table-4 {
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    /* ใช้กับ .grid-container (ช่องกรอกฟอร์มทั่วไป) เท่านั้น
+       ห้ามใช้กับตารางข้อมูล (.grid-table-4) เพราะ span-2 ที่นั่นคือหัวตาราง
+       ที่ต้องคลุม 2 คอลัมน์เพื่อให้ตรงกับแถวข้อมูลเสมอ ไม่ว่าจอจะแคบแค่ไหน */
+    .grid-container .span-2 {
+        grid-column: span 1;
+    }
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .app-header h1 {
+        font-size: 1.15rem;
+    }
+    .app-header p {
+        font-size: 0.8rem;
+    }
+    .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    #app-container {
+        padding: 1rem;
+    }
+    .form-card {
+        padding: 1.25rem;
+    }
+
+    /* บังคับความกว้างขั้นต่ำให้ตารางกริด เพื่อให้เลื่อนดูได้แทนการบีบอัด */
+    .table-scroll-wrapper .grid-table {
+        min-width: 620px;
+    }
+    .table-scroll-wrapper .grid-table-4 {
+        min-width: 680px;
+    }
+
+    /* ตารางคิดค่าใช้จ่าย (ค่าอุปกรณ์/ค่าบำรุงรักษา/ค่าทดสอบน้ำมัน) บีบคอลัมน์ให้แคบลงพอดีจอ */
+    .cost-header-row,
+    .cost-row {
+        min-width: 480px;
+    }
+
+    /* ===== หัวเว็บหน้า Home (แถบสีม่วง) — กันชื่อระบบ/ชื่อผู้ใช้ล้นจนขึ้นบรรทัดใหม่แบบไม่สวย ===== */
+    .home-header-top-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.85rem;
+    }
+    .home-header-title h1 {
+        font-size: 1.3rem !important;
+        gap: 0.6rem !important;
+    }
+    .home-header-logo {
+        width: 38px !important;
+        height: 38px !important;
+        flex-shrink: 0;
+    }
+    .home-header-userinfo {
+        text-align: left !important;
+        width: 100%;
+    }
+
+    /* กันมือถือ (โดยเฉพาะ iOS Safari) ซูมหน้าจออัตโนมัติเข้าไปตอนแตะกรอกข้อมูล
+       ซึ่งเกิดขึ้นถ้า font-size ของช่องกรอกเล็กกว่า 16px — ปรับเฉพาะจอมือถือเท่านั้น */
+    input[type="text"], input[type="number"], input[type="password"],
+    input[type="date"], input[type="time"], select, textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Form Controls */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+label {
+    font-weight: 500;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
+}
+
+input[type="text"], input[type="number"], input[type="password"], input[type="date"], input[type="time"], select, textarea {
+    padding: 0.7rem 1rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.97rem;
+    color: var(--text-main);
+    transition: var(--transition);
+    background-color: #fafafd;
+    width: 100%;
+}
+
+input[type="text"]:hover, input[type="number"]:hover, input[type="date"]:hover, input[type="time"]:hover, select:hover, textarea:hover {
+    border-color: var(--primary-light);
+}
+
+input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, input[type="time"]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(108, 43, 133, 0.12);
+    background-color: #fff;
+}
+
+/* เอาลูกศรปรับค่าทีละ step ของช่องตัวเลขออกทั้งแอป
+   ผู้ใช้พิมพ์ตัวเลขได้โดยตรง ไม่ต้องกดลูกศรขึ้น-ลงทีละครั้ง */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+select {
+    cursor: pointer;
+}
+
+/* -------------------------------------
+   ช่องที่ดึงข้อมูลมาจะให้เปลี่ยนสีทึบ อ่านอย่างเดียว
+   ------------------------------------- */
+.readonly-input {
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+    cursor: not-allowed;
+    border: 1px solid #ced4da;
+    opacity: 1; /* ป้องกัน iOS ดรอปสี */
+}
+
+.readonly-input:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+/* Tables for form UI */
+.grid-table {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1px;
+    background-color: var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.grid-table-4 {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+    gap: 1px;
+    background-color: var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-header {
+    background-color: var(--primary-soft);
+    padding: 0.85rem 1rem;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-align: center;
+    color: var(--primary-dark);
+}
+
+.table-cell {
+    background-color: #fff;
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.93rem;
+}
+
+.table-cell input, .table-cell select {
+    width: 100%;
+    margin: 0;
+}
+
+.fw-bold { font-weight: 600; }
+.mt-1 { margin-top: 1rem; }
+.mt-2 { margin-top: 2rem; }
+
+.form-card h3 {
+    color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Load Grid */
+.load-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+.load-box {
+    background: var(--primary-soft);
+    padding: 1.25rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+.load-box h4 {
+    margin-bottom: 0.85rem;
+    color: var(--primary-dark);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+.flex-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+}
+.flex-row label {
+    width: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+.flex-row input {
+    flex: 1;
+    background-color: #fff;
+}
+.flex-row span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    min-width: 38px;
+}
+
+@media (max-width: 600px) {
+    .load-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Buttons */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: var(--accent-color);
+    color: #4a3000;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary.large {
+    padding: 1rem 2.5rem;
+    font-size: 1.05rem;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+    color: #fff;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    filter: brightness(1.06);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-actions .btn-primary.large {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Signature Pad */
+.signature-wrapper {
+    border: 1.5px dashed var(--border-color);
+    border-radius: 10px;
+    background: #fafafd;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+#signature-pad {
+    width: 100%;
+    height: 150px;
+    cursor: crosshair;
+    touch-action: none;
+}
+.signature-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: var(--primary-soft);
+    color: var(--primary-color);
+    border: 1px solid transparent;
+    padding: 0.55rem 1.1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: var(--transition);
+}
+.btn-secondary.large {
+    font-size: 1.05rem;
+    padding: 1rem 2.5rem;
+    border-radius: 9px;
+    background-color: #e2e8f0;
+    color: #475569;
+}
+.btn-secondary.large:hover {
+    background-color: #cbd5e1;
+}
+
+.btn-secondary:hover {
+    background-color: #ebd9f0;
+}
+.btn-sm { padding: 0.4rem 0.75rem; font-size: 0.85rem; margin-right: 0.25rem; border-radius: 4px; }
+
+/* Modal */
+.modal {
+    display: none !important;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 9999 !important;
+}
+.modal-content {
+    background-color: var(--card-bg);
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 800px;
+    box-shadow: var(--shadow-lg);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.close-modal {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+}
+.modal-header h2 {
+    color: var(--primary-color);
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+.close-modal:hover { color: var(--text-main); }
+#history-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.92rem; }
+#history-table th, #history-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+#history-table th { background: var(--primary-soft); color: var(--primary-dark); font-weight: 600; }
+
+/* =========================================================================
+   PRINT STYLES - REPLICATES EX.PDF
+   ========================================================================= */
+
+#print-container {
+    display: none;
+    font-family: 'Sarabun', serif;
+    font-size: 10pt;
+    color: #000;
+    line-height: 1.4;
+}
+
+@media print {
+    /* บังคับระบบปฏิบัติการของมือถือปิด Dark Mode ทันทีเวลาพิมพ์ */
+    :root {
+        color-scheme: light !important;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 8mm 12mm;
+    }
+
+    /* ป้องกัน Mobile Safari/Chrome ขยายขนาดตัวอักษรอัตโนมัติตอนสร้าง PDF
+       ซึ่งเป็นสาเหตุหลักที่ทำให้ข้อความล้นขอบกระดาษเฉพาะตอนพิมพ์จากมือถือ */
+    html {
+        -webkit-text-size-adjust: 100% !important;
+        text-size-adjust: 100% !important;
+    }
+
+    *, *::before, *::after {
+        box-sizing: border-box !important;
+    }
+
+    /* ซ่อนหน้าต่าง Login และส่วนอื่นๆ ที่ใช้ position:fixed ไม่ให้หลุดมาในหน้า PDF */
+    .modal-login-overlay, .modal,
+    div[style*="position: fixed"], div[style*="position:fixed"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    body {
+        background-color: #fff;
+        margin: 0;
+        padding: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    #app-container, #home-page {
+        display: none !important;
+    }
+
+    /* ป้องกันสีพื้นหลังเข้ม (เช่น ส่วนหัวสีม่วงของแอป หรือองค์ประกอบอื่นใด)
+       หลุดเข้ามาทับหน้ากระดาษระหว่างพิมพ์จากมือถือโดยเด็ดขาด
+       บังคับให้ทุกอย่างใน #print-container โปร่งใส ยกเว้นที่ตั้งใจให้มีสีไว้ชัดเจน */
+    #print-container, #print-container * {
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    html, body, #print-container {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+    }
+    #print-container table, #print-container th, #print-container td {
+        background-color: #ffffff !important;
+    }
+
+    #print-container {
+        display: block;
+        font-size: 10pt;
+        line-height: 1.4;
+    }
+
+    /* ล็อกความกว้างหน้าพิมพ์เป็นพิกเซลคงที่เทียบเท่าความกว้างกระดาษ A4 จริง (ลบขอบกระดาษ)
+       กันไม่ให้ Mobile Safari คำนวณ layout จากความกว้างจอมือถือ (ทำให้เนื้อหาบีบ/ล้น/แตกหน้าเกิน) */
+    .print-page {
+        width: 700px;
+        max-width: 700px;
+        margin: 0 auto;
+        page-break-after: always;
+        break-after: page;
+        position: relative;
+    }
+    
+    .print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+
+    /* ป้องกันแถวตารางถูกตัดแบ่งคร่อมหน้ากระดาษ ซึ่งเป็นสาเหตุหลักที่ทำให้ Safari/มือถือ
+       คำนวณความสูงของเซลล์ที่มี rowspan ผิดพลาดจนยืดเต็มหน้าเป็นแถบสีทึบและเกิดหน้าว่างเกิน */
+    #print-container table {
+        page-break-inside: auto;
+        break-inside: auto;
+    }
+    #print-container tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+    #print-container thead {
+        display: table-header-group;
+    }
+
+    /* Print Typography */
+    .p-center { text-align: center; }
+    .p-title { font-size: 14pt; font-weight: bold; margin: 6px 0; }
+    .p-subtitle { font-size: 15pt; font-weight: bold; margin-bottom: 3px; }
+
+    /* Header: logo left, title center — compact height */
+    .p-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        border-bottom: 1.5px solid #6C2B85;
+        padding-bottom: 4px;
+    }
+    .p-logo-left {
+        width: 65px;
+        flex-shrink: 0;
+    }
+    .p-logo-left img {
+        width: 58px;
+        height: auto;
+    }
+    .p-logo-right {
+        width: 65px;
+        flex-shrink: 0;
+    }
+    .p-header-center {
+        flex: 1;
+        text-align: center;
+    }
+    .p-header-sub {
+        font-size: 8pt;
+        color: #555;
+        margin-top: 1px;
+    }
+
+    .p-section-title {
+        font-weight: bold;
+        margin-top: 8px;
+        margin-bottom: 3px;
+        font-size: 11pt;
+    }
+
+    .p-text {
+        font-size: 10pt;
+        margin-bottom: 3px;
+        line-height: 1.45;
+    }
+
+    .p-inline { display: inline-block; }
+
+    .p-dotted {
+        border-bottom: 1px dotted #000;
+        display: inline-block;
+        padding: 0 4px;
+        color: #000;
+    }
+
+    .p-black { color: #000 !important; }
+
+    /* Print Tables */
+    table.p-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 7px;
+        table-layout: fixed;
+    }
+
+    table.p-table th, table.p-table td {
+        border: 1px solid #000;
+        padding: 3px 5px;
+        vertical-align: middle;
+        font-size: 9.5pt;
+        line-height: 1.3;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        overflow: hidden;
+    }
+
+    table.p-table th {
+        text-align: center;
+        font-weight: 600;
+        background-color: #f0f0f0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .t-center { text-align: center; }
+
+    .check-mark {
+        font-family: sans-serif;
+        font-weight: bold;
+        font-size: 12pt;
+    }
+
+    /* Signatures */
+    .p-signature {
+        margin-top: 25px;
+        text-align: center;
+        width: 60%;
+        margin-left: 20%;
+    }
+    
+    .p-signature div {
+        margin-bottom: 5px;
+        font-size: 10pt;
+    }
+    .sig-line {
+        display: inline-block;
+        border-bottom: 1px dotted #000;
+        min-width: 150px;
+        position: relative;
+    }
+    .sig-img {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        max-height: 38px;
+        max-width: 140px;
+    }
+}
+
+/* =========================================================================
+   COST / EXPENSE SECTION
+   ========================================================================= */
+
+.cost-table-wrapper {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 0.25rem;
+}
+
+.cost-header-row {
+    display: grid;
+    grid-template-columns: 2fr 0.7fr 1fr 1fr 30px;
+    background: var(--primary-soft);
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--primary-dark);
+}
+
+.cost-header-row > div {
+    padding: 0.6rem 0.75rem;
+    border-right: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.cost-header-row > div:last-child { border-right: none; }
+
+.cost-col-spacer {
+    padding: 0 !important;
+}
+
+.cost-row {
+    display: grid;
+    grid-template-columns: 2fr 0.7fr 1fr 1fr;
+    border-top: 1px solid var(--border-color);
+    background: #fff;
+    align-items: center;
+}
+
+.cost-row > * {
+    padding: 0.35rem 0.5rem;
+    border-right: 1px solid var(--border-color);
+}
+
+.cost-row > *:last-child { border-right: none; }
+
+.cost-row input[type="text"],
+.cost-row input[type="number"] {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 0.25rem 0.3rem;
+    font-size: 0.92rem;
+}
+
+.cost-row input[type="text"]:focus,
+.cost-row input[type="number"]:focus {
+    outline: 2px solid var(--primary-light);
+    border-radius: 4px;
+    background: #fff;
+}
+
+.cost-row-total {
+    font-size: 0.92rem;
+    text-align: right;
+    color: var(--text-main);
+}
+
+.cost-row-del {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    border-right: none !important;
+    width: 30px;
+}
+
+.btn-del-row {
+    background: none;
+    border: none;
+    color: var(--danger-color);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.btn-del-row:hover { background: #fdecea; }
+
+/* Override cost-row grid when delete button visible */
+.cost-row.has-del {
+    grid-template-columns: 2fr 0.7fr 1fr 1fr 30px;
+}
+
+.cost-summary {
+    background: var(--primary-soft);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.85rem 1.25rem;
+}
+
+.cost-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3rem 0;
+    font-size: 0.95rem;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.cost-summary-row:last-child { border-bottom: none; }
+
+.cost-total-row {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--primary-color);
+    padding: 0.5rem 0;
+}
+
+/* Print styles for cost page */
+@media print {
+    .p-cost-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 10pt;
+    }
+    .p-cost-label { font-weight: 600; }
+    .p-cost-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 5px;
+        table-layout: fixed;
+    }
+    .p-cost-table th, .p-cost-table td {
+        border: 1px solid #000;
+        padding: 3px 5px;
+        font-size: 9.5pt;
+        line-height: 1.35;
+        vertical-align: middle;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        overflow: hidden;
+    }
+    .p-cost-table th {
+        background: #f0f0f0;
+        text-align: center;
+        font-weight: 600;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .p-cost-table td.t-right { text-align: right; }
+    .p-cost-total-section {
+        border: 1px solid #000;
+        margin-top: 5px;
+    }
+    .p-cost-total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 3px 8px;
+        border-bottom: 1px solid #000;
+        font-size: 10pt;
+    }
+    .p-cost-total-row:last-child { border-bottom: none; }
+    .p-cost-total-row.bold-row { font-weight: bold; }
+    .p-cost-sig-area {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        font-size: 10pt;
+    }
+    .p-cost-sig-box { text-align: center; width: 45%; }
+    .p-cost-dotted {
+        border-bottom: 1px dotted #000;
+        display: inline-block;
+        min-width: 120px;
+        padding: 0 4px;
+    }
+}
+/* ==========================================================================
+   ระบบ Login และ Profile Widget (PEA Theme)
+   ========================================================================== */
+.modal-login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(5px);
+}
+
+.login-card {
+    background: #ffffff;
+    max-width: 400px;
+    width: 90%;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.login-icon {
+    width: 64px;
+    height: 64px;
+    background: #6a1b9a; /* PEA Purple */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.8rem;
+}
+
+.login-header h2 {
+    margin: 0;
+    font-size: 1.45rem;
+    color: #333;
+}
+
+.login-header p {
+    margin: 0.4rem 0 1.5rem;
+    color: #666;
+    font-size: 0.88rem;
+}
+
+.user-avatar {
+    background: rgba(255, 255, 255, 0.25);
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: bold;
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    color: #fff;
+    font-size: 0.95rem;
+}

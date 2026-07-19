@@ -1230,48 +1230,21 @@ async function loadHistoryRecord(id) {
         
         document.getElementById('print-container').innerHTML = printHTML;
 
-        const appContainerEl = document.getElementById('app-container');
-        const homePageEl = document.getElementById('home-page');
         const printContainerEl = document.getElementById('print-container');
 
-        // ปุ่ม "ปิด / กลับหน้าแรก" ลอยไว้ให้ผู้ใช้กดเองได้เสมอ ไม่ต้องรอ event ใดๆ
-        // (ใช้ position: fixed ซึ่งมีกฎ CSS ซ่อนไว้อยู่แล้วตอนพิมพ์จริง จึงไม่ติดไปในเอกสารที่พิมพ์)
-        let closePrintBtn = document.getElementById('close-print-view-btn');
-        if (!closePrintBtn) {
-            closePrintBtn = document.createElement('button');
-            closePrintBtn.id = 'close-print-view-btn';
-            closePrintBtn.type = 'button';
-            closePrintBtn.textContent = '✕ ปิด / กลับหน้าแรก';
-            closePrintBtn.style.cssText = 'position: fixed; top: 12px; right: 12px; z-index: 99999; background: #6C2B85; color: #fff; border: none; padding: 0.6rem 1rem; border-radius: 8px; font-family: inherit; font-size: 0.9rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3);';
-            document.body.appendChild(closePrintBtn);
-        }
-        closePrintBtn.style.display = 'block';
-
         function cleanupAfterPrint() {
-            if (appContainerEl) appContainerEl.style.display = '';
-            if (homePageEl) homePageEl.style.display = '';
-            if (printContainerEl) {
-                printContainerEl.style.display = 'none';
-                printContainerEl.innerHTML = '';
-            }
-            if (closePrintBtn) closePrintBtn.style.display = 'none';
+            if (printContainerEl) printContainerEl.innerHTML = '';
             showHomePage();
             window.removeEventListener('afterprint', cleanupAfterPrint);
         }
-        closePrintBtn.onclick = cleanupAfterPrint;
-
-        // ✅ บังคับซ่อน UI หลัก + โชว์เนื้อหาที่จะพิมพ์ แล้วเรียก window.print() "ทันที"
-        // แบบต่อเนื่อง ไม่มี setTimeout/requestAnimationFrame คั่นกลางเลย
-        // เหตุผล: พบว่าถ้ามีการหน่วงแทรกแม้เพียงเฟรมเดียวก่อนเรียก window.print()
-        // บน iOS Safari ระบบจะ "ดีเลย์" การเปิดหน้าต่างพิมพ์จริงไปนานถึง 1-2 นาที
-        // (คาดว่าเกี่ยวกับข้อกำหนดเรื่อง user-gesture ของ iOS ที่ต้องเรียกใกล้เคียง
-        // กับตอนแตะหน้าจอมากที่สุด) การเรียกทันทีแบบ synchronous แก้ปัญหานี้ได้
-        if (appContainerEl) appContainerEl.style.display = 'none';
-        if (homePageEl) homePageEl.style.display = 'none';
-        if (printContainerEl) printContainerEl.style.display = 'block';
-
         window.addEventListener('afterprint', cleanupAfterPrint);
 
+        // ✅ ไม่ต้องสลับการแสดงผลบนหน้าจอด้วย JS เลย (เนื้อหาที่จะพิมพ์จะไม่โผล่ให้เห็น
+        // บนหน้าจอปกติแม้แต่วินาทีเดียว) อาศัย CSS @media print ล้วนๆ ซึ่งมีผลเฉพาะตอน
+        // พิมพ์จริงเท่านั้น (#app-container, #home-page ถูกซ่อน, #print-container ถูกโชว์)
+        // และเรียก window.print() ทันทีแบบต่อเนื่อง ไม่มี delay คั่นกลางเลย เพราะพบว่า
+        // การหน่วงแม้เพียงเฟรมเดียวก่อนเรียกคำสั่งนี้ ทำให้ iOS Safari ดีเลย์การเปิด
+        // หน้าต่างพิมพ์จริงไปนานถึง 1-2 นาที (คาดว่าเกี่ยวกับข้อกำหนด user-gesture)
         try {
             window.print();
         } catch (err) {

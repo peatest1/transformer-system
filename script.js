@@ -1234,6 +1234,19 @@ async function loadHistoryRecord(id) {
         const homePageEl = document.getElementById('home-page');
         const printContainerEl = document.getElementById('print-container');
 
+        // ปุ่ม "ปิด / กลับหน้าแรก" ลอยไว้ให้ผู้ใช้กดเองได้เสมอ ไม่ต้องรอ event ใดๆ
+        // (ใช้ position: fixed ซึ่งมีกฎ CSS ซ่อนไว้อยู่แล้วตอนพิมพ์จริง จึงไม่ติดไปในเอกสารที่พิมพ์)
+        let closePrintBtn = document.getElementById('close-print-view-btn');
+        if (!closePrintBtn) {
+            closePrintBtn = document.createElement('button');
+            closePrintBtn.id = 'close-print-view-btn';
+            closePrintBtn.type = 'button';
+            closePrintBtn.textContent = '✕ ปิด / กลับหน้าแรก';
+            closePrintBtn.style.cssText = 'position: fixed; top: 12px; right: 12px; z-index: 99999; background: #6C2B85; color: #fff; border: none; padding: 0.6rem 1rem; border-radius: 8px; font-family: inherit; font-size: 0.9rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3);';
+            document.body.appendChild(closePrintBtn);
+        }
+        closePrintBtn.style.display = 'block';
+
         function cleanupAfterPrint() {
             if (appContainerEl) appContainerEl.style.display = '';
             if (homePageEl) homePageEl.style.display = '';
@@ -1241,37 +1254,30 @@ async function loadHistoryRecord(id) {
                 printContainerEl.style.display = 'none';
                 printContainerEl.innerHTML = '';
             }
+            if (closePrintBtn) closePrintBtn.style.display = 'none';
             showHomePage();
             window.removeEventListener('afterprint', cleanupAfterPrint);
         }
+        closePrintBtn.onclick = cleanupAfterPrint;
 
-        // รอให้เบราว์เซอร์ "วาดหน้าจอ" ใหม่อย่างน้อย 1 รอบก่อนเรียกพิมพ์
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                // ✅ บังคับซ่อน UI หลัก + โชว์เนื้อหาที่จะพิมพ์ด้วย JS โดยตรง
-                // (จำเป็นสำหรับความเสถียรข้ามเบราว์เซอร์ โดยเฉพาะมือถือ ซึ่งบางตัว
-                //  ไม่ re-render ตาม @media print ได้ทันเวลาพอ)
-                if (appContainerEl) appContainerEl.style.display = 'none';
-                if (homePageEl) homePageEl.style.display = 'none';
-                if (printContainerEl) printContainerEl.style.display = 'block';
+        // ✅ บังคับซ่อน UI หลัก + โชว์เนื้อหาที่จะพิมพ์ แล้วเรียก window.print() "ทันที"
+        // แบบต่อเนื่อง ไม่มี setTimeout/requestAnimationFrame คั่นกลางเลย
+        // เหตุผล: พบว่าถ้ามีการหน่วงแทรกแม้เพียงเฟรมเดียวก่อนเรียก window.print()
+        // บน iOS Safari ระบบจะ "ดีเลย์" การเปิดหน้าต่างพิมพ์จริงไปนานถึง 1-2 นาที
+        // (คาดว่าเกี่ยวกับข้อกำหนดเรื่อง user-gesture ของ iOS ที่ต้องเรียกใกล้เคียง
+        // กับตอนแตะหน้าจอมากที่สุด) การเรียกทันทีแบบ synchronous แก้ปัญหานี้ได้
+        if (appContainerEl) appContainerEl.style.display = 'none';
+        if (homePageEl) homePageEl.style.display = 'none';
+        if (printContainerEl) printContainerEl.style.display = 'block';
 
-                // ✅ ใช้ event 'afterprint' แทนการเดาเวลาด้วย setTimeout สั้นๆ
-                // เพราะบนมือถือ window.print() มักทำงานแบบ async (คืนค่าทันทีโดยไม่รอ
-                // ผู้ใช้ปิดหน้าต่างพิมพ์) ถ้าเคลียร์/ซ่อนเนื้อหาเร็วเกินไปก่อนเบราว์เซอร์
-                // จะแคปเจอร์หน้าจอเสร็จ จะได้ PDF/หน้าพิมพ์เปล่าๆ ออกมา
-                window.addEventListener('afterprint', cleanupAfterPrint);
+        window.addEventListener('afterprint', cleanupAfterPrint);
 
-                try {
-                    window.print();
-                } catch (err) {
-                    console.error('เปิดหน้าต่างพิมพ์ไม่สำเร็จ:', err);
-                    alert('ไม่สามารถเปิดหน้าต่างพิมพ์ได้ กรุณาลองใหม่อีกครั้ง');
-                }
-
-                // สำรอง เผื่อเบราว์เซอร์บางตัวไม่ยิง 'afterprint' เลย (กันค้างอยู่หน้าพิมพ์ตลอดไป)
-                setTimeout(cleanupAfterPrint, 15000);
-            });
-        });
+        try {
+            window.print();
+        } catch (err) {
+            console.error('เปิดหน้าต่างพิมพ์ไม่สำเร็จ:', err);
+            alert('ไม่สามารถเปิดหน้าต่างพิมพ์ได้ กรุณาลองใหม่อีกครั้ง');
+        }
     }
 
     function buildCostPage() {

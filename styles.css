@@ -131,6 +131,43 @@ body {
     background: rgba(255,255,255,0.22);
 }
 
+/* ===== กลุ่มปุ่ม Segmented บน header หน้ากรอกข้อมูล (หน้าแรก/ประวัติ/ออกจากระบบ) ===== */
+.header-segmented {
+    display: flex;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.header-segmented button {
+    background: transparent;
+    border: none;
+    border-right: 1px solid rgba(255,255,255,0.18);
+    color: #fff;
+    padding: 0.6rem 1rem;
+    font-size: 0.86rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+.header-segmented button:last-child {
+    border-right: none;
+}
+.header-segmented button:hover {
+    background: rgba(255,255,255,0.12);
+}
+.header-segmented button.emph {
+    background: var(--copper);
+}
+.header-segmented button.emph:hover {
+    background: var(--copper-light);
+}
+
 /* Cards */
 .form-card {
     background-color: var(--card-bg);
@@ -222,6 +259,15 @@ body {
     .header-actions {
         width: 100%;
         justify-content: flex-start;
+    }
+    .header-segmented {
+        width: 100%;
+    }
+    .header-segmented button {
+        flex: 1;
+        justify-content: center;
+        padding: 0.6rem 0.5rem;
+        font-size: 0.78rem;
     }
     #app-container {
         padding: 1rem;
@@ -540,6 +586,54 @@ select {
     background-color: #F1E3CE;
 }
 .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.85rem; margin-right: 0.25rem; border-radius: 4px; }
+
+/* ===== ปุ่มจัดการในหน้าต่างประวัติ: โหลด/ปริ้น/ลบ (ไอคอนสี่เหลี่ยมมุมมน + tooltip) ===== */
+.history-row-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+.icon-sq-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-color);
+    background: var(--bg-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: var(--transition);
+    color: var(--text-main);
+}
+.icon-sq-btn:hover {
+    filter: brightness(0.97);
+    transform: translateY(-1px);
+}
+.icon-sq-btn.load { color: var(--primary-color); border-color: #DDD0E8; }
+.icon-sq-btn.print { color: var(--copper); border-color: #EFD9BE; }
+.icon-sq-btn.del { color: var(--danger-color); border-color: #EFCFCF; }
+.icon-sq-btn .tt {
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-main);
+    color: #fff;
+    font-size: 0.68rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 500;
+}
+.icon-sq-btn:hover .tt {
+    opacity: 1;
+}
+
 
 /* Modal */
 .modal {

@@ -163,11 +163,14 @@ async function loadHomePageStats() {
     // นับทั้งหมด
     const total = records.length;
     
-    // นับเดือนนี้
+    // นับเดือนนี้ — ใช้ timestamp (ตัวเลข) แทนการ parse วันที่แบบไทยที่ save ไว้
+    // (new Date() ไม่สามารถแปลง string แบบไทย/พ.ศ. กลับได้แม่นยำ ทำให้เคยได้ 0 เสมอ)
+    // รองรับ record เก่าที่ไม่มี timestamp ด้วย fallback ไปพยายาม parse จาก date ตามเดิม
     const now = new Date();
     const thisMonth = records.filter(r => {
         try {
-            const rDate = new Date(r.date);
+            const rDate = r.timestamp ? new Date(r.timestamp) : new Date(r.date);
+            if (isNaN(rDate.getTime())) return false;
             return rDate.getMonth() === now.getMonth() && rDate.getFullYear() === now.getFullYear();
         } catch {
             return false;
@@ -235,6 +238,86 @@ async function loadHomePageStats() {
     if (statsMonth) statsMonth.textContent = thisMonth;
     if (statsLatest) statsLatest.textContent = latestInfo;
     if (statsMaintenance) statsMaintenance.textContent = maintenanceCost + ' บาท';
+
+    // ✅ การ์ด "บันทึกล่าสุด" — เดิมค้างที่ข้อความ "loading..." ตลอดเพราะไม่เคยมีโค้ด
+    // มาอัปเดตเลย ตอนนี้แสดงรายการ 5 รายการล่าสุดจริง
+    const recentEl = document.getElementById('recent-records');
+    if (recentEl) {
+        if (records.length === 0) {
+            recentEl.innerHTML = '<div style="text-align:center; color:#8B8290; padding:1rem 0;">ยังไม่มีบันทึก</div>';
+        } else {
+            const sorted = records.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            const latest5 = sorted.slice(0, 5);
+            recentEl.innerHTML = latest5.map(r => {
+                const loc = r.location || 'ไม่ระบุสถานที่';
+                const pea = r.peaId || '-';
+                const dateStr = r.date || '-';
+                return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0; border-bottom:1px solid #F3EEE4;">
+                        <div>
+                            <div style="font-weight:600; color:#241B2E; font-size:0.88rem;">${loc}</div>
+                            <div style="color:#8B8290; font-size:0.76rem; margin-top:0.15rem;">PEA ${pea}</div>
+                        </div>
+                        <div style="color:#8B8290; font-size:0.76rem; white-space:nowrap; margin-left:0.6rem;">${dateStr}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+
+    // ✅ การ์ด "สถิติการบำรุงรักษา" — เดิมมี <canvas> อยู่แต่ไม่มีโค้ดวาดกราฟเลย
+    // (ไม่ได้โหลดไลบรารี Chart.js ด้วยซ้ำ) ตอนนี้วาดกราฟแท่งจำนวนบันทึกย้อนหลัง 6 เดือน
+    renderStatsChart(records);
+}
+
+let statsChartInstance = null;
+function renderStatsChart(records) {
+    const canvas = document.getElementById('stats-chart');
+    if (!canvas) return;
+    if (typeof Chart === 'undefined') {
+        console.error('ไม่พบไลบรารี Chart.js — กราฟสถิติจะไม่แสดงผล');
+        return;
+    }
+
+    // นับจำนวนบันทึกย้อนหลัง 6 เดือน (รวมเดือนปัจจุบัน)
+    const now = new Date();
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push({ year: d.getFullYear(), month: d.getMonth() });
+    }
+    const thaiMonthShort = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const labels = months.map(m => `${thaiMonthShort[m.month]} ${String(m.year + 543).slice(-2)}`);
+    const counts = months.map(m => records.filter(r => {
+        if (!r.timestamp) return false;
+        const d = new Date(r.timestamp);
+        return d.getFullYear() === m.year && d.getMonth() === m.month;
+    }).length);
+
+    if (statsChartInstance) {
+        statsChartInstance.destroy();
+    }
+    statsChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'จำนวนบันทึก',
+                data: counts,
+                backgroundColor: '#C97B3D',
+                borderRadius: 6,
+                maxBarThickness: 36
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            }
+        }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -580,6 +663,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let record = {
         id: currentEditingRecordId || Date.now(),  // ใช้ ID เก่า หรือสร้างใหม่
         date: new Date().toLocaleString('th-TH'),
+        // ✅ เก็บ timestamp แบบมาตรฐาน (ISO) แยกไว้ต่างหาก เพราะ string แบบไทย
+        // (พ.ศ., รูปแบบ วัน/เดือน/ปี) ไม่สามารถใช้ new Date() แปลงกลับได้แม่นยำ
+        // ทำให้สถิติ "เดือนนี้" หน้า Home คำนวณผิดพลาด/ได้ 0 เสมอ
+        timestamp: Date.now(),
         peaId: document.getElementById('trans-id') ? document.getElementById('trans-id').value : '',
         location: document.getElementById('location') ? document.getElementById('location').value : '',
         data: {}
@@ -588,6 +675,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('input, select, textarea').forEach(el => {
         if(el.id) record.data[el.id] = el.value;
     });
+
+    // ✅ เก็บรายการค่าใช้จ่าย/ค่าบำรุงรักษา (ช่องพวกนี้สร้างแบบไดนามิก ไม่มี id
+    // เฉพาะตัว จึงหลุดจากลูปด้านบนไปตลอด ทำให้ข้อมูลค่าใช้จ่ายไม่เคยถูกบันทึกเลย)
+    if (typeof costState !== 'undefined') {
+        [1, 2, 3].forEach(s => {
+            record.data[`cost-section-${s}`] = JSON.stringify(costState[s] || []);
+        });
+    }
     
     if (!isCanvasBlank()) {
         record.signature = canvas.toDataURL('image/png');
@@ -624,6 +719,12 @@ async function loadHistoryRecord(id, options = {}) {
             let el = document.getElementById(key);
             if (el) el.value = record.data[key];
         });
+
+        // ✅ กู้คืนรายการค่าใช้จ่าย/ค่าบำรุงรักษา (ช่องไดนามิกที่ไม่มี id เฉพาะตัว
+        // ต้องกู้คืนแยกต่างหากจากลูปด้านบน)
+        if (typeof window.restoreCostState === 'function') {
+            window.restoreCostState(record.data);
+        }
         if (record.signature) {
             let img = new Image();
             img.onload = () => {
@@ -688,9 +789,20 @@ async function loadHistoryRecord(id, options = {}) {
                     <td>${r.peaId || '-'}</td>
                     <td>${r.location || '-'}</td>
                     <td>
-                        <button type="button" class="btn-secondary btn-sm" onclick="window.loadHistoryRecord(${r.id})">โหลด</button>
-                        <button type="button" class="btn-secondary btn-sm" onclick="window.printHistoryRecord(${r.id})">ปริ้น</button>
-                        <button type="button" class="btn-secondary btn-sm" onclick="window.deleteHistoryRecord(${r.id})" style="color:red;">ลบ</button>
+                        <div class="history-row-actions">
+                            <button type="button" class="icon-sq-btn load" onclick="window.loadHistoryRecord(${r.id})">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                <span class="tt">โหลด</span>
+                            </button>
+                            <button type="button" class="icon-sq-btn print" onclick="window.printHistoryRecord(${r.id})">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                                <span class="tt">ปริ้น</span>
+                            </button>
+                            <button type="button" class="icon-sq-btn del" onclick="window.deleteHistoryRecord(${r.id})">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                <span class="tt">ลบ</span>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -813,6 +925,17 @@ async function loadHistoryRecord(id, options = {}) {
     }
 
     window.addCostRow = addCostRow;
+    window.restoreCostState = function(dataObj) {
+        [1, 2, 3].forEach(s => {
+            try {
+                const raw = dataObj ? dataObj[`cost-section-${s}`] : null;
+                costState[s] = raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                costState[s] = [];
+            }
+            renderCostRows(s);
+        });
+    };
     [1, 2, 3].forEach(s => addCostRow(s));
 
     function bahtText(amount) {
